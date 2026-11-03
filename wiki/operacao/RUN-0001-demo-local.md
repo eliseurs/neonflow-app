@@ -15,12 +15,13 @@ Para mostrar a demonstração ou conferir o protótipo depois de mudanças na wi
 
 ## Pré-requisitos
 
-Node 18 ou superior e Python 3 (para o servidor estático).
+Node 20 ou superior.
 
 ## Passos
 
-1. `npm test`: confirma os 12 cenários legados.
-2. `npm run demo`: serve `dist/` em `http://localhost:8080`.
+1. `npm test`: roda os 12 cenários legados e os 6 testes do servidor.
+2. `npm run demo`: serve `dist/` em `http://localhost:8080` com o mesmo `server.mjs` usado no Railway.
+   Para testar a senha: `BASIC_AUTH_USER=demo BASIC_AUTH_PASSWORD=teste npm run demo`.
 3. Abra a URL. A área inicial é `#estrategia`.
 
 ## Como verificar
@@ -33,4 +34,4 @@ Encerre o servidor com Ctrl+C. Não há estado persistido.
 
 ## Publicação
 
-O site publicado fica em `https://neon-flow-nexus.y22c2cfgsd.chatgpt.site` (Sites v2, projeto em `.openai/hosting.json`). Este repositório não publica nada. Qualquer novo deploy exige autorização (PEN-52).
+O site publicado fica em `https://neon-flow-nexus.y22c2cfgsd.chatgpt.site` (Sites v2, projeto em `.openai/hosting.json`). A publicação no Railway está em [RUN-0002](RUN-0002-deploy-railway.md).

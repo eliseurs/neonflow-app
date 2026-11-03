@@ -15,6 +15,7 @@ related: [PEN-31, PEN-51]
 | Camada | O que existe | Comando |
 | --- | --- | --- |
 | Regressão do protótipo | 12 cenários em Node `vm` com DOM simulado, sem navegador nem rede (`tests/legacy/03_TESTES.cjs`, hash conferido com o manifesto de 09/10) | `npm test` |
+| Servidor (Railway) | 6 testes de `server.mjs`: index, tipos, healthcheck, travessia, métodos, Basic Auth (`tests/server.test.mjs`) | `npm run test:server` |
 | Documentação | Frontmatter, IDs, links e referências | `npm run wiki:validate` |
 
 Quatro cenários (CT-09 a CT-12) **reproduzem defeitos**: "PASS" ali significa que o defeito continua presente. Quando a [SPEC-0002](../specs/SPEC-0002-reserva-persistente.md) corrigir esses comportamentos no produto novo, os cenários equivalentes passam a afirmar o comportamento correto.

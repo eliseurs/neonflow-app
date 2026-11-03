@@ -20,3 +20,4 @@ Formato [MADR](https://adr.github.io/madr/). ADR aceito é imutável: mudanças 
 | [ADR-0005](ADR-0005-namespace-tecnico.md) | Namespace técnico da vertical | proposta | 03/11/2026 |
 | [ADR-0006](ADR-0006-momento-do-bloqueio-de-reserva.md) | Momento do bloqueio de disponibilidade | proposta | 03/11/2026 |
 | [ADR-0007](ADR-0007-wiki-docs-as-code-no-repositorio.md) | Wiki docs-as-code no próprio repositório | aceita | 03/11/2026 |
+| [ADR-0008](ADR-0008-hospedar-demo-no-railway.md) | Hospedar a demonstração no Railway | aceita | 03/11/2026 |

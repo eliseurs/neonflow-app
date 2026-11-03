@@ -11,13 +11,17 @@
       "Bash(node --check:*)",
       "Bash(git status)",
       "Bash(git diff:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(npm run test:server)",
+      "Bash(node --test tests/server.test.mjs)"
     ],
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
       "Edit(./tests/legacy/**)",
-      "Write(./tests/legacy/**)"
+      "Write(./tests/legacy/**)",
+      "Edit(./dist/**)",
+      "Write(./dist/**)"
     ]
   }
 }

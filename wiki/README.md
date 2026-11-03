@@ -22,7 +22,7 @@ Base de conhecimento docs-as-code da vertical de aluguel e mobilidade do Nexus O
 | Especificações | SPECs com critérios de aceite (`SPEC-NNNN`) | [specs/README.md](specs/README.md) |
 | Arquitetura | Visão C4, integrações e ADRs (`ADR-NNNN`) | [arquitetura/README.md](arquitetura/README.md) |
 | Qualidade | Estratégia de testes, test contracts (`TC-NNNN`), segurança e LGPD | [qualidade/estrategia-de-testes.md](qualidade/estrategia-de-testes.md) |
-| Operação | Runbooks (`RUN-NNNN`) | [operacao/RUN-0001-demo-local.md](operacao/RUN-0001-demo-local.md) |
+| Operação | Runbooks (`RUN-NNNN`): demo local e deploy no Railway | [operacao/RUN-0002-deploy-railway.md](operacao/RUN-0002-deploy-railway.md) |
 | Gestão | Pendências (`PEN-NN`) e changelog | [gestao/pendencias.md](gestao/pendencias.md) |
 | Fontes | De onde veio cada informação | [fontes/inventario.md](fontes/inventario.md) |
 
