@@ -1,0 +1,16 @@
+{
+  "name": "neonflow-app",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Neon Flow — vertical de aluguel e mobilidade do Nexus OS. Protótipo estático (dist/) + wiki docs-as-code (wiki/).",
+  "scripts": {
+    "demo": "python3 -m http.server 8080 --directory dist",
+    "test": "npm run test:legacy",
+    "test:legacy": "node tests/legacy/03_TESTES.cjs .",
+    "wiki:validate": "node scripts/validate-wiki.mjs",
+    "check": "npm run test && npm run wiki:validate"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
