@@ -1,0 +1,17 @@
+{
+  "name": "neonflow-prototipo",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "Protótipo estático do Neon Flow (commit fdf114ef) — evidência congelada, servido no Railway.",
+  "scripts": {
+    "start": "node server.mjs",
+    "demo": "node server.mjs",
+    "test": "npm run test:legacy && npm run test:server",
+    "test:legacy": "node tests/legacy/03_TESTES.cjs .",
+    "test:server": "node --test tests/server.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

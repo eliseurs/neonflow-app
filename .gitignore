@@ -1,8 +1,12 @@
 node_modules/
-.DS_Store
+dist/
+!prototipo/dist/
+coverage/
 .env
 .env.*
-.idea/
+!.env.example
 *.log
-tmp/
+.DS_Store
+.idea/
 .trinca/
+tmp/

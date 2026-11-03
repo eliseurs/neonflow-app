@@ -1,48 +1,74 @@
-# CLAUDE.md — neonflow-app
+# CLAUDE.md
 
-Neon Flow: vertical de aluguel de veículos, frota, reservas e transfer do Nexus OS (Serra Gaúcha).
-Hoje o repositório tem um **protótipo estático de demonstração** e a wiki do projeto. Não há backend.
+Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions in `.claude/CLAUDE.md`.
 
-## Knowledge base (soberana)
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
-@wiki/CLAUDE.md
+## 1. Think Before Coding
 
-A wiki vence o conhecimento genérico e as skills do toolbox em identidade, glossário, regras de negócio e decisões.
-Pendências abertas: `wiki/gestao/pendencias.md` (52, sendo 15 bloqueantes).
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
 
-## Estrutura
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+- **Business rules are not yours to invent.** As regras vivem em `../neonflow-api/.claude/business-rules/`. Sem fonte lá → pare e registre em `../neonflow-api/docs/pendencias.md`.
+- **Não edite `prototipo/`** — é evidência congelada (ADR-0003).
 
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
 ```
-dist/            protótipo estático (commit fdf114ef). Evidência congelada: não editar (ADR-0003)
-tests/legacy/    12 cenários de 09/10/2026, hash conferido. Não editar
-wiki/            docs-as-code: produto, negócio (RN), specs, arquitetura (ADR), qualidade (TC), gestão (PEN)
-tests/           server.test.mjs (testes do servidor)
-scripts/         validate-wiki.mjs
-server.mjs       servidor estático sem dependências (Railway e local). Serve só dist/ (ADR-0008)
-railway.json     build Railpack, start, healthcheck /healthz
-.openai/         identidade do site publicado (Sites). Não alterar
-.claude/         settings e comandos do projeto
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
 ```
 
-## Comandos
+## 5. Test Coverage
 
-| Comando | O que faz |
-| --- | --- |
-| `npm test` | 12 cenários legados (4 reproduzem defeitos conhecidos: PASS = defeito presente) + 6 testes do servidor |
-| `npm run wiki:validate` | Valida frontmatter, IDs, links e referências cruzadas da wiki |
-| `npm run check` | Os dois acima |
-| `npm start` / `npm run demo` | Serve `dist/` em http://localhost:8080 (`PORT` configurável) |
+**Toda feature, alteração ou componente com lógica tem teste (Vitest + Testing Library).**
 
-Deploy no Railway: `wiki/operacao/RUN-0002-deploy-railway.md`. Defina `BASIC_AUTH_USER` e `BASIC_AUTH_PASSWORD` no Railway para não deixar a demo pública. Nunca commite esses valores.
+- Antes de concluir: `make check` (typecheck + lint + testes + testes do protótipo).
+- Mocke serviços de API com `vi.mock`; não chame a API real em teste.
 
-Comandos do Claude Code: `/pendencias`, `/nova-adr`, `/nova-rn`, `/nova-spec`, `/demo`.
+---
 
-## Regras do projeto
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
-- **Não implemente funcionalidade de produto sem autorização** (PEN-52) e sem uma SPEC fora do status `bloqueada`.
-- **Não invente** tarifa, percentual, prazo, regra ou termo. Sem fonte, registre uma pendência.
-- Toda mudança de comportamento cita a RN ou a SPEC. Toda decisão estrutural vira ADR.
-- Depois de editar `wiki/`, rode `npm run wiki:validate`. Antes de concluir qualquer tarefa, rode `npm run check`.
-- Dados de exemplo são sempre fictícios. Nunca coloque CNH, documento ou contato real em código, teste ou wiki.
-- Commits em português, no formato Conventional Commits (`docs(wiki): ...`, `test: ...`).
-- Sem push, deploy ou publicação no site sem confirmação explícita.
+@.claude/CLAUDE.md
