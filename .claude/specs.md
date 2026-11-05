@@ -2,6 +2,17 @@
 
 ---
 
+## [2026-11-05] — Logo do Neon Flow (caminho B)
+
+- Logo escolhido: serra e estrada num círculo, dourado sobre preto (PEN-64, canvas "Logo Neon Flow" no Claude Design).
+- `public/favicon.svg`: troca o "N" verde-água pelo símbolo simplificado (sem a estrada, legível em 16 px) sobre quadrado preto.
+- `public/apple-touch-icon.png` (180 px, gerado de `brand/neonflow-icone-app.svg` com `rsvg-convert`) e `<link rel="apple-touch-icon">` no `index.html`.
+- `public/brand/`: `neonflow-simbolo.svg` (dourado #C9A86A, fundo escuro), `neonflow-simbolo-fundo-claro.svg` (#7A5C26) e `neonflow-icone-app.svg`.
+- O nome "NEON FLOW" não está nos SVGs: SVG usado como imagem não carrega a Fraunces. Na landing, montar o nome em HTML com a fonte (Fraunces 300, `letter-spacing: 0.16em`) até existir uma versão com o texto em contornos.
+- O `theme-color` e as cores do painel (#101b25, verde-água) não mudaram.
+
+---
+
 ## [2026-11-03] — Railway na arquitetura de dois repositórios
 
 - `neonflow-app` (este repo, raiz) passou a publicar o **frontend React**: https://neonflow-app-production.up.railway.app. Variável `VITE_API_BASE_URL` aponta para a API.
