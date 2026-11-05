@@ -1,13 +1,13 @@
 # Deploy no Railway
 
-Projeto Railway: **neonflow** (`58da0777-4fc0-4891-98bd-554ca078557e`), ambiente `production`.
+Projeto Railway: **neonflow** (`58da0777-4fc0-4891-98bd-554ca078557e`), ambiente `hml` (renomeado de `production` em 05/11/2026).
 
 ## Serviços (03/11/2026)
 
 | Serviço | Origem | Build | URL |
 |---|---|---|---|
-| `neonflow-app` | GitHub `eliseurs/neonflow-app` (`main`, raiz) | `Dockerfile` (Vite → Caddy) | https://neonflow-app-production.up.railway.app |
-| `neonflow-api` | GitHub `eliseurs/neonflow-api` (`main`) | `Dockerfile` (Go) | https://neonflow-api-production.up.railway.app |
+| `neonflow-app` | GitHub `eliseurs/neonflow-app` (`main`, raiz) | `Dockerfile` (Vite → Caddy) | https://neonflow-app-hml.up.railway.app |
+| `neonflow-api` | GitHub `eliseurs/neonflow-api` (`main`) | `Dockerfile` (Go) | https://neonflow-api-hml.up.railway.app |
 | `neonflow-prototipo` | upload da pasta `prototipo/` (`railway up`) | Railpack (`node server.mjs`) | https://neonflow-prototipo-production.up.railway.app |
 | `Postgres` | plugin PostgreSQL | — | interno |
 
@@ -25,7 +25,7 @@ Até 03/11/2026 a demo morava em `neonflow-app-production.up.railway.app`. Desde
 
 | Serviço | Variável | Valor |
 |---|---|---|
-| `neonflow-app` | `VITE_API_BASE_URL` | `https://neonflow-api-production.up.railway.app/api` (embutida no build: mudar exige redeploy) |
+| `neonflow-app` | `VITE_API_BASE_URL` | `https://neonflow-api-hml.up.railway.app/api` (embutida no build: mudar exige redeploy) |
 | `neonflow-prototipo` | `BASIC_AUTH_USER`, `BASIC_AUTH_PASSWORD` | não definidas: demo pública. Defina para proteger |
 | `neonflow-api` | ver `neonflow-api/docs/deploy-railway.md` | |
 

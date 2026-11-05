@@ -2,6 +2,29 @@
 
 ---
 
+## [2026-11-05] — Landing pública
+
+- `src/modules/landing/`: `LandingPage` em `/` (pública), PT/EN pelo idioma do navegador com botão de troca, linha visual LuxuryBus (fundo `noir`, dourado do logo, Fraunces 300 + Inter) e logo caminho B.
+- Seções: hero com aluguel e transfer no mesmo peso (ADR-0011), serviços, frota (Economy: VW Jetta; Premium: Mercedes-Benz C180), condições do aluguel (RN-02.12/13/18/19/20/21, RN-06) e do transfer (RN-02.9/10/16), área atendida (PEN-58), como reservar (RN-02.8, RN-02.14), contato e rodapé com link para a área da central.
+- Sem preço (PEN-02: diárias configuráveis, sem valor aprovado), sem fotos e sem hotéis parceiros (PEN-65). Habilitação estrangeira aparece como "consulte a central" (PEN-50).
+- Contato: o formulário monta a mensagem e abre o WhatsApp (`wa.me`); nada é gravado (PEN-48). Número em `VITE_WHATSAPP_NUMBER`; vazio desativa o envio e o botão flutuante (PEN-66).
+- Rotas: a central saiu de `/` para `/central`; o login sem rota pedida leva para lá; rota desconhecida volta para a landing.
+- `tailwind.config.ts`: cores `noir`, `bone`, `gold` e fontes `serif` (Fraunces) e `inter`. `index.html`: fontes e título.
+- Testes: `LandingPage.test.tsx`, `whatsapp.test.ts` e rotas atualizadas.
+
+---
+
+## [2026-11-05] — Logo do Neon Flow (caminho B)
+
+- Logo escolhido: serra e estrada num círculo, dourado sobre preto (PEN-64, canvas "Logo Neon Flow" no Claude Design).
+- `public/favicon.svg`: troca o "N" verde-água pelo símbolo simplificado (sem a estrada, legível em 16 px) sobre quadrado preto.
+- `public/apple-touch-icon.png` (180 px, gerado de `brand/neonflow-icone-app.svg` com `rsvg-convert`) e `<link rel="apple-touch-icon">` no `index.html`.
+- `public/brand/`: `neonflow-simbolo.svg` (dourado #C9A86A, fundo escuro), `neonflow-simbolo-fundo-claro.svg` (#7A5C26) e `neonflow-icone-app.svg`.
+- O nome "NEON FLOW" não está nos SVGs: SVG usado como imagem não carrega a Fraunces. Na landing, montar o nome em HTML com a fonte (Fraunces 300, `letter-spacing: 0.16em`) até existir uma versão com o texto em contornos.
+- O `theme-color` e as cores do painel (#101b25, verde-água) não mudaram.
+
+---
+
 ## [2026-11-03] — Railway na arquitetura de dois repositórios
 
 - `neonflow-app` (este repo, raiz) passou a publicar o **frontend React**: https://neonflow-app-production.up.railway.app. Variável `VITE_API_BASE_URL` aponta para a API.

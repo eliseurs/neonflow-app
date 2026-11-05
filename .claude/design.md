@@ -52,17 +52,20 @@ docs/                           # deploy, qualidade
 
 | Rota | Página | Proteção |
 |---|---|---|
-| `/login` | LoginPage | pública (redireciona se já autenticado) |
-| `/` | DashboardPage | `ProtectedRoute` |
+| `/` | LandingPage | pública (PT/EN) |
+| `/login` | LoginPage | pública (redireciona para `/central` se já autenticado) |
+| `/central` | DashboardPage | `ProtectedRoute` |
 | `/frota` | FleetPage | `ProtectedRoute` |
 | `/reservas` | BookingsPage | `ProtectedRoute` |
-| `*` | → `/` | — |
+| `*` | → `/` (landing) | — |
 
 ---
 
 ## Identidade visual
 
 Herdada do protótipo: fundo `ink` `#101b25`, superfícies `ink-soft` `#16232f`, linhas `ink-line` `#22313e`, destaque `mint` `#6cedc4`. Fontes DM Sans (texto) e Manrope (títulos). Tokens em `tailwind.config.ts`.
+
+A landing pública segue a linha LuxuryBus: `noir` `#060606`, `bone`, `gold` `#C9A86A` (o dourado do logo), Fraunces 300 nos títulos (segunda metade em itálico dourado) e Inter no texto.
 
 ---
 
@@ -71,6 +74,7 @@ Herdada do protótipo: fundo `ink` `#101b25`, superfícies `ink-soft` `#16232f`,
 | Variável | Uso |
 |---|---|
 | `VITE_API_BASE_URL` | URL da API com `/api`. Embutida no build. Default `http://localhost:8080/api` |
+| `VITE_WHATSAPP_NUMBER` | WhatsApp da central (só dígitos, com DDI). Vazio desativa os botões de WhatsApp da landing |
 
 ---
 
@@ -78,7 +82,7 @@ Herdada do protótipo: fundo `ink` `#101b25`, superfícies `ink-soft` `#16232f`,
 
 | Serviço | Origem | Build | Healthcheck / URL |
 |---|---|---|---|
-| `neonflow-app` (frontend) | `/` (GitHub) | Dockerfile (Caddy) | `/` — https://neonflow-app-production.up.railway.app |
+| `neonflow-app` (frontend) | `/` (GitHub) | Dockerfile (Caddy) | `/` — https://neonflow-app-hml.up.railway.app |
 | `neonflow-prototipo` | upload de `prototipo/` | Railpack (`node server.mjs`) | `/healthz` — https://neonflow-prototipo-production.up.railway.app |
 
 Runbook: `docs/deploy-railway.md`.

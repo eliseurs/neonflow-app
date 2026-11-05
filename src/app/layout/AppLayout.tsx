@@ -6,7 +6,7 @@ import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { cn } from "@/shared/lib/cn";
 
 const NAV = [
-  { to: "/", label: "Central", icon: LayoutDashboard },
+  { to: "/central", label: "Central", icon: LayoutDashboard },
   { to: "/frota", label: "Frota", icon: Car },
   { to: "/reservas", label: "Reservas", icon: CalendarDays },
 ];
@@ -43,7 +43,7 @@ export function AppLayout() {
             <NavLink
               key={to}
               to={to}
-              end={to === "/"}
+              end={to === "/central"}
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-white/5",

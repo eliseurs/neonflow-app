@@ -67,16 +67,31 @@ describe("rotas", () => {
 
   it("sair limpa a sessão e volta ao login", async () => {
     useAuthStore.getState().setSession("tok", future(), user);
-    renderAt("/");
+    renderAt("/central");
     expect(await screen.findByRole("heading", { name: "Olá, Maria" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Sair/ }));
     expect(screen.getByRole("button", { name: "Entrar" })).toBeInTheDocument();
     expect(useAuthStore.getState().token).toBeNull();
   });
 
-  it("rota desconhecida volta para a central", () => {
-    useAuthStore.getState().setSession("tok", future(), user);
+  it("rota desconhecida volta para a landing", () => {
     renderAt("/nao-existe");
-    expect(screen.getByText("CENTRAL DE MOBILIDADE")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Serra Gaúcha.");
+  });
+
+  it("a landing é pública e o painel fica em /central", () => {
+    renderAt("/");
+    expect(screen.getByRole("link", { name: /Área da central|Staff area/ })).toHaveAttribute("href", "/login");
+    renderAt("/central");
+    expect(screen.getAllByRole("button", { name: "Entrar" }).length).toBeGreaterThan(0);
+  });
+
+  it("login sem rota pedida leva à central", async () => {
+    vi.mocked(authService.login).mockResolvedValue({ token: "tok", expires_at: future(), user });
+    renderAt("/login");
+    fireEvent.change(screen.getByLabelText("E-mail"), { target: { value: "maria@neonflow.test" } });
+    fireEvent.change(screen.getByLabelText("Senha"), { target: { value: "senha-forte-123" } });
+    fireEvent.click(screen.getByRole("button", { name: "Entrar" }));
+    expect(await screen.findByText("CENTRAL DE MOBILIDADE")).toBeInTheDocument();
   });
 });
