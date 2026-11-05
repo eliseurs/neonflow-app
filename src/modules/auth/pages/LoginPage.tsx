@@ -16,13 +16,13 @@ export function LoginPage() {
     mutationFn: authService.login,
     onSuccess: (res) => {
       setSession(res.token, res.expires_at, res.user);
-      const from = (location.state as { from?: string } | null)?.from ?? "/";
+      const from = (location.state as { from?: string } | null)?.from ?? "/central";
       navigate(from, { replace: true });
     },
   });
 
   if (isAuthenticated()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/central" replace />;
   }
 
   const submit = (e: FormEvent) => {

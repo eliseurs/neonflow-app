@@ -26,7 +26,7 @@
 
 ### Estado atual
 
-Scaffold: login (`POST /auth/login`), sessão com expiração em Zustand persistido, `ProtectedRoute`, layout com sidebar e telas placeholder de Central, Frota e Reservas. Frota e reservas aguardam a API (ver `../neonflow-api/docs/plano-reserva-persistente.md`).
+Landing pública em `/` (PT/EN, `src/modules/landing`). Painel: login (`POST /auth/login`), sessão com expiração em Zustand persistido, `ProtectedRoute`, layout com sidebar e telas placeholder de Central, Frota e Reservas. As telas de frota e reservas ainda são placeholders; a API delas já existe (`/api/vehicles`, `/api/bookings`, `/api/availability`).
 
 ## Comandos úteis
 
