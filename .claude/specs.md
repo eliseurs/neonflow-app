@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-06] — Usuários e troca de senha no painel
+
+- `/usuarios` (`src/modules/users`), só para admin: lista com papel, ativo/desativado e "você"; criar (nome, e-mail, senha inicial de 10+ caracteres, papel), editar (nome, papel, ativo; e-mail fixo) e redefinir a senha de outro usuário. O admin não consegue tirar o próprio papel nem se desativar.
+- Menu: "Usuários" aparece só para admin; "Trocar senha" para todos (sidebar e ícone no celular), com senha atual, nova e confirmação.
+- Testes: `UsersPage`, `ChangePasswordForm` e menu por papel.
+
+---
+
 ## [2026-11-06] — Caução e plano de km no painel
 
 - Veículo: campos "Caução (R$)", "Limite de km por dia" e "Km excedente (R$)", opcionais (limite e valor juntos). O cartão mostra caução e quilometragem (`kmPlanLabel`).

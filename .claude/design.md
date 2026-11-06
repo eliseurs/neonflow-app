@@ -40,6 +40,7 @@ src/
     fleet/                      # model (tipos, placa), services, VehicleForm, FleetPage
     bookings/                   # model (etapas, conferências), services, NewBookingForm, StageBadge, páginas de lista e detalhe
     checklist/                  # checklist de devolução configurável: model, service, ChecklistManager
+    users/                      # gestão de usuários (admin) e troca da própria senha
   shared/
     ui/                         # Brand, Heading (Overline, Accent, SectionHeading, PageHeader), Button, buttonClass, Field, Panel, Badge, Dialog, Reveal
     lib/cn.ts                   # clsx + tailwind-merge
@@ -62,6 +63,7 @@ docs/                           # deploy, qualidade
 | `/frota` | FleetPage | `ProtectedRoute` |
 | `/reservas` | BookingsPage | `ProtectedRoute` |
 | `/reservas/:id` | BookingDetailPage | `ProtectedRoute` |
+| `/usuarios` | UsersPage | `ProtectedRoute` (conteúdo só para admin) |
 | `*` | → `/` (landing) | — |
 
 ---

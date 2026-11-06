@@ -96,4 +96,17 @@ describe("rotas", () => {
     fireEvent.click(screen.getByRole("button", { name: "Entrar" }));
     expect(await screen.findByRole("heading", { name: /^Olá, Maria\./ })).toBeInTheDocument();
   });
+
+  it("o menu mostra Usuários só para administração", async () => {
+    useAuthStore.getState().setSession("tok", future(), user);
+    const { unmount } = renderAt("/central");
+    expect(await screen.findAllByRole("link", { name: /Reservas/ })).not.toHaveLength(0);
+    expect(screen.queryAllByRole("link", { name: /Usuários/ })).toHaveLength(0);
+    unmount();
+    useAuthStore.getState().setSession("tok", future(), { ...user, role: "admin" });
+    vi.mocked(authService.me).mockResolvedValue({ ...user, role: "admin" });
+    renderAt("/central");
+    expect((await screen.findAllByRole("link", { name: /Usuários/ }))[0]).toHaveAttribute("href", "/usuarios");
+    expect(screen.getAllByRole("button", { name: /Trocar senha/ }).length).toBeGreaterThan(0);
+  });
 });
