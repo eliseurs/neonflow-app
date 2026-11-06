@@ -11,7 +11,7 @@ import { Dialog } from "@/shared/ui/Dialog";
 import { PageHeader } from "@/shared/ui/Heading";
 import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { NewTransferForm } from "../components/NewTransferForm";
-import { TRANSFER_STAGE, isOpen, offerExpired } from "../model/transfer.types";
+import { TRANSFER_STAGE, isOpen } from "../model/transfer.types";
 import { transferService } from "../services/transfer.service";
 
 type Filter = "abertos" | "concluido" | "cancelado";
@@ -84,9 +84,9 @@ export function TransfersPage() {
                   {formatDateTime(t.pickup_at)} · {t.client_name}
                   {t.driver_name && ` · ${t.driver_name}`}
                 </p>
-                {t.stage === "aguardando_motorista" && t.offer_cents !== null && (
-                  <p className={cn("text-xs", offerExpired(t) ? "text-rose-300" : "text-bone/45")}>
-                    Oferta {formatCents(t.offer_cents)} · {offerExpired(t) ? "prazo vencido, reabra com valor maior" : `até ${formatDateTime(t.offer_expires_at!)}`}
+                                {t.stage === "aguardando_motorista" && (
+                  <p className="text-xs text-amber-200/80">
+                    {t.offer_cents === null ? "Defina o valor e chame um motorista" : `Valor para o motorista ${formatCents(t.offer_cents)} · chame e marque quem aceitou`}
                   </p>
                 )}
               </div>
