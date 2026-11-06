@@ -129,7 +129,7 @@ describe("BookingDetailPage", () => {
     });
     vi.mocked(bookingService.get).mockResolvedValue(emLocacao);
     vi.mocked(bookingService.advance).mockResolvedValue({
-      ...emLocacao, stage: "devolvida", returned_at: "2026-12-12T14:00:00-03:00", extra_days: 1, extra_cents: 10000,
+      ...emLocacao, stage: "devolvida", returned_at: "2026-12-12T14:00:00-03:00", extra_minutes: 300, extra_cents: 2083,
     });
     open();
 
@@ -139,14 +139,15 @@ describe("BookingDetailPage", () => {
     fireEvent.change(field, { target: { value: "2026-12-12T09:45" } });
     expect(screen.getByText(/Dentro do combinado/)).toBeInTheDocument();
     fireEvent.change(field, { target: { value: "2026-12-12T14:00" } });
-    expect(screen.getByText(/Atraso: 1 diária extra · R\$\s100,00/)).toBeInTheDocument();
+            // 300 minutos × R$ 100 ÷ 1440.
+    expect(screen.getByText(/Atraso: 5 h 00 min · R\$\s20,83/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Avançar para devolvida" }));
         await waitFor(() => expect(bookingService.advance).toHaveBeenCalledWith("b1", "2026-12-12T14:00", undefined));
     expect(await screen.findByText("Devolvido em 12/12/2026 14:00")).toBeInTheDocument();
         expect(screen.getByText("Total com extras")).toBeInTheDocument();
-    expect(screen.getByText(/R\$\s300,00/)).toBeInTheDocument();
-    expect(screen.getByText(/Reserva R\$\s200,00 \+ atraso R\$\s100,00/)).toBeInTheDocument();
+    expect(screen.getByText(/R\$\s220,83/)).toBeInTheDocument();
+    expect(screen.getByText(/Reserva R\$\s200,00 \+ atraso R\$\s20,83/)).toBeInTheDocument();
   });
 
   it("avisa a devolução atrasada e não pede hora nas outras etapas", async () => {
@@ -201,5 +202,14 @@ describe("BookingDetailPage", () => {
     vi.mocked(bookingService.get).mockResolvedValue(booking({ referred_by_partner_id: "p1" }));
     open();
     expect(await screen.findByText("Hotel Teste · HTL234")).toBeInTheDocument();
+  });
+
+  it("mede o km excedente sem valor cadastrado e deixa o valor com a central", async () => {
+    vi.mocked(bookingService.get).mockResolvedValue(booking({
+      stage: "devolvida", km_limit_per_day: 200, extra_km_cents: null, delivered_km: 1000, returned_km: 1450,
+      excess_km: 50, excess_km_cents: 0,
+    }));
+    open();
+    expect(await screen.findByText(/50 km · valor a definir pela central/)).toBeInTheDocument();
   });
 });

@@ -38,7 +38,7 @@ export const booking = (over: Partial<Booking> = {}): Booking => ({
   checks: {},
   delivered_at: null,
   returned_at: null,
-    extra_days: 0,
+    extra_minutes: 0,
   extra_cents: 0,
   deposit_cents: null,
   km_limit_per_day: null,

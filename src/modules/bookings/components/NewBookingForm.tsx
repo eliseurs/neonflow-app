@@ -107,7 +107,7 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
         <input id="booking-place" value={place} onChange={(e) => setPlace(e.target.value)} className={inputClass} />
       </Field>
 
-            {vehicle?.km_limit_per_day && vehicle.extra_km_cents && (
+                        {vehicle?.km_limit_per_day && (
         <fieldset className="sm:col-span-2">
           <legend id="km-plan" className="block text-[11px] font-medium uppercase tracking-[0.2em] text-bone/60">Quilometragem</legend>
           <div role="radiogroup" aria-labelledby="km-plan" className="mt-2 grid gap-2 rounded-2xl border border-white/10 bg-black/40 p-1.5 sm:grid-cols-2">
@@ -132,7 +132,8 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
           </div>
           {kmPlan === "limitado" && (
             <p className="mt-2 text-xs text-bone/50">
-              Franquia de {vehicle.km_limit_per_day * Math.max(days, 1)} km no período · excedente de {formatCents(vehicle.extra_km_cents)} por km
+                            Franquia de {vehicle.km_limit_per_day * Math.max(days, 1)} km no período ·{" "}
+              {vehicle.extra_km_cents ? `excedente de ${formatCents(vehicle.extra_km_cents)} por km` : "valor do excedente a definir pela central"}
             </p>
           )}
         </fieldset>

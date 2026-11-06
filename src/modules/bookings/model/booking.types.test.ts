@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { excessKm, extrasCents, isActive, isCancelable, isOverdue, lateDays, nextStage, pendingChecks, rentalDays, stageChecks } from "./booking.types";
+import {
+  excessKm, extrasCents, formatMinutes, isActive, isCancelable, isOverdue, lateCents, lateMinutes, nextStage, pendingChecks, rentalDays, stageChecks,
+} from "./booking.types";
 
 describe("etapas da reserva", () => {
   it("segue o fluxo da API", () => {
@@ -48,11 +50,21 @@ describe("etapas da reserva", () => {
   it("calcula o atraso como a API (RN-02.19)", () => {
     const end = "2026-12-12T10:00:00-03:00";
     const at = (iso: string) => Date.parse(iso);
-    expect(lateDays(end, at("2026-12-12T08:00:00-03:00"))).toBe(0);
-    expect(lateDays(end, at("2026-12-12T11:00:00-03:00"))).toBe(0);
-    expect(lateDays(end, at("2026-12-12T11:01:00-03:00"))).toBe(1);
-    expect(lateDays(end, at("2026-12-13T11:00:00-03:00"))).toBe(1);
-    expect(lateDays(end, at("2026-12-13T11:01:00-03:00"))).toBe(2);
+            expect(lateMinutes(end, at("2026-12-12T08:00:00-03:00"))).toBe(0);
+    expect(lateMinutes(end, at("2026-12-12T11:00:00-03:00"))).toBe(0);
+    expect(lateMinutes(end, at("2026-12-12T11:05:30-03:00"))).toBe(65);
+    expect(lateMinutes(end, at("2026-12-13T16:00:00-03:00"))).toBe(1800);
+    expect(lateCents(65, 14400)).toBe(650);
+    expect(lateCents(1800, 14400)).toBe(18000);
+    expect(lateCents(65, 10000)).toBe(451);
+  });
+
+  it("escreve os minutos de atraso", () => {
+    expect(formatMinutes(45)).toBe("45 min");
+    expect(formatMinutes(65)).toBe("1 h 05 min");
+    expect(formatMinutes(1440)).toBe("1 dia 0 h 00 min");
+    expect(formatMinutes(1800)).toBe("1 dia 6 h 00 min");
+    expect(formatMinutes(2950)).toBe("2 dias 1 h 10 min");
   });
 
   it("marca a locação atrasada depois da tolerância", () => {

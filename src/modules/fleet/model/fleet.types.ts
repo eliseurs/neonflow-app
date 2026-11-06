@@ -64,9 +64,10 @@ export function normalizePlate(plate: string): string {
 
 export const PLATE_PATTERN = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
 
-/** "200 km/dia · R$ 1,50 por km excedente" ou "Km livre". */
+/** "200 km/dia · R$ 1,50 por km excedente", "200 km/dia · excedente a definir" ou "Km livre". */
 export function kmPlanLabel(limit: number | null, extraCents: number | null, money: (c: number) => string): string {
-  return limit && extraCents ? `${limit} km/dia · ${money(extraCents)} por km excedente` : "Km livre";
+  if (!limit) return "Km livre";
+  return extraCents ? `${limit} km/dia · ${money(extraCents)} por km excedente` : `${limit} km/dia · excedente a definir`;
 }
 
 export function formatPlate(plate: string): string {

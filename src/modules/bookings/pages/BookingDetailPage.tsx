@@ -17,7 +17,7 @@ import { StageBadge } from "../components/StageBadge";
 import { activeItems } from "@/modules/checklist/model/checklist.types";
 import { checklistService } from "@/modules/checklist/services/checklist.service";
 import {
-  FLOW, STAGE, excessKm, extrasCents, isCancelable, isOverdue, lateDays, nextStage, pendingChecks, stageChecks, type Booking,
+    FLOW, STAGE, excessKm, extrasCents, formatMinutes, isCancelable, isOverdue, lateCents, lateMinutes, nextStage, pendingChecks, stageChecks, type Booking,
 } from "../model/booking.types";
 import { bookingService } from "../services/booking.service";
 
@@ -117,14 +117,14 @@ export function BookingDetailPage() {
   const asksTime = b.stage === "confirmada" || b.stage === "em_locacao";
   const actualMs = operationInstant(actualAt);
   const validTime = Number.isFinite(actualMs);
-    const previewLate = b.stage === "em_locacao" && validTime ? lateDays(b.end_at, actualMs) : 0;
-  const limited = b.km_limit_per_day !== null && b.extra_km_cents !== null;
+    const previewLate = b.stage === "em_locacao" && validTime ? lateMinutes(b.end_at, actualMs) : 0;
+    const limited = b.km_limit_per_day !== null;
   const km = odometer.trim() === "" ? undefined : Number(odometer);
   const validKm = km === undefined ? !limited : Number.isInteger(km) && km >= 0;
   const kmBeforeDelivery = b.stage === "em_locacao" && km !== undefined && b.delivered_km !== null && km < b.delivered_km;
   const previewExcess =
     b.stage === "em_locacao" && limited && km !== undefined && b.delivered_km !== null && !kmBeforeDelivery
-      ? excessKm(b.km_limit_per_day!, b.days + previewLate, km - b.delivered_km)
+            ? excessKm(b.km_limit_per_day!, b.days, km - b.delivered_km)
       : 0;
   const extras = extrasCents(b);
     // O aviso segue a hora informada: registrar uma devolução dentro do combinado não mostra atraso.
@@ -192,7 +192,7 @@ export function BookingDetailPage() {
               </ul>
               {overdue && (
                 <p role="status" className="mt-6 rounded-xl border border-rose-400/30 bg-rose-400/[0.06] px-4 py-3 text-sm text-rose-200">
-                  Devolução atrasada: o combinado era {formatDateTime(b.end_at)}. Passada 1 hora de tolerância, cada 24 horas contam 1 diária extra.
+                  Devolução atrasada: o combinado era {formatDateTime(b.end_at)}. Passada 1 hora de tolerância, cada minuto custa a diária ÷ 1440.
                 </p>
               )}
               {asksTime && next && (
@@ -233,14 +233,15 @@ export function BookingDetailPage() {
                   )}
                   {previewExcess > 0 && (
                     <p className="mt-2 text-sm text-amber-200">
-                      Km excedente: {previewExcess} km · {formatCents(previewExcess * b.extra_km_cents!)}
+                                            Km excedente: {previewExcess} km ·{" "}
+                      {b.extra_km_cents !== null ? formatCents(previewExcess * b.extra_km_cents) : "valor a definir pela central"}
                     </p>
                   )}
                   {b.stage === "em_locacao" && validTime && (
                     <p className={cn("mt-3 text-sm", previewLate > 0 ? "text-amber-200" : "text-bone/55")}>
                       {previewLate > 0
-                        ? `Atraso: ${previewLate} ${previewLate === 1 ? "diária extra" : "diárias extras"} · ${formatCents(previewLate * b.daily_rate_cents)}`
-                        : "Dentro do combinado (até 1 hora de tolerância): sem diária extra."}
+                                                ? `Atraso: ${formatMinutes(previewLate)} ·  ${formatCents(lateCents(previewLate, b.daily_rate_cents))}`
+                        : "Dentro do combinado (até 1 hora de tolerância): sem cobrança de atraso."}
                     </p>
                   )}
                 </div>
@@ -349,14 +350,16 @@ export function BookingDetailPage() {
               <div>
                 <dt className="text-bone/45">Atraso na devolução</dt>
                 <dd className="mt-1 text-amber-200">
-                  {b.extra_days} {b.extra_days === 1 ? "diária extra" : "diárias extras"} · {formatCents(b.extra_cents)}
+                                    {formatMinutes(b.extra_minutes)} · {formatCents(b.extra_cents)}
                 </dd>
               </div>
             )}
-                        {b.excess_km_cents > 0 && (
+                                    {b.excess_km > 0 && (
               <div>
                 <dt className="text-bone/45">Km excedente</dt>
-                <dd className="mt-1 text-amber-200">{b.excess_km} km · {formatCents(b.excess_km_cents)}</dd>
+                <dd className="mt-1 text-amber-200">
+                  {b.excess_km} km · {b.extra_km_cents !== null ? formatCents(b.excess_km_cents) : "valor a definir pela central"}
+                </dd>
               </div>
             )}
             <div className="border-t border-white/[0.08] pt-5">

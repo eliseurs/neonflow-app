@@ -130,7 +130,7 @@ describe("FleetPage", () => {
     expect(screen.getByRole("dialog", { name: "Checklist de devolução" })).toBeInTheDocument();
   });
 
-  it("cadastra caução e plano de km, e exige os dois campos de km juntos", async () => {
+  it("cadastra caução e plano de km, e não aceita valor do km sem limite", async () => {
     vi.mocked(fleetService.list).mockResolvedValue([]);
     vi.mocked(fleetService.create).mockResolvedValue(vehicle());
     renderPage(<FleetPage />);
@@ -141,11 +141,11 @@ describe("FleetPage", () => {
     fill("Lugares", "5");
     fill("Diária (R$)", "100");
     fill("Caução (R$)", "1.500,00");
-    fill("Limite de km por dia", "200");
-    fireEvent.click(screen.getByRole("button", { name: "Cadastrar" }));
-    expect(screen.getByRole("alert")).toHaveTextContent("juntos");
-
     fill("Km excedente (R$)", "1,50");
+    fireEvent.click(screen.getByRole("button", { name: "Cadastrar" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("exige o limite");
+
+    fill("Limite de km por dia", "200");
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar" }));
     await waitFor(() => expect(fleetService.create).toHaveBeenCalled());
     expect(vi.mocked(fleetService.create).mock.calls[0][0]).toMatchObject({
@@ -174,5 +174,16 @@ describe("FleetPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
     await waitFor(() => expect(fleetService.update).toHaveBeenCalled());
     expect(vi.mocked(fleetService.update).mock.calls[0][1]).toMatchObject({ owner: "Dono Teste", owner_partner_id: "p1" });
+  });
+
+  it("aceita limite de km sem valor do excedente (km controlado, valor a definir)", async () => {
+    vi.mocked(fleetService.list).mockResolvedValue([vehicle({ km_limit_per_day: 200, extra_km_cents: null })]);
+    vi.mocked(fleetService.update).mockResolvedValue(vehicle());
+    renderPage(<FleetPage />);
+    expect(await screen.findByText("200 km/dia · excedente a definir")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Editar Carro Teste" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Salvar" }));
+    await waitFor(() => expect(fleetService.update).toHaveBeenCalled());
+    expect(vi.mocked(fleetService.update).mock.calls[0][1]).toMatchObject({ km_limit_per_day: 200, extra_km_cents: null });
   });
 });

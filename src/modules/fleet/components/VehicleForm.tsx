@@ -59,7 +59,8 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
     const extraCents = extraKm.trim() ? parseReais(extraKm) : null;
     if (kmLimit.trim() && (!Number.isInteger(limit) || (limit ?? 0) <= 0)) return setProblem("O limite de km por dia deve ser um número inteiro maior que zero.");
     if (extraKm.trim() && !extraCents) return setProblem("Informe o valor do km excedente em reais, maior que zero.");
-    if ((limit === null) !== (extraCents === null)) return setProblem("Preencha o limite de km por dia e o valor do km excedente juntos, ou deixe os dois em branco (km livre).");
+        // Km controlado: o limite pode vir sem valor (a central define o excedente); valor sem limite, não (RN-02.18).
+    if (limit === null && extraCents !== null) return setProblem("O valor do km excedente exige o limite de km por dia.");
     setProblem(null);
     save.mutate({
       plate: normalized,
@@ -140,7 +141,7 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
       <Field id="vehicle-km-limit" label="Limite de km por dia" hint="Em branco: km livre.">
         <input id="vehicle-km-limit" inputMode="numeric" value={kmLimit} onChange={(e) => setKmLimit(e.target.value)} className={inputClass} />
       </Field>
-      <Field id="vehicle-extra-km" label="Km excedente (R$)" hint="Valor de cada km acima do limite.">
+      <Field id="vehicle-extra-km" label="Km excedente (R$)" hint="Valor de cada km acima da franquia. Em branco: a central define na devolução.">
         <input id="vehicle-extra-km" inputMode="decimal" value={extraKm} onChange={(e) => setExtraKm(e.target.value)} className={inputClass} />
       </Field>
       <label className="flex items-center gap-3 text-sm text-bone/80 sm:col-span-2">
