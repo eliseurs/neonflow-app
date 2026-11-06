@@ -55,8 +55,11 @@ describe("FleetPage", () => {
       owner: "Parceiro Teste",
       seats: 5,
       gear: "automatico",
-      daily_rate_cents: 12345,
+            daily_rate_cents: 12345,
       in_maintenance: false,
+      deposit_cents: null,
+      km_limit_per_day: null,
+      extra_km_cents: null,
     });
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
@@ -116,5 +119,35 @@ describe("FleetPage", () => {
     renderPage(<FleetPage />);
     fireEvent.click(await screen.findByRole("button", { name: /Checklist de devolução/ }));
     expect(screen.getByRole("dialog", { name: "Checklist de devolução" })).toBeInTheDocument();
+  });
+
+  it("cadastra caução e plano de km, e exige os dois campos de km juntos", async () => {
+    vi.mocked(fleetService.list).mockResolvedValue([]);
+    vi.mocked(fleetService.create).mockResolvedValue(vehicle());
+    renderPage(<FleetPage />);
+    fireEvent.click((await screen.findAllByRole("button", { name: /Novo veículo/ }))[0]);
+    fill("Modelo", "Carro Teste");
+    fill("Placa", "ABC1D23");
+    fill("Proprietário", "Parceiro Teste");
+    fill("Lugares", "5");
+    fill("Diária (R$)", "100");
+    fill("Caução (R$)", "1.500,00");
+    fill("Limite de km por dia", "200");
+    fireEvent.click(screen.getByRole("button", { name: "Cadastrar" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("juntos");
+
+    fill("Km excedente (R$)", "1,50");
+    fireEvent.click(screen.getByRole("button", { name: "Cadastrar" }));
+    await waitFor(() => expect(fleetService.create).toHaveBeenCalled());
+    expect(vi.mocked(fleetService.create).mock.calls[0][0]).toMatchObject({
+      deposit_cents: 150000, km_limit_per_day: 200, extra_km_cents: 150,
+    });
+  });
+
+  it("mostra caução e quilometragem no cartão", async () => {
+    vi.mocked(fleetService.list).mockResolvedValue([vehicle({ deposit_cents: 150000, km_limit_per_day: 200, extra_km_cents: 150 })]);
+    renderPage(<FleetPage />);
+    expect(await screen.findByText(/R\$\s1\.500,00/)).toBeInTheDocument();
+    expect(screen.getByText(/200 km\/dia · R\$\s1,50 por km excedente/)).toBeInTheDocument();
   });
 });

@@ -115,7 +115,7 @@ describe("BookingDetailPage", () => {
     open();
     fireEvent.change(await screen.findByLabelText("Hora real da entrega"), { target: { value: "2026-12-10T09:20" } });
     fireEvent.click(screen.getByRole("button", { name: "Avançar para em locação" }));
-    await waitFor(() => expect(bookingService.advance).toHaveBeenCalledWith("b1", "2026-12-10T09:20"));
+        await waitFor(() => expect(bookingService.advance).toHaveBeenCalledWith("b1", "2026-12-10T09:20", undefined));
     expect(await screen.findByText("Entregue em 10/12/2026 09:20")).toBeInTheDocument();
   });
 
@@ -139,9 +139,9 @@ describe("BookingDetailPage", () => {
     expect(screen.getByText(/Atraso: 1 diária extra · R\$\s100,00/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Avançar para devolvida" }));
-    await waitFor(() => expect(bookingService.advance).toHaveBeenCalledWith("b1", "2026-12-12T14:00"));
+        await waitFor(() => expect(bookingService.advance).toHaveBeenCalledWith("b1", "2026-12-12T14:00", undefined));
     expect(await screen.findByText("Devolvido em 12/12/2026 14:00")).toBeInTheDocument();
-    expect(screen.getByText("Total com o atraso")).toBeInTheDocument();
+        expect(screen.getByText("Total com extras")).toBeInTheDocument();
     expect(screen.getByText(/R\$\s300,00/)).toBeInTheDocument();
     expect(screen.getByText(/Reserva R\$\s200,00 \+ atraso R\$\s100,00/)).toBeInTheDocument();
   });
@@ -150,6 +150,9 @@ describe("BookingDetailPage", () => {
     vi.mocked(bookingService.get).mockResolvedValue(booking({ stage: "em_locacao", end_at: "2026-01-02T09:00:00-03:00" }));
     open();
     expect(await screen.findByText(/Devolução atrasada: o combinado era 02\/01\/2026 09:00/)).toBeInTheDocument();
+    // Informando uma devolução dentro do combinado, o aviso sai.
+    fireEvent.change(screen.getByLabelText("Hora real da devolução"), { target: { value: "2026-01-02T09:30" } });
+    expect(screen.queryByText(/Devolução atrasada: o combinado era/)).toBeNull();
   });
 
   it("não entrega o carro que ainda está com outro cliente", async () => {
@@ -158,5 +161,36 @@ describe("BookingDetailPage", () => {
     open();
     expect(await screen.findByText(/ainda está em locação em outra reserva/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Avançar para em locação" })).toBeDisabled();
+  });
+
+  it("no plano limitado, exige o odômetro e mostra o km excedente (RN-02.18)", async () => {
+    const emLocacao = booking({
+      stage: "em_locacao", checks: { return: true }, days: 2, end_at: "2026-12-12T09:00:00-03:00",
+      km_limit_per_day: 200, extra_km_cents: 150, deposit_cents: 150000,
+      delivered_at: "2026-12-10T09:10:00-03:00", delivered_km: 10000,
+    });
+    vi.mocked(bookingService.get).mockResolvedValue(emLocacao);
+    vi.mocked(bookingService.advance).mockResolvedValue({
+      ...emLocacao, stage: "devolvida", returned_at: "2026-12-12T09:30:00-03:00", returned_km: 10450, excess_km: 50, excess_km_cents: 7500,
+    });
+    open();
+
+    expect(await screen.findByText(/Obrigatória: plano de 200 km\/dia\. Na entrega: 10000 km\./)).toBeInTheDocument();
+    expect(screen.getByText(/Franquia de 400 km no período/)).toBeInTheDocument();
+    expect(screen.getByText(/R\$\s1\.500,00 \(pré-autorização\)/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Hora real da devolução"), { target: { value: "2026-12-12T09:30" } });
+    const advanceBtn = () => screen.getByRole("button", { name: "Avançar para devolvida" });
+    expect(advanceBtn()).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText("Quilometragem (odômetro)"), { target: { value: "9999" } });
+    expect(screen.getByText(/não pode ser menor que a da entrega/)).toBeInTheDocument();
+    expect(advanceBtn()).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText("Quilometragem (odômetro)"), { target: { value: "10450" } });
+    expect(screen.getByText(/Km excedente: 50 km · R\$\s75,00/)).toBeInTheDocument();
+    fireEvent.click(advanceBtn());
+    await waitFor(() => expect(bookingService.advance).toHaveBeenCalledWith("b1", "2026-12-12T09:30", 10450));
+    expect(await screen.findByText(/10000 → 10450 km \(450 km rodados\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Reserva R\$\s200,00 \+ km R\$\s75,00/)).toBeInTheDocument();
   });
 });

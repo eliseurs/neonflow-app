@@ -13,7 +13,11 @@ export interface Vehicle {
   seats: number;
   gear: Gear;
   daily_rate_cents: number;
-  in_maintenance: boolean;
+    in_maintenance: boolean;
+  /** Caução (RN-06.4) e quilometragem (RN-02.18), configuráveis; null = não informado. */
+  deposit_cents: number | null;
+  km_limit_per_day: number | null;
+  extra_km_cents: number | null;
   created_at: string;
   updated_at: string;
   /** Calculado pela API nas leituras da frota (RN-01.1, RN-01.3, RN-01.6). */
@@ -57,6 +61,11 @@ export function normalizePlate(plate: string): string {
 }
 
 export const PLATE_PATTERN = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
+
+/** "200 km/dia · R$ 1,50 por km excedente" ou "Km livre". */
+export function kmPlanLabel(limit: number | null, extraCents: number | null, money: (c: number) => string): string {
+  return limit && extraCents ? `${limit} km/dia · ${money(extraCents)} por km excedente` : "Km livre";
+}
 
 export function formatPlate(plate: string): string {
   return /^[A-Z]{3}[0-9]{4}$/.test(plate) ? `${plate.slice(0, 3)}-${plate.slice(3)}` : plate;

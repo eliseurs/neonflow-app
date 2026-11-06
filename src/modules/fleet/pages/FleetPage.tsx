@@ -11,7 +11,7 @@ import { Dialog } from "@/shared/ui/Dialog";
 import { PageHeader } from "@/shared/ui/Heading";
 import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { VehicleForm } from "../components/VehicleForm";
-import { CATEGORY_LABEL, GEAR_LABEL, VEHICLE_STATUS, formatPlate, vehicleStatus, type Vehicle } from "../model/fleet.types";
+import { CATEGORY_LABEL, GEAR_LABEL, VEHICLE_STATUS, formatPlate, kmPlanLabel, vehicleStatus, type Vehicle } from "../model/fleet.types";
 import { fleetService } from "../services/fleet.service";
 
 export function FleetPage() {
@@ -82,8 +82,16 @@ export function FleetPage() {
                   <dd className="text-bone/85">{v.seats}</dd>
                 </div>
                 <div>
-                  <dt className="text-bone/45">Câmbio</dt>
+                                    <dt className="text-bone/45">Câmbio</dt>
                   <dd className="text-bone/85">{GEAR_LABEL[v.gear]}</dd>
+                </div>
+                <div>
+                  <dt className="text-bone/45">Caução</dt>
+                  <dd className="text-bone/85">{v.deposit_cents ? formatCents(v.deposit_cents) : "A definir"}</dd>
+                </div>
+                <div>
+                  <dt className="text-bone/45">Quilometragem</dt>
+                  <dd className="text-bone/85">{kmPlanLabel(v.km_limit_per_day, v.extra_km_cents, formatCents)}</dd>
                 </div>
               </dl>
               <Button variant="outline" className="mt-6" onClick={() => setEditing(v)} aria-label={`Editar ${v.name}`}>

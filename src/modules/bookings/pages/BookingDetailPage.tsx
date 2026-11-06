@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
-import { formatPlate } from "@/modules/fleet/model/fleet.types";
+import { formatPlate, kmPlanLabel } from "@/modules/fleet/model/fleet.types";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
 import { cn } from "@/shared/lib/cn";
 import { formatCents, formatDateTime, operationInstant, operationNowInput } from "@/shared/lib/format";
@@ -15,7 +15,9 @@ import { ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { StageBadge } from "../components/StageBadge";
 import { activeItems } from "@/modules/checklist/model/checklist.types";
 import { checklistService } from "@/modules/checklist/services/checklist.service";
-import { FLOW, STAGE, isCancelable, isOverdue, lateDays, nextStage, pendingChecks, stageChecks, type Booking } from "../model/booking.types";
+import {
+  FLOW, STAGE, excessKm, extrasCents, isCancelable, isOverdue, lateDays, nextStage, pendingChecks, stageChecks, type Booking,
+} from "../model/booking.types";
 import { bookingService } from "../services/booking.service";
 
 function Stepper({ booking }: { booking: Booking }) {
@@ -57,7 +59,9 @@ export function BookingDetailPage() {
   });
   const [confirmCancel, setConfirmCancel] = useState(false);
   // Hora real da entrega ou da devolução (RN-02.19). Começa em "agora", no horário de Gramado.
-  const [actualAt, setActualAt] = useState(operationNowInput);
+    const [actualAt, setActualAt] = useState(operationNowInput);
+  // Odômetro na entrega e na devolução (RN-02.18).
+  const [odometer, setOdometer] = useState("");
 
   const refresh = (b: Booking) => {
     qc.setQueryData(["bookings", id], b);
@@ -71,8 +75,9 @@ export function BookingDetailPage() {
     onError: (e) => toast.error(apiErrorMessage(e)),
   });
   const advance = useMutation({
-    mutationFn: (at?: string) => bookingService.advance(id, at),
+        mutationFn: ({ at, km }: { at?: string; km?: number }) => bookingService.advance(id, at, km),
     onSuccess: (b) => {
+      setOdometer("");
       refresh(b);
       setActualAt(operationNowInput());
       toast.success(`Reserva em ${STAGE[b.stage].label.toLowerCase()}.`);
@@ -110,8 +115,18 @@ export function BookingDetailPage() {
   const asksTime = b.stage === "confirmada" || b.stage === "em_locacao";
   const actualMs = operationInstant(actualAt);
   const validTime = Number.isFinite(actualMs);
-  const previewLate = b.stage === "em_locacao" && validTime ? lateDays(b.end_at, actualMs) : 0;
-  const overdue = isOverdue(b);
+    const previewLate = b.stage === "em_locacao" && validTime ? lateDays(b.end_at, actualMs) : 0;
+  const limited = b.km_limit_per_day !== null && b.extra_km_cents !== null;
+  const km = odometer.trim() === "" ? undefined : Number(odometer);
+  const validKm = km === undefined ? !limited : Number.isInteger(km) && km >= 0;
+  const kmBeforeDelivery = b.stage === "em_locacao" && km !== undefined && b.delivered_km !== null && km < b.delivered_km;
+  const previewExcess =
+    b.stage === "em_locacao" && limited && km !== undefined && b.delivered_km !== null && !kmBeforeDelivery
+      ? excessKm(b.km_limit_per_day!, b.days + previewLate, km - b.delivered_km)
+      : 0;
+  const extras = extrasCents(b);
+    // O aviso segue a hora informada: registrar uma devolução dentro do combinado não mostra atraso.
+  const overdue = isOverdue(b) && (!validTime || previewLate > 0);
 
   return (
     <section className="space-y-8">
@@ -193,6 +208,32 @@ export function BookingDetailPage() {
                       className={inputClass}
                     />
                   </Field>
+                                    <Field
+                    id="odometer"
+                    label="Quilometragem (odômetro)"
+                    className="mt-4"
+                    hint={
+                      limited
+                        ? `Obrigatória: plano de ${b.km_limit_per_day} km/dia.${b.stage === "em_locacao" && b.delivered_km !== null ? ` Na entrega: ${b.delivered_km} km.` : ""}`
+                        : "Opcional: km livre."
+                    }
+                  >
+                    <input
+                      id="odometer"
+                      inputMode="numeric"
+                      value={odometer}
+                      onChange={(e) => setOdometer(e.target.value.replace(/\D/g, ""))}
+                      className={inputClass}
+                    />
+                  </Field>
+                  {kmBeforeDelivery && (
+                    <p className="mt-2 text-sm text-rose-300">A quilometragem da devolução não pode ser menor que a da entrega.</p>
+                  )}
+                  {previewExcess > 0 && (
+                    <p className="mt-2 text-sm text-amber-200">
+                      Km excedente: {previewExcess} km · {formatCents(previewExcess * b.extra_km_cents!)}
+                    </p>
+                  )}
                   {b.stage === "em_locacao" && validTime && (
                     <p className={cn("mt-3 text-sm", previewLate > 0 ? "text-amber-200" : "text-bone/55")}>
                       {previewLate > 0
@@ -205,8 +246,11 @@ export function BookingDetailPage() {
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 {next && (
                   <Button
-                    disabled={busy || pending.length > 0 || awaitingChecklist || vehicleInUse || loadingChecklist || (asksTime && !validTime)}
-                    onClick={() => advance.mutate(asksTime ? actualAt : undefined)}
+                                        disabled={
+                      busy || pending.length > 0 || awaitingChecklist || vehicleInUse || loadingChecklist ||
+                      (asksTime && (!validTime || !validKm || kmBeforeDelivery))
+                    }
+                    onClick={() => advance.mutate(asksTime ? { at: actualAt, km } : {})}
                   >
                     Avançar para {STAGE[next].label.toLowerCase()}
                   </Button>
@@ -262,9 +306,24 @@ export function BookingDetailPage() {
                 <dd className="mt-1 text-bone/85">{b.place}</dd>
               </div>
             )}
-            <div>
+                        <div>
               <dt className="text-bone/45">Diária na reserva</dt>
               <dd className="mt-1 text-bone/85">{formatCents(b.daily_rate_cents)}</dd>
+            </div>
+            <div>
+              <dt className="text-bone/45">Quilometragem</dt>
+              <dd className="mt-1 text-bone/85">{kmPlanLabel(b.km_limit_per_day, b.extra_km_cents, formatCents)}</dd>
+              {limited && <dd className="text-bone/55">Franquia de {b.km_limit_per_day! * b.days} km no período</dd>}
+              {(b.delivered_km !== null || b.returned_km !== null) && (
+                <dd className="text-bone/55">
+                  Odômetro: {b.delivered_km ?? "—"} → {b.returned_km ?? "—"} km
+                  {b.delivered_km !== null && b.returned_km !== null && ` (${b.returned_km - b.delivered_km} km rodados)`}
+                </dd>
+              )}
+            </div>
+            <div>
+              <dt className="text-bone/45">Caução</dt>
+              <dd className="mt-1 text-bone/85">{b.deposit_cents ? `${formatCents(b.deposit_cents)} (pré-autorização)` : "Não cadastrada"}</dd>
             </div>
             {(b.delivered_at || b.returned_at) && (
               <div>
@@ -281,10 +340,22 @@ export function BookingDetailPage() {
                 </dd>
               </div>
             )}
+                        {b.excess_km_cents > 0 && (
+              <div>
+                <dt className="text-bone/45">Km excedente</dt>
+                <dd className="mt-1 text-amber-200">{b.excess_km} km · {formatCents(b.excess_km_cents)}</dd>
+              </div>
+            )}
             <div className="border-t border-white/[0.08] pt-5">
-              <dt className="text-bone/45">{b.extra_cents > 0 ? "Total com o atraso" : "Total"}</dt>
-              <dd className="mt-1 font-serif text-3xl font-light text-gold">{formatCents(b.total_cents + b.extra_cents)}</dd>
-              {b.extra_cents > 0 && <dd className="text-xs text-bone/45">Reserva {formatCents(b.total_cents)} + atraso {formatCents(b.extra_cents)}</dd>}
+              <dt className="text-bone/45">{extras > 0 ? "Total com extras" : "Total"}</dt>
+              <dd className="mt-1 font-serif text-3xl font-light text-gold">{formatCents(b.total_cents + extras)}</dd>
+              {extras > 0 && (
+                <dd className="text-xs text-bone/45">
+                  Reserva {formatCents(b.total_cents)}
+                  {b.extra_cents > 0 && ` + atraso ${formatCents(b.extra_cents)}`}
+                  {b.excess_km_cents > 0 && ` + km ${formatCents(b.excess_km_cents)}`}
+                </dd>
+              )}
             </div>
             {b.stage === "preparacao" && (
               <div className="rounded-xl border border-amber-300/30 bg-amber-300/[0.05] px-4 py-3 text-amber-100">

@@ -24,7 +24,11 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
   const [gear, setGear] = useState<Gear>(vehicle?.gear ?? "automatico");
   // A diária é sempre digitada pela central: sem valor sugerido (RN-01.5).
   const [rate, setRate] = useState(vehicle ? centsToInput(vehicle.daily_rate_cents) : "");
-  const [maintenance, setMaintenance] = useState(vehicle?.in_maintenance ?? false);
+    const [maintenance, setMaintenance] = useState(vehicle?.in_maintenance ?? false);
+  // Caução e plano de km: opcionais, digitados pela central (RN-06.4, RN-02.18, RN-01.5).
+  const [deposit, setDeposit] = useState(vehicle?.deposit_cents ? centsToInput(vehicle.deposit_cents) : "");
+  const [kmLimit, setKmLimit] = useState(vehicle?.km_limit_per_day ? String(vehicle.km_limit_per_day) : "");
+  const [extraKm, setExtraKm] = useState(vehicle?.extra_km_cents ? centsToInput(vehicle.extra_km_cents) : "");
   const [problem, setProblem] = useState<string | null>(null);
 
   const save = useMutation({
@@ -44,7 +48,14 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
     const seatCount = Number(seats);
     if (!PLATE_PATTERN.test(normalized)) return setProblem("Placa inválida. Use ABC1234 ou ABC1D23.");
     if (!cents) return setProblem("Informe a diária em reais, maior que zero.");
-    if (!Number.isInteger(seatCount) || seatCount <= 0) return setProblem("Informe o número de lugares.");
+        if (!Number.isInteger(seatCount) || seatCount <= 0) return setProblem("Informe o número de lugares.");
+    const depositCents = deposit.trim() ? parseReais(deposit) : null;
+    if (deposit.trim() && !depositCents) return setProblem("Informe a caução em reais, maior que zero, ou deixe em branco.");
+    const limit = kmLimit.trim() ? Number(kmLimit) : null;
+    const extraCents = extraKm.trim() ? parseReais(extraKm) : null;
+    if (kmLimit.trim() && (!Number.isInteger(limit) || (limit ?? 0) <= 0)) return setProblem("O limite de km por dia deve ser um número inteiro maior que zero.");
+    if (extraKm.trim() && !extraCents) return setProblem("Informe o valor do km excedente em reais, maior que zero.");
+    if ((limit === null) !== (extraCents === null)) return setProblem("Preencha o limite de km por dia e o valor do km excedente juntos, ou deixe os dois em branco (km livre).");
     setProblem(null);
     save.mutate({
       plate: normalized,
@@ -53,8 +64,11 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
       owner: owner.trim(),
       seats: seatCount,
       gear,
-      daily_rate_cents: cents,
+            daily_rate_cents: cents,
       in_maintenance: maintenance,
+      deposit_cents: depositCents,
+      km_limit_per_day: limit,
+      extra_km_cents: extraCents,
     });
   };
 
@@ -96,6 +110,15 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
       </Field>
       <Field id="vehicle-rate" label="Diária (R$)" hint="Valor cobrado por dia. Novas reservas usam este valor." className="sm:col-span-2">
         <input id="vehicle-rate" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} className={inputClass} />
+      </Field>
+            <Field id="vehicle-deposit" label="Caução (R$)" hint="Pré-autorização no cartão. Em branco: a definir." className="sm:col-span-2">
+        <input id="vehicle-deposit" inputMode="decimal" value={deposit} onChange={(e) => setDeposit(e.target.value)} className={inputClass} />
+      </Field>
+      <Field id="vehicle-km-limit" label="Limite de km por dia" hint="Em branco: km livre.">
+        <input id="vehicle-km-limit" inputMode="numeric" value={kmLimit} onChange={(e) => setKmLimit(e.target.value)} className={inputClass} />
+      </Field>
+      <Field id="vehicle-extra-km" label="Km excedente (R$)" hint="Valor de cada km acima do limite.">
+        <input id="vehicle-extra-km" inputMode="decimal" value={extraKm} onChange={(e) => setExtraKm(e.target.value)} className={inputClass} />
       </Field>
       <label className="flex items-center gap-3 text-sm text-bone/80 sm:col-span-2">
         <input type="checkbox" checked={maintenance} onChange={(e) => setMaintenance(e.target.checked)} className="h-4 w-4 accent-[#C9A86A]" />

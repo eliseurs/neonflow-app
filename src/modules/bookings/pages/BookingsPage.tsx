@@ -103,7 +103,8 @@ export function BookingsPage() {
                 {formatCents(b.total_cents)}
                 {b.stage === "preparacao" && <span className="block text-amber-200/80">Paga até {formatDateTime(b.expires_at)}</span>}
                 {isOverdue(b) && <span className="block text-rose-300">Devolução atrasada</span>}
-                {b.extra_cents > 0 && <span className="block text-amber-200/80">+ {formatCents(b.extra_cents)} de atraso</span>}
+                                {b.extra_cents > 0 && <span className="block text-amber-200/80">+ {formatCents(b.extra_cents)} de atraso</span>}
+                {b.excess_km_cents > 0 && <span className="block text-amber-200/80">+ {formatCents(b.excess_km_cents)} de km</span>}
               </p>
               <StageBadge stage={b.stage} />
               <ChevronRight className="hidden h-4 w-4 text-bone/40 md:block" aria-hidden />
