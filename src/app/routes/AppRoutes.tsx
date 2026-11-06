@@ -9,6 +9,7 @@ import { BookingDetailPage } from "@/modules/bookings/pages/BookingDetailPage";
 import { LandingPage } from "@/modules/landing/pages/LandingPage";
 import { UsersPage } from "@/modules/users/pages/UsersPage";
 import { PartnersPage } from "@/modules/partners/pages/PartnersPage";
+import { PayoutsPage } from "@/modules/payouts/pages/PayoutsPage";
 
 export function AppRoutes() {
   return (
@@ -22,7 +23,8 @@ export function AppRoutes() {
           <Route path="/reservas" element={<BookingsPage />} />
                     <Route path="/reservas/:id" element={<BookingDetailPage />} />
                     <Route path="/usuarios" element={<UsersPage />} />
-          <Route path="/parceiros" element={<PartnersPage />} />
+                    <Route path="/parceiros" element={<PartnersPage />} />
+          <Route path="/repasses" element={<PayoutsPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

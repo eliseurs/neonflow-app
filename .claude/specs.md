@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-06] — Repasses e comissões
+
+- `/repasses` (`src/modules/payouts`), admin e central: abas "Repasses aos proprietários" e "Comissões de indicadores", situação "A pagar" ou "Pagos". A pagar mostra o total por parceiro; cada item tem cliente (link para a reserva), carro, percentual, base e valor. "Marcar como pago" pede confirmação; pagos mostram data e quem marcou. Sem percentual: "Percentual a definir".
+- Cadastro do parceiro: o repasse mostra a participação administrativa do Neon Flow (100% − repasse) e a base; a comissão diz que sai da parte do Neon Flow.
+- Testes: `PayoutsPage`, `totalsByPartner`.
+
+---
+
 ## [2026-11-06] — Atraso por minuto e km controlado
 
 - Devolução: a prévia e o detalhe mostram o atraso em minutos ("1 h 05 min", "1 dia 6 h 00 min") e o valor pela diária ÷ 1440 (`lateMinutes`, `lateCents`, `formatMinutes`), espelhando a API (`extra_minutes`). A prévia do km excedente usa só as diárias contratadas (q90).

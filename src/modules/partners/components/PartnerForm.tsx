@@ -89,11 +89,17 @@ export function PartnerForm({ partner, onDone }: { partner?: Partner; onDone: (p
       <Field id="partner-city" label="Cidade" className="sm:col-span-2">
         <input id="partner-city" value={city} onChange={(e) => setCity(e.target.value)} className={inputClass} />
       </Field>
-      <Field id="partner-commission" label="Comissão de indicação (%)" hint="Em branco: a definir.">
+      <Field id="partner-commission" label="Comissão de indicação (%)" hint="Sobre as diárias, sai da parte do Neon Flow. Em branco: a definir.">
         <input id="partner-commission" inputMode="decimal" value={commission} onChange={(e) => setCommission(e.target.value)} className={inputClass} />
       </Field>
       {kinds.includes("proprietario") && (
-        <Field id="partner-owner-share" label="Repasse ao proprietário (%)" hint="Parte do aluguel que vai ao dono.">
+        <Field id="partner-owner-share" label="Repasse ao proprietário (%)"
+          hint={(() => {
+            const p = parsePercent(ownerShare);
+            return typeof p === "number"
+              ? `Sobre diárias, atraso e km. O Neon Flow fica com ${String(Math.round((100 - p) * 100) / 100).replace(".", ",")}% de participação administrativa.`
+              : "Sobre diárias, atraso e km. O restante é a participação administrativa do Neon Flow.";
+          })()}>
           <input id="partner-owner-share" inputMode="decimal" value={ownerShare} onChange={(e) => setOwnerShare(e.target.value)} className={inputClass} />
         </Field>
       )}
