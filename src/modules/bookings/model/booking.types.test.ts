@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isActive, isCancelable, isOverdue, lateDays, nextStage, pendingChecks, rentalDays, stageChecks } from "./booking.types";
+import { excessKm, extrasCents, isActive, isCancelable, isOverdue, lateDays, nextStage, pendingChecks, rentalDays, stageChecks } from "./booking.types";
 
 describe("etapas da reserva", () => {
   it("segue o fluxo da API", () => {
@@ -60,5 +60,12 @@ describe("etapas da reserva", () => {
     expect(isOverdue(b, Date.parse("2026-12-12T11:00:00-03:00"))).toBe(false);
     expect(isOverdue(b, Date.parse("2026-12-12T11:01:00-03:00"))).toBe(true);
     expect(isOverdue({ ...b, stage: "devolvida" }, Date.parse("2026-12-20T10:00:00-03:00"))).toBe(false);
+  });
+
+  it("calcula km excedente e extras como a API", () => {
+    expect(excessKm(200, 2, 400)).toBe(0);
+    expect(excessKm(200, 2, 450)).toBe(50);
+    expect(excessKm(200, 3, 450)).toBe(0);
+    expect(extrasCents({ extra_cents: 10000, excess_km_cents: 7500 })).toBe(17500);
   });
 });

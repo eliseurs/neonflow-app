@@ -10,8 +10,11 @@ export const bookingService = {
   setChecks: async (id: string, checks: Record<string, boolean>) =>
     (await apiClient.patch<ApiResponse<Booking>>(`/bookings/${id}/checks`, checks)).data,
   /** at: hora real da entrega ou da devolução (AAAA-MM-DDTHH:MM, horário de Gramado); vazia, vale agora. */
-  advance: async (id: string, at?: string) =>
-    (await apiClient.post<ApiResponse<Booking>>(`/bookings/${id}/advance`, at ? { at } : undefined)).data,
+    /** km: odômetro na entrega ou na devolução (obrigatório no plano limitado). */
+  advance: async (id: string, at?: string, km?: number) => {
+    const body = at || km !== undefined ? { ...(at ? { at } : {}), ...(km !== undefined ? { km } : {}) } : undefined;
+    return (await apiClient.post<ApiResponse<Booking>>(`/bookings/${id}/advance`, body)).data;
+  },
   cancel: async (id: string) => (await apiClient.post<ApiResponse<Booking>>(`/bookings/${id}/cancel`)).data,
   available: async (start: string, end: string) =>
     (await apiClient.get<ApiResponse<Vehicle[]>>(`/availability?start_at=${encodeURIComponent(start)}&end_at=${encodeURIComponent(end)}`)).data,

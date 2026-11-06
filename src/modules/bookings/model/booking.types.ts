@@ -23,8 +23,17 @@ export interface Booking {
   delivered_at: string | null;
   returned_at: string | null;
   /** Diárias extras do atraso na devolução e o valor delas (RN-02.19). */
-  extra_days: number;
+    extra_days: number;
   extra_cents: number;
+  /** Caução e plano de km copiados do veículo na criação (RN-06.4, RN-02.18). km_limit_per_day null = km livre. */
+  deposit_cents: number | null;
+  km_limit_per_day: number | null;
+  extra_km_cents: number | null;
+  /** Odômetro na entrega e na devolução e o excedente cobrado (RN-02.18). */
+  delivered_km: number | null;
+  returned_km: number | null;
+  excess_km: number;
+  excess_km_cents: number;
   expires_at: string;
   created_by: string | null;
   created_at: string;
@@ -43,8 +52,22 @@ export interface CreateBookingRequest {
   client_name: string;
   /** Data e hora de Gramado, como o campo datetime-local (AAAA-MM-DDTHH:MM). */
   start_at: string;
-  end_at: string;
+    end_at: string;
   place: string;
+  /** "livre" ou "limitado"; vazio: limitado se o veículo tiver limite (RN-02.18). */
+  km_plan?: KmPlan;
+}
+
+export type KmPlan = "livre" | "limitado";
+
+/** Km acima da franquia: limite por dia × diárias cobradas (reserva + atraso). Espelha a API. */
+export function excessKm(limitPerDay: number, chargedDays: number, driven: number): number {
+  return Math.max(driven - limitPerDay * chargedDays, 0);
+}
+
+/** Cobranças além da reserva: atraso (RN-02.19) e km excedente (RN-02.18). */
+export function extrasCents(b: Pick<Booking, "extra_cents" | "excess_km_cents">): number {
+  return b.extra_cents + b.excess_km_cents;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;

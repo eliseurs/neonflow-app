@@ -2,6 +2,15 @@
 
 ---
 
+## [2026-11-06] — Caução e plano de km no painel
+
+- Veículo: campos "Caução (R$)", "Limite de km por dia" e "Km excedente (R$)", opcionais (limite e valor juntos). O cartão mostra caução e quilometragem (`kmPlanLabel`).
+- Nova reserva: com veículo limitado, escolha entre "Limitado · N km/dia" e "Km livre", com a franquia do período e o valor do km excedente; mostra a caução do veículo. Envia `km_plan`.
+- Detalhe: campo "Quilometragem (odômetro)" na entrega e na devolução (obrigatório no plano limitado), prévia do km excedente, plano, franquia, odômetro e caução no resumo, e "Total com extras" (reserva + atraso + km). O aviso de atraso segue a hora informada.
+- Lista: "+ R$ X de km". `booking.types`: `excessKm`, `extrasCents`, `KmPlan`.
+
+---
+
 ## [2026-11-06] — Hora real e atraso no painel
 
 - Detalhe da reserva: ao avançar para "em locação" e para "devolvida", campo "Hora real da entrega/devolução" (padrão: agora em Gramado). Na devolução, prévia do atraso ("1 diária extra · R$ 100,00") antes de confirmar. Avisos de devolução atrasada e de carro ainda em locação em outra reserva.

@@ -3,11 +3,12 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { CATEGORY_LABEL, formatPlate } from "@/modules/fleet/model/fleet.types";
+import { cn } from "@/shared/lib/cn";
 import { formatCents, localDateTime } from "@/shared/lib/format";
 import { Button } from "@/shared/ui/Button";
 import { Field, inputClass } from "@/shared/ui/Field";
 import { ErrorNote, Loading } from "@/shared/ui/Panel";
-import { rentalDays, type Booking } from "../model/booking.types";
+import { rentalDays, type Booking, type KmPlan } from "../model/booking.types";
 import { bookingService } from "../services/booking.service";
 
 export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void }) {
@@ -17,7 +18,9 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
   const [end, setEnd] = useState(localDateTime(2, 10));
   const [vehicleId, setVehicleId] = useState("");
   const [client, setClient] = useState("");
-  const [place, setPlace] = useState("");
+    const [place, setPlace] = useState("");
+  // Plano de km (RN-02.18): limitado por padrão quando o veículo tem limite.
+  const [kmPlan, setKmPlan] = useState<KmPlan>("limitado");
 
   const days = start && end ? rentalDays(start, end) : 0;
   const validPeriod = days >= 1;
@@ -41,7 +44,8 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    create.mutate({ vehicle_id: vehicleId, client_name: client.trim(), start_at: start, end_at: end, place: place.trim() });
+        const plan: KmPlan = vehicle?.km_limit_per_day ? kmPlan : "livre";
+    create.mutate({ vehicle_id: vehicleId, client_name: client.trim(), start_at: start, end_at: end, place: place.trim(), km_plan: plan });
   };
 
   return (
@@ -87,6 +91,44 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
       <Field id="booking-place" label="Local de retirada" className="sm:col-span-2">
         <input id="booking-place" value={place} onChange={(e) => setPlace(e.target.value)} className={inputClass} />
       </Field>
+
+            {vehicle?.km_limit_per_day && vehicle.extra_km_cents && (
+        <fieldset className="sm:col-span-2">
+          <legend id="km-plan" className="block text-[11px] font-medium uppercase tracking-[0.2em] text-bone/60">Quilometragem</legend>
+          <div role="radiogroup" aria-labelledby="km-plan" className="mt-2 grid gap-2 rounded-2xl border border-white/10 bg-black/40 p-1.5 sm:grid-cols-2">
+            {([
+              ["limitado", `Limitado · ${vehicle.km_limit_per_day} km/dia`],
+              ["livre", "Km livre"],
+            ] as const).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={kmPlan === value}
+                onClick={() => setKmPlan(value)}
+                className={cn(
+                  "rounded-xl px-3 py-2.5 text-sm transition-all duration-300 ease-silk",
+                  kmPlan === value ? "bg-gold text-noir" : "text-bone/70 hover:bg-white/[0.04]",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {kmPlan === "limitado" && (
+            <p className="mt-2 text-xs text-bone/50">
+              Franquia de {vehicle.km_limit_per_day * Math.max(days, 1)} km no período · excedente de {formatCents(vehicle.extra_km_cents)} por km
+            </p>
+          )}
+        </fieldset>
+      )}
+
+      {vehicle && (
+        <p className="text-sm text-bone/60 sm:col-span-2">
+          Caução (pré-autorização no cartão):{" "}
+          {vehicle.deposit_cents ? <span className="text-bone">{formatCents(vehicle.deposit_cents)}</span> : "não cadastrada para este veículo"}
+        </p>
+      )}
 
       {vehicle && (
         <div className="flex items-baseline justify-between rounded-xl border border-gold/30 bg-gold/[0.05] px-4 py-3 sm:col-span-2">
