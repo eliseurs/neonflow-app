@@ -54,7 +54,8 @@ describe("LandingPage", () => {
     expect(screen.getByRole("link", { name: "Falar no WhatsApp" })).toHaveAttribute("href", "https://wa.me/5554999990000");
 
     fireEvent.click(screen.getByRole("button", { name: "Pedir transfer" }));
-    expect(screen.getByLabelText("Serviço")).toHaveValue("transfer");
+    const form0 = screen.getByRole("button", { name: "Enviar pelo WhatsApp" }).closest("form")!;
+    expect(within(form0).getByRole("radio", { name: "Transfer" })).toHaveAttribute("aria-checked", "true");
 
     const form = screen.getByRole("button", { name: "Enviar pelo WhatsApp" }).closest("form")!;
     fireEvent.change(within(form).getByLabelText("Nome"), { target: { value: "Ana Teste" } });
@@ -67,5 +68,55 @@ describe("LandingPage", () => {
     expect(url).toContain("Serviço: Transfer");
     expect(url).toContain("Nome: Ana Teste");
     expect(url).toContain("Início: 10/12/2026");
+  });
+
+  it("o cartão do hero escolhe o serviço e leva ao formulário", () => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    renderLanding();
+    const hero = screen.getByRole("radiogroup", { name: "Escolha o serviço" });
+    expect(within(hero).getByRole("radio", { name: "Aluguel" })).toHaveAttribute("aria-checked", "true");
+    fireEvent.click(within(hero).getByRole("radio", { name: "Transfer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar abaixo" }));
+    expect(scroll).toHaveBeenCalled();
+    const form = screen.getByRole("button", { name: "Enviar pelo WhatsApp" }).closest("form")!;
+    expect(within(form).getByRole("radio", { name: "Transfer" })).toHaveAttribute("aria-checked", "true");
+  });
+
+  it("pedir um carro da frota escolhe aluguel e anota o modelo", () => {
+    Element.prototype.scrollIntoView = vi.fn();
+    renderLanding();
+    fireEvent.click(screen.getAllByRole("button", { name: "Pedir este carro" })[1]);
+    expect(screen.getByLabelText("Observações (voo, passageiros, malas)")).toHaveValue("Mercedes-Benz C180");
+    const form = screen.getByRole("button", { name: "Enviar pelo WhatsApp" }).closest("form")!;
+    expect(within(form).getByRole("radio", { name: "Aluguel sem motorista" })).toHaveAttribute("aria-checked", "true");
+  });
+
+  it("o menu abre em painel lateral, fecha com Esc e com o link", () => {
+    renderLanding({ number: "5554999990000" });
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menu" }));
+    const menu = screen.getByRole("dialog", { name: "Abrir menu" });
+    expect(within(menu).getByRole("link", { name: "Frota" })).toHaveAttribute("href", "#frota");
+    expect(within(menu).getByRole("link", { name: /Área da central/ })).toHaveAttribute("href", "/login");
+    expect(within(menu).getByRole("link", { name: "Falar no WhatsApp" })).toBeInTheDocument();
+    expect(document.body.style.overflow).toBe("hidden");
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menu" }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("link", { name: "Contato" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("o cabeçalho vira cápsula ao rolar", () => {
+    renderLanding();
+    const bar = screen.getByRole("banner");
+    expect(bar).toHaveClass("py-6");
+    Object.defineProperty(window, "scrollY", { value: 300, configurable: true });
+    fireEvent.scroll(window);
+    expect(bar).toHaveClass("py-3");
+    Object.defineProperty(window, "scrollY", { value: 0, configurable: true });
   });
 });

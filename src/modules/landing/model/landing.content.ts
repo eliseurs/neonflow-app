@@ -6,6 +6,8 @@ export type Lang = "pt" | "en";
 export type ServiceKind = "aluguel" | "aluguel-motorista" | "transfer";
 
 interface Card {
+  counter: string;
+  chips: string[];
   overline: string;
   title: string;
   titleAccent: string;
@@ -15,10 +17,20 @@ interface Card {
 }
 
 export interface LandingContent {
-  nav: { rental: string; transfer: string; fleet: string; conditions: string; contact: string; book: string; switchTo: string };
-  hero: { overline: string; title: string; titleAccent: string; lead: string; rentalCta: string; transferCta: string };
-  services: { overline: string; title: string; titleAccent: string; rental: Card; transfer: Card };
-  fleet: { overline: string; title: string; titleAccent: string; note: string; cars: { category: string; model: string }[] };
+  nav: {
+    rental: string; transfer: string; fleet: string; conditions: string; contact: string; book: string; switchTo: string;
+    menu: string; close: string; home: string; language: string; staff: string; support: string; supportText: string;
+  };
+  hero: {
+    overline: string; title: string; titleAccent: string; lead: string; rentalCta: string; transferCta: string;
+    step: string; stepHint: string; cardTitle: string; cardLead: string; choose: string; continue: string;
+  };
+  trust: { title: string; text: string }[];
+  services: { overline: string; title: string; titleAccent: string; lead: string; rental: Card; transfer: Card };
+  fleet: {
+    overline: string; title: string; titleAccent: string; note: string; cta: string;
+    cars: { category: string; model: string; chips: string[] }[];
+  };
   conditions: {
     overline: string;
     title: string;
@@ -44,26 +56,46 @@ export interface LandingContent {
     unavailable: string;
     message: { greeting: string; service: string; name: string; start: string; end: string; route: string; notes: string };
   };
-  footer: { region: string; staff: string; rights: string };
+  final: { title: string; titleAccent: string; lead: string; cta: string; back: string };
+  footer: { region: string; staff: string; rights: string; about: string; pills: string[]; explore: string; contact: string; top: string; whatsapp: string };
   whatsapp: string;
 }
 
 export const content: Record<Lang, LandingContent> = {
   pt: {
-    nav: { rental: "Aluguel", transfer: "Transfer", fleet: "Frota", conditions: "Condições", contact: "Contato", book: "Reservar", switchTo: "EN" },
+    nav: {
+      rental: "Aluguel", transfer: "Transfer", fleet: "Frota", conditions: "Condições", contact: "Contato", book: "Reservar", switchTo: "EN",
+      menu: "Abrir menu", close: "Fechar menu", home: "Início", language: "Idioma", staff: "Área da central",
+      support: "Atendimento", supportText: "Direto com a central, pelo WhatsApp.",
+    },
     hero: {
-      overline: "Gramado · Canela · Serra Gaúcha",
+      overline: "Serviço · Aluguel e transfer",
       title: "Aluguel e transfer",
       titleAccent: "na Serra Gaúcha.",
       lead: "Carros com ou sem motorista e transfer privado desde os aeroportos de Porto Alegre e Caxias do Sul. Reserva direta com a central.",
       rentalCta: "Alugar um carro",
       transferCta: "Reservar transfer",
+      step: "Passo 1 de 2",
+      stepHint: "Peça agora",
+      cardTitle: "Comece seu pedido",
+      cardLead: "Escolha o serviço para seguir com datas e trajeto.",
+      choose: "Escolha o serviço",
+      continue: "Continuar abaixo",
     },
+    trust: [
+      { title: "Voo acompanhado", text: "Pelo número informado na reserva" },
+      { title: "Seguro incluso", text: "Na diária do aluguel sem motorista" },
+      { title: "60 min de espera", text: "Inclusos no aeroporto" },
+      { title: "Cancelamento grátis", text: "Até 48 h antes da retirada" },
+    ],
     services: {
       overline: "Serviços",
       title: "Chegar e circular",
       titleAccent: "com o mesmo cuidado.",
+      lead: "Dois serviços, uma central: o carro para a viagem e o transfer desde o aeroporto.",
       rental: {
+        counter: "01 / 02",
+        chips: ["Economy e Premium", "Mínimo de 1 diária"],
         overline: "01 — Aluguel",
         title: "Aluguel",
         titleAccent: "com ou sem motorista.",
@@ -77,6 +109,8 @@ export const content: Record<Lang, LandingContent> = {
         service: "aluguel",
       },
       transfer: {
+        counter: "02 / 02",
+        chips: ["POA e CXJ", "Voo acompanhado"],
         overline: "02 — Transfer",
         title: "Transfer privado",
         titleAccent: "do aeroporto ao destino.",
@@ -95,9 +129,10 @@ export const content: Record<Lang, LandingContent> = {
       title: "Duas categorias,",
       titleAccent: "um padrão.",
       note: "O valor da diária é informado pela central na reserva.",
+      cta: "Pedir este carro",
       cars: [
-        { category: "Economy", model: "Volkswagen Jetta" },
-        { category: "Premium", model: "Mercedes-Benz C180" },
+        { category: "Economy", model: "Volkswagen Jetta", chips: ["Com ou sem motorista", "Seguro incluso"] },
+        { category: "Premium", model: "Mercedes-Benz C180", chips: ["Com ou sem motorista", "Seguro incluso"] },
       ],
     },
     conditions: {
@@ -171,24 +206,60 @@ export const content: Record<Lang, LandingContent> = {
         notes: "Observações",
       },
     },
-    footer: { region: "Gramado · Serra Gaúcha", staff: "Área da central", rights: "Todos os direitos reservados." },
+    final: {
+      title: "Pronto para viajar",
+      titleAccent: "com conforto?",
+      lead: "A central confere a disponibilidade e responde pelo WhatsApp.",
+      cta: "Fazer meu pedido",
+      back: "Voltar ao início",
+    },
+    footer: {
+      region: "Gramado · Serra Gaúcha",
+      staff: "Área da central",
+      rights: "Todos os direitos reservados.",
+      about: "Aluguel de carros com ou sem motorista e transfer privado na Serra Gaúcha.",
+      pills: ["Seguro incluso", "Voo acompanhado", "Reserva direta"],
+      explore: "Explorar",
+      contact: "Contato",
+      top: "Voltar ao topo",
+      whatsapp: "WhatsApp da central",
+    },
     whatsapp: "Falar no WhatsApp",
   },
   en: {
-    nav: { rental: "Car rental", transfer: "Transfer", fleet: "Fleet", conditions: "Conditions", contact: "Contact", book: "Book", switchTo: "PT" },
+    nav: {
+      rental: "Car rental", transfer: "Transfer", fleet: "Fleet", conditions: "Conditions", contact: "Contact", book: "Book", switchTo: "PT",
+      menu: "Open menu", close: "Close menu", home: "Home", language: "Language", staff: "Staff area",
+      support: "Support", supportText: "Straight to our team, on WhatsApp.",
+    },
     hero: {
-      overline: "Gramado · Canela · Serra Gaúcha",
+      overline: "Service · Rental and transfer",
       title: "Car rental and transfers",
       titleAccent: "in the Serra Gaúcha.",
       lead: "Cars with or without a driver and private transfers from Porto Alegre and Caxias do Sul airports. Book directly with our team.",
       rentalCta: "Rent a car",
       transferCta: "Book a transfer",
+      step: "Step 1 of 2",
+      stepHint: "Request now",
+      cardTitle: "Start your request",
+      cardLead: "Choose the service to continue with dates and route.",
+      choose: "Choose the service",
+      continue: "Continue below",
     },
+    trust: [
+      { title: "Flight tracked", text: "Using the number in your booking" },
+      { title: "Insurance included", text: "In the self-drive daily rate" },
+      { title: "60 min waiting", text: "Included at the airport" },
+      { title: "Free cancellation", text: "Up to 48 h before pick-up" },
+    ],
     services: {
       overline: "Services",
       title: "Arrive and get around",
       titleAccent: "with the same care.",
+      lead: "Two services, one team: the car for your trip and the transfer from the airport.",
       rental: {
+        counter: "01 / 02",
+        chips: ["Economy and Premium", "Minimum of 1 day"],
         overline: "01 — Rental",
         title: "Car rental",
         titleAccent: "with or without a driver.",
@@ -202,6 +273,8 @@ export const content: Record<Lang, LandingContent> = {
         service: "aluguel",
       },
       transfer: {
+        counter: "02 / 02",
+        chips: ["POA and CXJ", "Flight tracked"],
         overline: "02 — Transfer",
         title: "Private transfer",
         titleAccent: "from the airport to your door.",
@@ -220,9 +293,10 @@ export const content: Record<Lang, LandingContent> = {
       title: "Two categories,",
       titleAccent: "one standard.",
       note: "Our team quotes the daily rate when you book.",
+      cta: "Request this car",
       cars: [
-        { category: "Economy", model: "Volkswagen Jetta" },
-        { category: "Premium", model: "Mercedes-Benz C180" },
+        { category: "Economy", model: "Volkswagen Jetta", chips: ["With or without a driver", "Insurance included"] },
+        { category: "Premium", model: "Mercedes-Benz C180", chips: ["With or without a driver", "Insurance included"] },
       ],
     },
     conditions: {
@@ -296,7 +370,24 @@ export const content: Record<Lang, LandingContent> = {
         notes: "Notes",
       },
     },
-    footer: { region: "Gramado · Serra Gaúcha", staff: "Staff area", rights: "All rights reserved." },
+    final: {
+      title: "Ready to travel",
+      titleAccent: "in comfort?",
+      lead: "Our team checks availability and replies on WhatsApp.",
+      cta: "Make my request",
+      back: "Back to the top",
+    },
+    footer: {
+      region: "Gramado · Serra Gaúcha",
+      staff: "Staff area",
+      rights: "All rights reserved.",
+      about: "Car rental with or without a driver and private transfers in the Serra Gaúcha.",
+      pills: ["Insurance included", "Flight tracked", "Direct booking"],
+      explore: "Explore",
+      contact: "Contact",
+      top: "Back to top",
+      whatsapp: "Our WhatsApp",
+    },
     whatsapp: "Chat on WhatsApp",
   },
 };

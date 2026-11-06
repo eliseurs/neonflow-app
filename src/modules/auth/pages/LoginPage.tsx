@@ -5,7 +5,7 @@ import { apiErrorMessage } from "@/app/providers/api/client";
 import { Wordmark } from "@/shared/ui/Brand";
 import { Button } from "@/shared/ui/Button";
 import { Field, inputClass } from "@/shared/ui/Field";
-import { Overline } from "@/shared/ui/Heading";
+import { Accent, Overline } from "@/shared/ui/Heading";
 import { ErrorNote } from "@/shared/ui/Panel";
 import { authService } from "../services/auth.service";
 import { useAuthStore } from "../store/auth.store";
@@ -47,7 +47,7 @@ export function LoginPage() {
         <form onSubmit={submit} className="mt-10 rounded-[14px] border border-white/[0.08] bg-white/[0.03] p-8 md:p-10" noValidate>
           <Overline>Central de mobilidade</Overline>
           <h1 className="mt-4 font-serif text-4xl font-light leading-tight">
-            Acesso <em className="text-gold">da equipe.</em>
+            Acesso <Accent>da equipe.</Accent>
           </h1>
 
           <div className="mt-8 space-y-5">

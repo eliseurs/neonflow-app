@@ -2,6 +2,17 @@
 
 ---
 
+## [2026-11-05] — Estilo LuxuryBus e logo novo
+
+- Logo trocado pelo de `nepo/resources/logo.jpg`: símbolo (anel, estrada e seta) redesenhado em SVG e "neon flow" em Poppins 500. Atualizados `public/brand/*`, `favicon.svg` e `apple-touch-icon.png`; `Wordmark` com tamanhos `sm`, `md`, `lg`. Fonte Poppins (só peso 500) no `index.html`.
+- Landing refeita no padrão de luxurybus.ch/transfer-privato: cabeçalho que vira cápsula ao rolar, menu lateral com links em cascata, hero centralizado com cartão "Passo 1 de 2" e seletor de serviço, faixa de garantias, cartões numerados (01 / 02) com chips e checklist, frota com palco iluminado (sem foto, PEN-65) e "Pedir este carro" que preenche o formulário, condições em cartões, área e passos, formulário com progresso e seletor em segmento, chamada final, rodapé com cartão de contato e "voltar ao topo", WhatsApp flutuante verde.
+- Tudo com textos já aprovados; sem preço. Novos textos PT/EN em `landing.content.ts` (trust, final, footer, menu).
+- Sistema: `.text-gold-grad`/`Accent`, `.btn-gold` com reflexo, `Reveal`/`useReveal`, `ease-silk` e animações (`rise`, `ambient-glow`, `slow-float`, `drawer-in`) no Tailwind; `buttonClass` separado de `Button`. O painel herda o logo, o botão e os acentos.
+- `whatsapp.ts`: `formatPhone` para exibir o número.
+- Testes: landing (cartão do hero, frota preenchendo o formulário, menu com Esc e travamento da rolagem, cabeçalho ao rolar), `useReveal` e `formatPhone`.
+
+---
+
 ## [2026-11-05] — Painel da central no visual da landing
 
 - Tema único: `noir`, `bone`, `gold` e Fraunces + Inter também no painel. Saíram os tokens `ink`/`mint` e as fontes DM Sans e Manrope (`tailwind.config.ts`, `index.css`, `index.html`).
