@@ -40,9 +40,10 @@ src/
     fleet/                      # model (tipos, placa), services, VehicleForm, FleetPage
     bookings/                   # model (etapas, conferências), services, NewBookingForm, StageBadge, páginas de lista e detalhe
   shared/
-    ui/                         # Brand, Heading (Overline, SectionHeading, PageHeader), Button, Field, Panel, Badge, Dialog
+    ui/                         # Brand, Heading (Overline, Accent, SectionHeading, PageHeader), Button, buttonClass, Field, Panel, Badge, Dialog, Reveal
     lib/cn.ts                   # clsx + tailwind-merge
     lib/format.ts               # reais ↔ centavos, datas sem fuso
+    lib/useReveal.ts            # revelação ao rolar
   test/                         # setup, render (renderPage), fixtures fictícias
 prototipo/                      # demo estática congelada (ver prototipo/README.md)
 docs/                           # deploy, qualidade
@@ -66,7 +67,19 @@ docs/                           # deploy, qualidade
 
 ## Identidade visual
 
-Landing e painel seguem a linha LuxuryBus: fundo `noir` `#060606`, texto `bone` `#F9F9F9`, destaque `gold` `#C9A86A` (o dourado do logo) e `gold-soft` `#DCC596`. Fraunces 300 nos títulos, com a segunda metade em itálico dourado; Inter no texto. Tokens em `tailwind.config.ts`; as cores do protótipo (`ink`, `mint`) saíram do app.
+Landing e painel seguem a linha da LuxuryBus (luxurybus.ch/transfer-privato): fundo `noir` `#060606`, texto `bone` `#F9F9F9`, destaque `gold` `#C9A86A` (`gold-light` `#E8CF9E`, `gold-deep` `#8A6F3F`). Fraunces 300 nos títulos com letter-spacing negativo e a segunda metade em itálico com degradê dourado (`.text-gold-grad`, componente `Accent`); Inter no texto. Tokens em `tailwind.config.ts`, utilitários em `src/index.css`.
+
+**Logo** (referência: `nepo/resources/logo.jpg`): anel aberto com a estrada e a seta saindo, e "neon flow" em minúsculas, Poppins 500, dourado `#D4AC62`. Os SVGs foram redesenhados a partir de uma captura de baixa resolução; trocar pelo vetor original quando o fundador enviar. Arquivos em `public/brand/` (símbolo, símbolo para fundo claro, ícone de app), `public/favicon.svg` e `public/apple-touch-icon.png`. O nome é montado em HTML (`Wordmark`), não está no SVG do símbolo.
+
+**Movimento e cliques** (como na referência):
+
+- Cabeçalho fixo, transparente no topo; ao rolar vira cápsula com vidro fosco e largura menor (500 ms, `ease-silk` `cubic-bezier(0.2,0.8,0.2,1)`).
+- Menu em painel lateral pela direita, fundo escurecido e desfocado, links grandes em Fraunces entrando em cascata (`animate-rise`), Esc e o fundo fecham.
+- Seções e cartões aparecem ao rolar (`Reveal`: opacidade e 18 px, uma vez só, com atraso escalonado); `prefers-reduced-motion` desliga.
+- Botão principal `.btn-gold`: degradê, brilho interno, sombra dourada e reflexo que atravessa no hover; sobe 1 px e encolhe ao clicar.
+- Links de ação em caixa alta com seta ↗ que abrem espaço no hover (`hover:gap-3`).
+- Seletores em segmento (serviço) com a opção ativa em dourado; formulário com ícones nos campos, foco com anel dourado e barra de progresso.
+- WhatsApp flutuante verde com pulso, `hover:scale-110`, `active:scale-95`.
 
 Padrões do painel (componentes em `src/shared/ui`):
 

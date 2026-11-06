@@ -6,5 +6,65 @@
   html {
     @apply bg-noir font-sans text-bone antialiased;
     color-scheme: dark;
+    scroll-behavior: smooth;
   }
+  ::selection {
+    @apply bg-gold/30 text-bone;
+  }
+}
+
+@layer components {
+  /* Acento dos títulos: itálico com degradê dourado (linha LuxuryBus). */
+  .text-gold-grad {
+    background-image: linear-gradient(135deg, #e8cf9e 0%, #c8a66a 45%, #8a6f3f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Botão principal: degradê dourado, brilho interno e reflexo que atravessa no hover. */
+  .btn-gold {
+    @apply relative isolate overflow-hidden text-noir transition-all duration-500 ease-silk;
+    background-image: linear-gradient(135deg, #e8cf9e 0%, #c8a66a 60%, #a78449 100%);
+    box-shadow: 0 10px 40px -10px rgba(200, 166, 106, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  .btn-gold::after {
+    content: "";
+    @apply pointer-events-none absolute inset-y-0 left-0 -z-10 w-1/2 opacity-0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  }
+  .btn-gold:hover:not(:disabled) {
+    box-shadow: 0 16px 50px -12px rgba(200, 166, 106, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+  }
+  .btn-gold:hover:not(:disabled)::after {
+    animation: light-sweep 1.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .btn-gold:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+
+  /* Revelação ao rolar (useReveal): começa invisível e sobe 18 px. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes light-sweep {
+  0% { opacity: 0; transform: translateX(-120%) skewX(-18deg); }
+  20%, 60% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(260%) skewX(-18deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }

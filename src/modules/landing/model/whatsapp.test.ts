@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { content } from "./landing.content";
-import { composeMessage, whatsappNumber, whatsappUrl } from "./whatsapp";
+import { composeMessage, whatsappNumber, whatsappUrl, formatPhone } from "./whatsapp";
 
 describe("whatsapp", () => {
   it("normaliza o número e trata vazio como canal desligado", () => {
@@ -34,5 +34,11 @@ describe("whatsapp", () => {
       Object.entries(o).flatMap(([k, v]) => (v && typeof v === "object" && !Array.isArray(v) ? keys(v).map((s) => `${k}.${s}`) : [k]));
     expect(keys(content.en)).toEqual(keys(content.pt));
     expect(content.en.conditions.rental.items).toHaveLength(content.pt.conditions.rental.items.length);
+  });
+
+  it("formata o telefone para exibir", () => {
+    expect(formatPhone("5554999990000")).toBe("+55 54 99999-0000");
+    expect(formatPhone("555433330000")).toBe("+55 54 3333-0000");
+    expect(formatPhone("41787560108")).toBe("+41787560108");
   });
 });

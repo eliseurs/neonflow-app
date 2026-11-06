@@ -9,7 +9,7 @@ import { fleetService } from "@/modules/fleet/services/fleet.service";
 import { cn } from "@/shared/lib/cn";
 import { formatCents, formatDate, formatDateTime } from "@/shared/lib/format";
 import { Button } from "@/shared/ui/Button";
-import { PageHeader } from "@/shared/ui/Heading";
+import { Accent, PageHeader } from "@/shared/ui/Heading";
 import { ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { StageBadge } from "../components/StageBadge";
 import { FLOW, STAGE, STAGE_CHECKS, isCancelable, nextStage, pendingChecks, type Booking } from "../model/booking.types";
@@ -96,7 +96,7 @@ export function BookingDetailPage() {
         <div className="space-y-6">
           {checks.length > 0 && (
             <Panel className="p-6 md:p-8">
-              <h2 className="font-serif text-2xl font-light">Conferências de <em className="text-gold">{STAGE[b.stage].label.toLowerCase()}</em></h2>
+              <h2 className="font-serif text-2xl font-light">Conferências de <Accent>{STAGE[b.stage].label.toLowerCase()}</Accent></h2>
               <ul className="mt-6 space-y-3">
                 {checks.map((c) => {
                   const on = Boolean(b.checks?.[c.key]);

@@ -20,6 +20,12 @@ export function whatsappUrl(number: string, message?: string): string | null {
   return `https://wa.me/${number}${query}`;
 }
 
+/** "5554999990000" → "+55 54 99999-0000". Fora do padrão brasileiro, só põe o "+". */
+export function formatPhone(number: string): string {
+  const m = number.match(/^55(\d{2})(\d{4,5})(\d{4})$/);
+  return m ? `+55 ${m[1]} ${m[2]}-${m[3]}` : `+${number}`;
+}
+
 function formatDate(iso: string, lang: "pt" | "en"): string {
   const [y, m, d] = iso.split("-");
   if (!y || !m || !d) return iso;
