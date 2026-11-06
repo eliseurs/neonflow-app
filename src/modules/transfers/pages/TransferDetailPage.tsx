@@ -161,6 +161,13 @@ export function TransferDetailPage() {
 
         <Panel className="h-fit p-6 md:p-8">
           <dl className="space-y-5 text-sm">
+            <Row label="Cliente">
+              {t.customer_id ? (
+                <Link to={`/clientes/${t.customer_id}`} className="text-gold hover:underline">{t.client_name}</Link>
+              ) : (
+                `${t.client_name} (sem cadastro)`
+              )}
+            </Row>
             <Row label="Preço da corrida">{formatCents(t.price_cents)}</Row>
             {t.driver_cents !== null && <Row label="Motorista">{formatCents(t.driver_cents + t.extra_wait_cents)}</Row>}
             {t.vehicle_name && <Row label="Carro">{t.vehicle_name}</Row>}

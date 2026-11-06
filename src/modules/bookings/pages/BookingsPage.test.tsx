@@ -6,6 +6,16 @@ import { renderPage } from "@/test/render";
 import { bookingService } from "../services/booking.service";
 import { BookingsPage } from "./BookingsPage";
 
+vi.mock("@/modules/customers/services/customer.service", () => ({
+  customerService: {
+    list: () => Promise.resolve([
+      { id: "c1", name: "Ana Cadastrada", whatsapp: "5554999990001", email: "", language: "pt", notes: "", anonymized_at: null,
+        created_at: "", updated_at: "", booking_count: 1, transfer_count: 0 },
+    ]),
+    create: (req: { name: string }) => Promise.resolve({ id: "c2", name: req.name, whatsapp: "", email: "", language: "pt", notes: "",
+      anonymized_at: null, created_at: "", updated_at: "", booking_count: 0, transfer_count: 0 }),
+  },
+}));
 vi.mock("../services/booking.service", () => ({
   bookingService: { list: vi.fn(), create: vi.fn(), available: vi.fn() },
 }));
@@ -133,5 +143,37 @@ describe("BookingsPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Criar pré-reserva" }));
     await waitFor(() => expect(bookingService.create).toHaveBeenCalled());
     expect(vi.mocked(bookingService.create).mock.calls[0][0].referred_by_partner_id).toBe("p1");
+  });
+
+  it("liga a reserva a um cliente cadastrado, buscado pelo nome (RN-04.7)", async () => {
+    vi.mocked(bookingService.list).mockResolvedValue([]);
+    vi.mocked(bookingService.available).mockResolvedValue([vehicle()]);
+    vi.mocked(bookingService.create).mockResolvedValue(booking({ id: "nova" }));
+    renderPage(<BookingsPage />, { path: "/reservas", route: "/reservas" });
+    fireEvent.click((await screen.findAllByRole("button", { name: /Nova reserva/ }))[0]);
+    fireEvent.change(await screen.findByLabelText("Veículo disponível"), { target: { value: "v1" } });
+    fireEvent.change(screen.getByLabelText(/Cliente/), { target: { value: "Ana" } });
+    fireEvent.click(await screen.findByRole("button", { name: /Ana Cadastrada/ }, { timeout: 2000 }));
+    expect(screen.getByRole("button", { name: "Trocar cliente" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Criar pré-reserva" }));
+    await waitFor(() => expect(bookingService.create).toHaveBeenCalled());
+    expect(vi.mocked(bookingService.create).mock.calls[0][0]).toMatchObject({ client_name: "Ana Cadastrada", customer_id: "c1" });
+  });
+
+  it("cadastra o cliente na hora, com WhatsApp", async () => {
+    vi.mocked(bookingService.list).mockResolvedValue([]);
+    vi.mocked(bookingService.available).mockResolvedValue([vehicle()]);
+    vi.mocked(bookingService.create).mockResolvedValue(booking({ id: "nova" }));
+    renderPage(<BookingsPage />, { path: "/reservas", route: "/reservas" });
+    fireEvent.click((await screen.findAllByRole("button", { name: /Nova reserva/ }))[0]);
+    fireEvent.change(await screen.findByLabelText("Veículo disponível"), { target: { value: "v1" } });
+    fireEvent.change(screen.getByLabelText(/Cliente/), { target: { value: "Bruno Novo" } });
+    fireEvent.click(screen.getByRole("button", { name: /Cadastrar "Bruno Novo" como cliente/ }));
+    fireEvent.change(screen.getByLabelText("WhatsApp do cliente"), { target: { value: "+55 54 99999-0002" } });
+    fireEvent.click(screen.getByRole("button", { name: "Cadastrar cliente" }));
+    expect(await screen.findByRole("button", { name: "Trocar cliente" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Criar pré-reserva" }));
+    await waitFor(() => expect(bookingService.create).toHaveBeenCalled());
+    expect(vi.mocked(bookingService.create).mock.calls[0][0]).toMatchObject({ client_name: "Bruno Novo", customer_id: "c2" });
   });
 });

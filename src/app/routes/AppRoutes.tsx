@@ -10,6 +10,8 @@ import { LandingPage } from "@/modules/landing/pages/LandingPage";
 import { UsersPage } from "@/modules/users/pages/UsersPage";
 import { PartnersPage } from "@/modules/partners/pages/PartnersPage";
 import { PayoutsPage } from "@/modules/payouts/pages/PayoutsPage";
+import { CustomerDetailPage } from "@/modules/customers/pages/CustomerDetailPage";
+import { CustomersPage } from "@/modules/customers/pages/CustomersPage";
 import { TransferDetailPage } from "@/modules/transfers/pages/TransferDetailPage";
 import { TransfersPage } from "@/modules/transfers/pages/TransfersPage";
 
@@ -27,7 +29,9 @@ export function AppRoutes() {
                     <Route path="/usuarios" element={<UsersPage />} />
                     <Route path="/parceiros" element={<PartnersPage />} />
                     <Route path="/repasses" element={<PayoutsPage />} />
-          <Route path="/transfers" element={<TransfersPage />} />
+                    <Route path="/transfers" element={<TransfersPage />} />
+          <Route path="/clientes" element={<CustomersPage />} />
+          <Route path="/clientes/:id" element={<CustomerDetailPage />} />
           <Route path="/transfers/:id" element={<TransferDetailPage />} />
         </Route>
       </Route>

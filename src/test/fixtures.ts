@@ -49,6 +49,7 @@ export const booking = (over: Partial<Booking> = {}): Booking => ({
     excess_km: 0,
   excess_km_cents: 0,
   referred_by_partner_id: null,
+  customer_id: null,
   expires_at: "2026-11-06T12:00:00Z",
   created_by: "u1",
   created_at: "2026-11-05T12:00:00Z",

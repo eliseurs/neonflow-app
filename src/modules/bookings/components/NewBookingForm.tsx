@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { CATEGORY_LABEL, formatPlate } from "@/modules/fleet/model/fleet.types";
 import { partnersService } from "@/modules/partners/services/partners.service";
+import { CustomerPicker } from "@/modules/customers/components/CustomerPicker";
+import type { PickedCustomer } from "@/modules/customers/model/customer.types";
 import { cn } from "@/shared/lib/cn";
 import { formatCents, localDateTime } from "@/shared/lib/format";
 import { Button } from "@/shared/ui/Button";
@@ -18,7 +20,8 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
   const [start, setStart] = useState(localDateTime(1, 10));
   const [end, setEnd] = useState(localDateTime(2, 10));
   const [vehicleId, setVehicleId] = useState("");
-  const [client, setClient] = useState("");
+    const [picked, setPicked] = useState<PickedCustomer>({ name: "", customerId: null });
+  const client = picked.name;
       const [place, setPlace] = useState("");
   // Parceiro que indicou: o código vem na mensagem do WhatsApp ("Indicação: CÓDIGO") (RN-07.5).
   const [referrer, setReferrer] = useState("");
@@ -51,7 +54,8 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
         const plan: KmPlan = vehicle?.km_limit_per_day ? kmPlan : "livre";
         create.mutate({
       vehicle_id: vehicleId, client_name: client.trim(), start_at: start, end_at: end, place: place.trim(), km_plan: plan,
-      ...(referrer ? { referred_by_partner_id: referrer } : {}),
+            ...(referrer ? { referred_by_partner_id: referrer } : {}),
+      ...(picked.customerId ? { customer_id: picked.customerId } : {}),
     });
   };
 
@@ -100,9 +104,7 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
           ))}
         </select>
       </Field>
-      <Field id="booking-client" label="Cliente" hint="Só o nome, por enquanto. Documentos virão depois (PEN-48)." className="sm:col-span-2">
-        <input id="booking-client" value={client} onChange={(e) => setClient(e.target.value)} className={inputClass} />
-      </Field>
+            <CustomerPicker id="booking-client" value={picked} onChange={setPicked} className="sm:col-span-2" />
       <Field id="booking-place" label="Local de retirada" className="sm:col-span-2">
         <input id="booking-place" value={place} onChange={(e) => setPlace(e.target.value)} className={inputClass} />
       </Field>

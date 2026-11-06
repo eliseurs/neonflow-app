@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, Car, Handshake, KeyRound, LayoutDashboard, LogOut, Plane, Users, Wallet } from "lucide-react";
+import { CalendarDays, Car, Contact, Handshake, KeyRound, LayoutDashboard, LogOut, Plane, Users, Wallet } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { authService } from "@/modules/auth/services/auth.service";
@@ -12,7 +12,8 @@ import { Dialog } from "@/shared/ui/Dialog";
 const NAV = [
   { to: "/central", label: "Central", icon: LayoutDashboard },
   { to: "/reservas", label: "Reservas", icon: CalendarDays },
-        { to: "/transfers", label: "Transfer", icon: Plane },
+          { to: "/transfers", label: "Transfer", icon: Plane },
+  { to: "/clientes", label: "Clientes", icon: Contact },
   { to: "/frota", label: "Frota", icon: Car },
     { to: "/parceiros", label: "Parceiros", icon: Handshake },
   { to: "/repasses", label: "Repasses", icon: Wallet },

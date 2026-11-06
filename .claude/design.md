@@ -44,6 +44,7 @@ src/
     partners/                   # parceiros, link e QR de indicação (RN-07; pacote qrcode, gerado no navegador)
     payouts/                    # repasses aos donos, motoristas e comissões dos indicadores (RN-03.12 a 03.14)
     transfers/                  # transfer operado pela central: oferta, aceite, conclusão (RN-02.9 a 02.31)
+    customers/                  # clientes: cadastro, busca, histórico, anonimização (RN-04.7, RN-04.8)
   shared/
     ui/                         # Brand, Heading (Overline, Accent, SectionHeading, PageHeader), Button, buttonClass, Field, Panel, Badge, Dialog, Reveal
     lib/cn.ts                   # clsx + tailwind-merge

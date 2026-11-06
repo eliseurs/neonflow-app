@@ -27,7 +27,9 @@ export interface Transfer {
   extra_wait_cents: number;
   cancel_fee_cents: number;
   flight_cancelled: boolean;
-  referred_by_partner_id: string | null;
+    referred_by_partner_id: string | null;
+  /** Cliente cadastrado; client_name é o nome no dia do pedido. */
+  customer_id: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -61,7 +63,8 @@ export interface CreateTransferRequest {
   passengers: number;
   notes: string;
   price_cents: number;
-  referred_by_partner_id?: string;
+    referred_by_partner_id?: string;
+  customer_id?: string;
 }
 
 export const TRANSFER_STAGE: Record<TransferStage, { label: string; tone: Tone }> = {
