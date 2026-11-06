@@ -77,4 +77,14 @@ describe("BookingsPage", () => {
     expect(screen.getByText("A devolução precisa ser depois da retirada.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Criar pré-reserva" })).toBeDisabled();
   });
+
+  it("sinaliza devolução atrasada e o valor do atraso", async () => {
+    vi.mocked(bookingService.list).mockResolvedValue([
+      booking({ id: "a", client_name: "Atrasado Teste", stage: "em_locacao", end_at: "2026-01-02T09:00:00-03:00" }),
+      booking({ id: "b", client_name: "Devolvido Teste", stage: "devolvida", extra_days: 1, extra_cents: 10000 }),
+    ]);
+    renderPage(<BookingsPage />);
+    expect(await screen.findByText("Devolução atrasada")).toBeInTheDocument();
+    expect(screen.getByText(/\+ R\$\s100,00 de atraso/)).toBeInTheDocument();
+  });
 });

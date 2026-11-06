@@ -106,4 +106,57 @@ describe("BookingDetailPage", () => {
     expect(await screen.findByText(/aguarda o checklist de devolução da reserva anterior/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Avançar para em locação" })).toBeDisabled();
   });
+
+  it("registra a hora real da entrega", async () => {
+    vi.mocked(bookingService.get).mockResolvedValue(booking({ stage: "confirmada", checks: { delivery: true } }));
+    vi.mocked(bookingService.advance).mockResolvedValue(
+      booking({ stage: "em_locacao", checks: { delivery: true }, delivered_at: "2026-12-10T09:20:00-03:00" }),
+    );
+    open();
+    fireEvent.change(await screen.findByLabelText("Hora real da entrega"), { target: { value: "2026-12-10T09:20" } });
+    fireEvent.click(screen.getByRole("button", { name: "Avançar para em locação" }));
+    await waitFor(() => expect(bookingService.advance).toHaveBeenCalledWith("b1", "2026-12-10T09:20"));
+    expect(await screen.findByText("Entregue em 10/12/2026 09:20")).toBeInTheDocument();
+  });
+
+  it("na devolução, mostra o atraso antes de confirmar e o total depois (RN-02.19)", async () => {
+    const emLocacao = booking({
+      stage: "em_locacao", checks: { return: true }, end_at: "2026-12-12T09:00:00-03:00", daily_rate_cents: 10000,
+      delivered_at: "2026-12-10T09:10:00-03:00",
+    });
+    vi.mocked(bookingService.get).mockResolvedValue(emLocacao);
+    vi.mocked(bookingService.advance).mockResolvedValue({
+      ...emLocacao, stage: "devolvida", returned_at: "2026-12-12T14:00:00-03:00", extra_days: 1, extra_cents: 10000,
+    });
+    open();
+
+    const field = await screen.findByLabelText("Hora real da devolução");
+    fireEvent.change(field, { target: { value: "" } });
+    expect(screen.getByRole("button", { name: "Avançar para devolvida" })).toBeDisabled();
+    fireEvent.change(field, { target: { value: "2026-12-12T09:45" } });
+    expect(screen.getByText(/Dentro do combinado/)).toBeInTheDocument();
+    fireEvent.change(field, { target: { value: "2026-12-12T14:00" } });
+    expect(screen.getByText(/Atraso: 1 diária extra · R\$\s100,00/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Avançar para devolvida" }));
+    await waitFor(() => expect(bookingService.advance).toHaveBeenCalledWith("b1", "2026-12-12T14:00"));
+    expect(await screen.findByText("Devolvido em 12/12/2026 14:00")).toBeInTheDocument();
+    expect(screen.getByText("Total com o atraso")).toBeInTheDocument();
+    expect(screen.getByText(/R\$\s300,00/)).toBeInTheDocument();
+    expect(screen.getByText(/Reserva R\$\s200,00 \+ atraso R\$\s100,00/)).toBeInTheDocument();
+  });
+
+  it("avisa a devolução atrasada e não pede hora nas outras etapas", async () => {
+    vi.mocked(bookingService.get).mockResolvedValue(booking({ stage: "em_locacao", end_at: "2026-01-02T09:00:00-03:00" }));
+    open();
+    expect(await screen.findByText(/Devolução atrasada: o combinado era 02\/01\/2026 09:00/)).toBeInTheDocument();
+  });
+
+  it("não entrega o carro que ainda está com outro cliente", async () => {
+    vi.mocked(fleetService.list).mockResolvedValue([vehicle({ status: "em_locacao" })]);
+    vi.mocked(bookingService.get).mockResolvedValue(booking({ stage: "confirmada", checks: { delivery: true } }));
+    open();
+    expect(await screen.findByText(/ainda está em locação em outra reserva/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Avançar para em locação" })).toBeDisabled();
+  });
 });

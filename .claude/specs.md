@@ -2,6 +2,16 @@
 
 ---
 
+## [2026-11-06] — Hora real e atraso no painel
+
+- Detalhe da reserva: ao avançar para "em locação" e para "devolvida", campo "Hora real da entrega/devolução" (padrão: agora em Gramado). Na devolução, prévia do atraso ("1 diária extra · R$ 100,00") antes de confirmar. Avisos de devolução atrasada e de carro ainda em locação em outra reserva.
+- Resumo: hora real da entrega e da devolução, atraso e "Total com o atraso" (reserva + atraso).
+- Lista e central marcam a devolução atrasada; a lista mostra "+ R$ X de atraso".
+- `booking.types`: `lateDays`, `isOverdue`, `LATE_TOLERANCE_MS`. `format`: `operationNowInput`, `operationInstant` (valida o formato antes de converter: `Date.parse` aceitava `":00-03:00"`).
+- Testes passam em America/Sao_Paulo e UTC.
+
+---
+
 ## [2026-11-06] — Reserva com horário no painel
 
 - Nova reserva: campos de data e hora (datetime-local, passos de 15 min), padrão amanhã às 10h por 1 diária, aviso "horário de Gramado; 25 horas contam 2 diárias" e prévia "N diárias de 24 h". Envia `start_at`/`end_at`; a disponibilidade também.

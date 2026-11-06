@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { centsToInput, formatCents, formatDate, formatDateTime, isoDate, localDateTime, operationDay, parseReais } from "./format";
+import { centsToInput, formatCents, formatDate, formatDateTime, isoDate, localDateTime, operationDay, operationInstant, operationNowInput, parseReais } from "./format";
 
 describe("format", () => {
   it("formata centavos em reais", () => {
@@ -42,5 +42,12 @@ describe("format", () => {
 
   it("monta o valor do datetime-local", () => {
     expect(localDateTime(1, 9, new Date(2026, 11, 31))).toBe("2027-01-01T09:00");
+  });
+
+  it("lê e escreve o datetime-local no horário de Gramado", () => {
+    expect(operationNowInput(new Date("2026-12-10T17:05:00Z"))).toBe("2026-12-10T14:05");
+    expect(operationInstant("2026-12-10T14:05")).toBe(Date.parse("2026-12-10T17:05:00Z"));
+    expect(Number.isNaN(operationInstant(""))).toBe(true);
+    expect(Number.isNaN(operationInstant("10/12/2026 14:05"))).toBe(true);
   });
 });

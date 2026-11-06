@@ -7,14 +7,15 @@ import { apiErrorMessage } from "@/app/providers/api/client";
 import { formatPlate } from "@/modules/fleet/model/fleet.types";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
 import { cn } from "@/shared/lib/cn";
-import { formatCents, formatDateTime } from "@/shared/lib/format";
+import { formatCents, formatDateTime, operationInstant, operationNowInput } from "@/shared/lib/format";
+import { Field, inputClass } from "@/shared/ui/Field";
 import { Button } from "@/shared/ui/Button";
 import { Accent, PageHeader } from "@/shared/ui/Heading";
 import { ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { StageBadge } from "../components/StageBadge";
 import { activeItems } from "@/modules/checklist/model/checklist.types";
 import { checklistService } from "@/modules/checklist/services/checklist.service";
-import { FLOW, STAGE, isCancelable, nextStage, pendingChecks, stageChecks, type Booking } from "../model/booking.types";
+import { FLOW, STAGE, isCancelable, isOverdue, lateDays, nextStage, pendingChecks, stageChecks, type Booking } from "../model/booking.types";
 import { bookingService } from "../services/booking.service";
 
 function Stepper({ booking }: { booking: Booking }) {
@@ -55,6 +56,8 @@ export function BookingDetailPage() {
     enabled: booking.data?.stage === "devolvida",
   });
   const [confirmCancel, setConfirmCancel] = useState(false);
+  // Hora real da entrega ou da devolução (RN-02.19). Começa em "agora", no horário de Gramado.
+  const [actualAt, setActualAt] = useState(operationNowInput);
 
   const refresh = (b: Booking) => {
     qc.setQueryData(["bookings", id], b);
@@ -68,8 +71,12 @@ export function BookingDetailPage() {
     onError: (e) => toast.error(apiErrorMessage(e)),
   });
   const advance = useMutation({
-    mutationFn: () => bookingService.advance(id),
-    onSuccess: (b) => { refresh(b); toast.success(`Reserva em ${STAGE[b.stage].label.toLowerCase()}.`); },
+    mutationFn: (at?: string) => bookingService.advance(id, at),
+    onSuccess: (b) => {
+      refresh(b);
+      setActualAt(operationNowInput());
+      toast.success(`Reserva em ${STAGE[b.stage].label.toLowerCase()}.`);
+    },
     onError: (e) => toast.error(apiErrorMessage(e)),
   });
   const cancel = useMutation({
@@ -96,7 +103,15 @@ export function BookingDetailPage() {
   const busy = check.isPending || advance.isPending || cancel.isPending;
   // RN-01.6: o carro só sai para nova locação com o checklist da devolução anterior aprovado.
   const awaitingChecklist = b.stage === "confirmada" && vehicle?.status === "aguardando_checklist";
+  // O carro ainda com outro cliente não pode ser entregue.
+  const vehicleInUse = b.stage === "confirmada" && vehicle?.status === "em_locacao";
   const loadingChecklist = b.stage === "devolvida" && returnChecklist.isPending;
+  // Entrega (confirmada → em locação) e devolução (em locação → devolvida) pedem a hora real.
+  const asksTime = b.stage === "confirmada" || b.stage === "em_locacao";
+  const actualMs = operationInstant(actualAt);
+  const validTime = Number.isFinite(actualMs);
+  const previewLate = b.stage === "em_locacao" && validTime ? lateDays(b.end_at, actualMs) : 0;
+  const overdue = isOverdue(b);
 
   return (
     <section className="space-y-8">
@@ -128,6 +143,11 @@ export function BookingDetailPage() {
                   O carro aguarda o checklist de devolução da reserva anterior. A entrega fica liberada depois que ele for aprovado.
                 </p>
               )}
+              {vehicleInUse && (
+                <p role="status" className="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/[0.05] px-4 py-3 text-sm text-amber-100">
+                  O carro ainda está em locação em outra reserva. A entrega fica liberada depois da devolução e do checklist.
+                </p>
+              )}
               <ul className="mt-6 space-y-3">
                 {checks.map((c) => {
                   const on = Boolean(b.checks?.[c.key]);
@@ -153,9 +173,41 @@ export function BookingDetailPage() {
                   );
                 })}
               </ul>
+              {overdue && (
+                <p role="status" className="mt-6 rounded-xl border border-rose-400/30 bg-rose-400/[0.06] px-4 py-3 text-sm text-rose-200">
+                  Devolução atrasada: o combinado era {formatDateTime(b.end_at)}. Passada 1 hora de tolerância, cada 24 horas contam 1 diária extra.
+                </p>
+              )}
+              {asksTime && next && (
+                <div className="mt-6">
+                  <Field
+                    id="actual-at"
+                    label={b.stage === "confirmada" ? "Hora real da entrega" : "Hora real da devolução"}
+                    hint="Horário de Gramado. Já vem com a hora de agora; ajuste se o registro for feito depois."
+                  >
+                    <input
+                      id="actual-at"
+                      type="datetime-local"
+                      value={actualAt}
+                      onChange={(e) => setActualAt(e.target.value)}
+                      className={inputClass}
+                    />
+                  </Field>
+                  {b.stage === "em_locacao" && validTime && (
+                    <p className={cn("mt-3 text-sm", previewLate > 0 ? "text-amber-200" : "text-bone/55")}>
+                      {previewLate > 0
+                        ? `Atraso: ${previewLate} ${previewLate === 1 ? "diária extra" : "diárias extras"} · ${formatCents(previewLate * b.daily_rate_cents)}`
+                        : "Dentro do combinado (até 1 hora de tolerância): sem diária extra."}
+                    </p>
+                  )}
+                </div>
+              )}
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 {next && (
-                  <Button disabled={busy || pending.length > 0 || awaitingChecklist || loadingChecklist} onClick={() => advance.mutate()}>
+                  <Button
+                    disabled={busy || pending.length > 0 || awaitingChecklist || vehicleInUse || loadingChecklist || (asksTime && !validTime)}
+                    onClick={() => advance.mutate(asksTime ? actualAt : undefined)}
+                  >
                     Avançar para {STAGE[next].label.toLowerCase()}
                   </Button>
                 )}
@@ -214,9 +266,25 @@ export function BookingDetailPage() {
               <dt className="text-bone/45">Diária na reserva</dt>
               <dd className="mt-1 text-bone/85">{formatCents(b.daily_rate_cents)}</dd>
             </div>
+            {(b.delivered_at || b.returned_at) && (
+              <div>
+                <dt className="text-bone/45">Hora real</dt>
+                {b.delivered_at && <dd className="mt-1 text-bone/85">Entregue em {formatDateTime(b.delivered_at)}</dd>}
+                {b.returned_at && <dd className="text-bone/85">Devolvido em {formatDateTime(b.returned_at)}</dd>}
+              </div>
+            )}
+            {b.extra_cents > 0 && (
+              <div>
+                <dt className="text-bone/45">Atraso na devolução</dt>
+                <dd className="mt-1 text-amber-200">
+                  {b.extra_days} {b.extra_days === 1 ? "diária extra" : "diárias extras"} · {formatCents(b.extra_cents)}
+                </dd>
+              </div>
+            )}
             <div className="border-t border-white/[0.08] pt-5">
-              <dt className="text-bone/45">Total</dt>
-              <dd className="mt-1 font-serif text-3xl font-light text-gold">{formatCents(b.total_cents)}</dd>
+              <dt className="text-bone/45">{b.extra_cents > 0 ? "Total com o atraso" : "Total"}</dt>
+              <dd className="mt-1 font-serif text-3xl font-light text-gold">{formatCents(b.total_cents + b.extra_cents)}</dd>
+              {b.extra_cents > 0 && <dd className="text-xs text-bone/45">Reserva {formatCents(b.total_cents)} + atraso {formatCents(b.extra_cents)}</dd>}
             </div>
             {b.stage === "preparacao" && (
               <div className="rounded-xl border border-amber-300/30 bg-amber-300/[0.05] px-4 py-3 text-amber-100">
