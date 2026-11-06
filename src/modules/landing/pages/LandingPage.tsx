@@ -10,10 +10,46 @@ import { ContactForm } from "../components/ContactForm";
 import { SiteHeader, WhatsAppIcon } from "../components/SiteHeader";
 import { content, type Lang, type ServiceKind } from "../model/landing.content";
 import { captureReferral, formatPhone, whatsappNumber, whatsappUrl } from "../model/whatsapp";
+import { loadPublicFleet, photoSrcSet, photoUrl, type PublicCar } from "../model/fleet";
 
 interface LandingPageProps {
   initialLang?: Lang;
   number?: string;
+  /** Busca a frota pública; os testes trocam por um falso. */
+  fleetLoader?: () => Promise<PublicCar[]>;
+}
+
+/**
+ * Palco do cartão: a foto de capa em três larguras (o navegador escolhe pela tela), carregada só perto
+ * da tela e sem travar a página; até chegar, fica a luz com o símbolo (RN-01.7).
+ */
+function CarStage({ photoId, alt, sizes }: { photoId: string | null; alt: string; sizes: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="relative grid h-56 place-items-center overflow-hidden border-b border-white/[0.06] md:h-64">
+      <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,rgba(232,207,158,0.28),transparent_60%)] transition-transform duration-700 ease-silk group-hover:scale-110" />
+      <div aria-hidden className="absolute inset-x-10 bottom-10 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+      <img src="/brand/neonflow-simbolo.svg" alt="" aria-hidden className="relative w-24 animate-slow-float opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
+      {photoId && (
+        <>
+          <img
+            src={photoUrl(photoId, 1280)}
+            srcSet={photoSrcSet(photoId)}
+            sizes={sizes}
+            width={1280}
+            height={800}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setLoaded(true)}
+            data-loaded={loaded}
+            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-[opacity,transform] duration-700 ease-silk data-[loaded=true]:opacity-100 group-hover:scale-[1.04]"
+          />
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0b0b0b]/80 to-transparent" />
+        </>
+      )}
+    </div>
+  );
 }
 
 const TRUST_ICONS = [Plane, ShieldCheck, Clock, CalendarCheck];
@@ -27,7 +63,7 @@ function browserLang(): Lang {
   return typeof navigator !== "undefined" && !navigator.language.toLowerCase().startsWith("pt") ? "en" : "pt";
 }
 
-export function LandingPage({ initialLang, number = whatsappNumber() }: LandingPageProps) {
+export function LandingPage({ initialLang, number = whatsappNumber(), fleetLoader = loadPublicFleet }: LandingPageProps) {
   const [lang, setLang] = useState<Lang>(initialLang ?? browserLang);
   const [service, setService] = useState<ServiceKind>("aluguel");
     const [notesPreset, setNotesPreset] = useState<string>();
@@ -37,6 +73,27 @@ export function LandingPage({ initialLang, number = whatsappNumber() }: LandingP
   const [picked, setPicked] = useState(false);
   const [pulse, setPulse] = useState(0);
   const t = content[lang];
+  // Frota da API (com fotos); sem resposta, fica o texto fixo do conteúdo.
+  const [fleet, setFleet] = useState<PublicCar[]>([]);
+  useEffect(() => {
+    let alive = true;
+    fleetLoader()
+      .then((cars) => alive && setFleet(cars))
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [fleetLoader]);
+  const cards =
+    fleet.length > 0
+      ? fleet.map((c) => ({
+          key: c.id,
+          category: c.category === "premium" ? "Premium" : "Economy",
+          model: c.name,
+          chips: [...t.fleet.chips, `${c.seats} ${t.fleet.seats}`, t.fleet.gear[c.gear]],
+          photoId: c.photo_id,
+        }))
+      : t.fleet.cars.map((c) => ({ key: c.category, category: c.category, model: c.model, chips: c.chips, photoId: null }));
   const chat = whatsappUrl(number);
 
   useEffect(() => {
@@ -200,23 +257,22 @@ export function LandingPage({ initialLang, number = whatsappNumber() }: LandingP
             <Reveal>
               <SectionHeading id="frota-titulo" overline={t.fleet.overline} title={t.fleet.title} accent={t.fleet.titleAccent} lead={t.fleet.note} />
             </Reveal>
-            <div className="mt-14 grid gap-6 md:grid-cols-2">
-              {t.fleet.cars.map((car, i) => (
+            <div className={cn("mt-14 grid gap-6 md:grid-cols-2", cards.length > 2 && "xl:grid-cols-3")}>
+              {cards.map((car, i) => (
                 <Reveal
                   as="article"
-                  key={car.category}
+                  key={car.key}
                   delay={i * 120}
                   className="group overflow-hidden rounded-[22px] border border-white/[0.08] bg-[#0b0b0b] transition-[border-color,box-shadow] duration-500 ease-silk hover:border-gold/30 hover:shadow-[0_30px_80px_-40px_rgba(201,168,106,0.4)]"
                 >
-                  {/* Palco com luz de cima, no lugar da foto (PEN-65). */}
-                  <div className="relative grid h-56 place-items-center overflow-hidden border-b border-white/[0.06] md:h-64">
-                    <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,rgba(232,207,158,0.28),transparent_60%)] transition-transform duration-700 ease-silk group-hover:scale-110" />
-                    <div aria-hidden className="absolute inset-x-10 bottom-10 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
-                    <img src="/brand/neonflow-simbolo.svg" alt="" aria-hidden className="relative w-24 animate-slow-float opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
-                  </div>
+                  <CarStage
+                    photoId={car.photoId}
+                    alt={car.model}
+                    sizes={cards.length > 2 ? "(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 50vw, 100vw"}
+                  />
                   <div className="p-8 md:p-10">
                     <p className="text-[11px] tracking-[0.3em] text-gold">
-                      0{i + 1} / 0{t.fleet.cars.length} · {car.category.toUpperCase()}
+                      0{i + 1} / 0{cards.length} · {car.category.toUpperCase()}
                     </p>
                     <h3 className="mt-3 font-serif text-4xl font-light tracking-[-0.035em]">{car.model}</h3>
                     <div className="mt-6 flex flex-wrap gap-2">

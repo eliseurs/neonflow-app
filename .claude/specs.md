@@ -2,6 +2,13 @@
 
 ---
 
+## [2026-11-06] — Frota com fotos na landing
+
+- A seção Frota passa a vir de `GET /api/public/fleet` (`loadPublicFleet`); sem resposta, fica o texto fixo. Cada cartão mostra a capa com `srcset` em 640, 1280 e 1920 (`photoSrcSet`), `sizes` conforme a grade (3 colunas em telas largas quando há mais de 2 carros), `loading="lazy"`, `decoding="async"`, proporção fixa e entrada suave ao carregar; sem foto, o fundo iluminado com o símbolo. Selos: com ou sem motorista, seguro, lugares e câmbio (PT e EN).
+- Testes: frota da API com fotos, volta ao texto fixo sem API, `photoUrl`/`photoSrcSet`; `AppRoutes.test` simula a frota.
+
+---
+
 ## [2026-11-06] — Fotos e aceite dos termos
 
 - `PhotoGallery` (`src/modules/photos`): enviar várias fotos de uma vez (JPEG, PNG, WebP, até 10 MB, conferido antes de enviar), ver, apagar e, no veículo, escolher a capa. Frota: botão "Fotos" em cada veículo. Reserva: "Fotos do carro" com entrega e devolução, envio liberado só na etapa certa.

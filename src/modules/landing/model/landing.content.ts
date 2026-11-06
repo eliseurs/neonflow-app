@@ -31,6 +31,8 @@ export interface LandingContent {
   services: { overline: string; title: string; titleAccent: string; lead: string; rental: Card; transfer: Card };
   fleet: {
     overline: string; title: string; titleAccent: string; note: string; cta: string;
+    /** Selos de cada carro vindo da API; "cars" é o texto fixo usado se a API não responder. */
+    chips: string[]; seats: string; gear: Record<"manual" | "automatico", string>;
     cars: { category: string; model: string; chips: string[] }[];
   };
   conditions: {
@@ -133,6 +135,9 @@ export const content: Record<Lang, LandingContent> = {
       titleAccent: "um padrão.",
       note: "O valor da diária é informado pela central na reserva.",
       cta: "Pedir este carro",
+      chips: ["Com ou sem motorista", "Seguro incluso"],
+      seats: "lugares",
+      gear: { manual: "Manual", automatico: "Automático" },
       cars: [
         { category: "Economy", model: "Volkswagen Jetta", chips: ["Com ou sem motorista", "Seguro incluso"] },
         { category: "Premium", model: "Mercedes-Benz C180", chips: ["Com ou sem motorista", "Seguro incluso"] },
@@ -299,6 +304,9 @@ export const content: Record<Lang, LandingContent> = {
       titleAccent: "one standard.",
       note: "Our team quotes the daily rate when you book.",
       cta: "Request this car",
+      chips: ["With or without a driver", "Insurance included"],
+      seats: "seats",
+      gear: { manual: "Manual", automatico: "Automatic" },
       cars: [
         { category: "Economy", model: "Volkswagen Jetta", chips: ["With or without a driver", "Insurance included"] },
         { category: "Premium", model: "Mercedes-Benz C180", chips: ["With or without a driver", "Insurance included"] },

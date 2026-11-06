@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LandingPage } from "./LandingPage";
@@ -6,7 +6,7 @@ import { LandingPage } from "./LandingPage";
 function renderLanding(props: Parameters<typeof LandingPage>[0] = {}) {
   return render(
     <MemoryRouter>
-      <LandingPage initialLang="pt" number="" {...props} />
+      <LandingPage initialLang="pt" number="" fleetLoader={() => Promise.resolve([])} {...props} />
     </MemoryRouter>,
   );
 }
@@ -128,5 +128,35 @@ describe("LandingPage", () => {
     fireEvent.scroll(window);
     expect(bar).toHaveClass("py-3");
     Object.defineProperty(window, "scrollY", { value: 0, configurable: true });
+  });
+
+  it("mostra a frota da API com a foto de capa em três larguras, sem travar a página", async () => {
+    renderLanding({
+      fleetLoader: () => Promise.resolve([
+        { id: "v1", name: "Jetta Confortline", category: "economy", seats: 5, gear: "automatico", photo_id: "p1" },
+        { id: "v2", name: "Mobi", category: "economy", seats: 5, gear: "manual", photo_id: null },
+        { id: "v3", name: "Mercedes C180", category: "premium", seats: 5, gear: "automatico", photo_id: "p3" },
+      ]),
+    });
+    const img = await screen.findByRole("img", { name: "Jetta Confortline" });
+    expect(img.getAttribute("srcset")).toMatch(/\/public\/photos\/p1\/w\/640 640w, .*\/w\/1280 1280w, .*\/w\/1920 1920w$/);
+    expect(img).toHaveAttribute("loading", "lazy");
+    expect(img).toHaveAttribute("decoding", "async");
+    expect(img).toHaveAttribute("sizes", "(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw");
+    expect(img).toHaveAttribute("data-loaded", "false");
+    fireEvent.load(img);
+    expect(img).toHaveAttribute("data-loaded", "true");
+    expect(screen.getByText("01 / 03 · ECONOMY")).toBeInTheDocument();
+    expect(screen.getByText("03 / 03 · PREMIUM")).toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: "Mobi" })).toBeNull();
+    expect(screen.getAllByText("Automático").length).toBe(2);
+    expect(screen.getByText("Manual")).toBeInTheDocument();
+    expect(screen.queryByText("Volkswagen Jetta")).toBeNull();
+  });
+
+  it("sem resposta da API, fica a frota fixa", async () => {
+    renderLanding({ fleetLoader: () => Promise.reject(new Error("rede")) });
+    await waitFor(() => expect(screen.getByText("Volkswagen Jetta")).toBeInTheDocument());
+    expect(screen.getByText("Mercedes-Benz C180")).toBeInTheDocument();
   });
 });

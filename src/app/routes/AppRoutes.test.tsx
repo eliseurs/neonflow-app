@@ -12,6 +12,11 @@ vi.mock("@/modules/auth/services/auth.service", () => ({
 }));
 vi.mock("@/modules/fleet/services/fleet.service", () => ({ fleetService: { list: vi.fn().mockResolvedValue([]) } }));
 vi.mock("@/modules/bookings/services/booking.service", () => ({ bookingService: { list: vi.fn().mockResolvedValue([]) } }));
+// A landing busca a frota pública; sem o mock, o teste tentaria a rede.
+vi.mock("@/modules/landing/model/fleet", async (orig) => ({
+  ...(await orig<typeof import("@/modules/landing/model/fleet")>()),
+  loadPublicFleet: () => Promise.resolve([]),
+}));
 // A tela inicial busca os indicadores; sem o mock, o teste tentaria a rede.
 vi.mock("@/modules/dashboard/services/dashboard.service", () => ({
   dashboardService: {
