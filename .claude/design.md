@@ -39,6 +39,7 @@ src/
     dashboard/pages/            # Central: contadores do dia e agenda
     fleet/                      # model (tipos, placa), services, VehicleForm, FleetPage
     bookings/                   # model (etapas, conferências), services, NewBookingForm, StageBadge, páginas de lista e detalhe
+    checklist/                  # checklist de devolução configurável: model, service, ChecklistManager
   shared/
     ui/                         # Brand, Heading (Overline, Accent, SectionHeading, PageHeader), Button, buttonClass, Field, Panel, Badge, Dialog, Reveal
     lib/cn.ts                   # clsx + tailwind-merge

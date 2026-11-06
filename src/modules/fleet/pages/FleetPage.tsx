@@ -1,20 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { ClipboardCheck, Plus } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { apiErrorMessage } from "@/app/providers/api/client";
-import { formatCents } from "@/shared/lib/format";
+import { ChecklistManager } from "@/modules/checklist/components/ChecklistManager";
+import { formatCents, formatDate } from "@/shared/lib/format";
 import { Badge } from "@/shared/ui/Badge";
 import { Button } from "@/shared/ui/Button";
 import { Dialog } from "@/shared/ui/Dialog";
 import { PageHeader } from "@/shared/ui/Heading";
 import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { VehicleForm } from "../components/VehicleForm";
-import { CATEGORY_LABEL, GEAR_LABEL, formatPlate, type Vehicle } from "../model/fleet.types";
+import { CATEGORY_LABEL, GEAR_LABEL, VEHICLE_STATUS, formatPlate, vehicleStatus, type Vehicle } from "../model/fleet.types";
 import { fleetService } from "../services/fleet.service";
 
 export function FleetPage() {
   const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
   const [editing, setEditing] = useState<Vehicle | "new" | null>(null);
+  const [checklistOpen, setChecklistOpen] = useState(false);
 
   const add = (
     <Button onClick={() => setEditing("new")}>
@@ -29,7 +32,14 @@ export function FleetPage() {
         title="Veículos"
         accent="da central."
         description="Próprios e de parceiros, cada um com a sua diária. Veículo em manutenção não aceita reservas."
-        actions={add}
+        actions={
+          <>
+            <Button variant="outline" onClick={() => setChecklistOpen(true)}>
+              <ClipboardCheck className="h-4 w-4" aria-hidden /> Checklist de devolução
+            </Button>
+            {add}
+          </>
+        }
       />
 
       {vehicles.isPending && <Loading />}
@@ -45,10 +55,19 @@ export function FleetPage() {
               <div aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
               <div className="flex items-start justify-between gap-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">{CATEGORY_LABEL[v.category]}</p>
-                {v.in_maintenance ? <Badge tone="warn">Manutenção</Badge> : <Badge tone="ok">Ativo</Badge>}
+                <Badge tone={VEHICLE_STATUS[vehicleStatus(v)].tone}>{VEHICLE_STATUS[vehicleStatus(v)].label}</Badge>
               </div>
               <h2 className="mt-3 font-serif text-2xl font-light">{v.name}</h2>
               <p className="mt-1 text-sm tracking-[0.15em] text-bone/60">{formatPlate(v.plate)}</p>
+              {v.next_booking && (
+                <Link
+                  to={`/reservas/${v.next_booking.id}`}
+                  className="mt-4 block rounded-xl border border-gold/20 bg-gold/[0.05] px-3 py-2 text-sm text-bone/80 transition-colors hover:border-gold/50"
+                >
+                  <span className="block text-[10px] uppercase tracking-[0.2em] text-gold">Próxima reserva</span>
+                  {formatDate(v.next_booking.start_date)} → {formatDate(v.next_booking.end_date)} · {v.next_booking.client_name}
+                </Link>
+              )}
               <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                 <div>
                   <dt className="text-bone/45">Diária</dt>
@@ -73,6 +92,12 @@ export function FleetPage() {
             </Panel>
           ))}
         </div>
+      )}
+
+      {checklistOpen && (
+        <Dialog title="Checklist de devolução" onClose={() => setChecklistOpen(false)}>
+          <ChecklistManager />
+        </Dialog>
       )}
 
       {editing && (

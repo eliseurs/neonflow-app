@@ -8,6 +8,9 @@ import { FleetPage } from "./FleetPage";
 vi.mock("../services/fleet.service", () => ({
   fleetService: { list: vi.fn(), create: vi.fn(), update: vi.fn() },
 }));
+vi.mock("@/modules/checklist/services/checklist.service", () => ({
+  checklistService: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn() },
+}));
 
 beforeEach(() => vi.resetAllMocks());
 
@@ -17,7 +20,7 @@ function fill(label: string, value: string) {
 
 describe("FleetPage", () => {
   it("mostra a frota com diária, placa e manutenção", async () => {
-    vi.mocked(fleetService.list).mockResolvedValue([vehicle(), vehicle({ id: "v2", name: "Outro Teste", plate: "XYZ1234", in_maintenance: true })]);
+    vi.mocked(fleetService.list).mockResolvedValue([vehicle(), vehicle({ id: "v2", name: "Outro Teste", plate: "XYZ1234", in_maintenance: true, status: "manutencao" })]);
     renderPage(<FleetPage />);
     expect(await screen.findByText("Carro Teste")).toBeInTheDocument();
     expect(screen.getByText("XYZ-1234")).toBeInTheDocument();
@@ -86,5 +89,29 @@ describe("FleetPage", () => {
     expect(vi.mocked(fleetService.update).mock.calls[0]).toEqual(["v1", expect.objectContaining({ in_maintenance: true, daily_rate_cents: 10000 })]);
     fireEvent.keyDown(window, { key: "Escape" });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("mostra o estado calculado e a próxima reserva (RN-01.3)", async () => {
+    vi.mocked(fleetService.list).mockResolvedValue([
+      vehicle({
+        status: "reservado",
+        next_booking: { id: "b9", client_name: "Cliente Teste", start_date: "2026-12-10", end_date: "2026-12-12", stage: "confirmada" },
+      }),
+      vehicle({ id: "v2", name: "Devolvido Teste", plate: "XYZ1234", status: "aguardando_checklist" }),
+      vehicle({ id: "v3", name: "Sem Estado", plate: "XYZ1235", status: undefined }),
+    ]);
+    renderPage(<FleetPage />);
+    expect(await screen.findByText("Reservado")).toBeInTheDocument();
+    expect(screen.getByText("Aguardando checklist")).toBeInTheDocument();
+    expect(screen.getByText("Livre")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Próxima reserva/ })).toHaveAttribute("href", "/reservas/b9");
+    expect(screen.getByText(/10\/12\/2026 → 12\/12\/2026 · Cliente Teste/)).toBeInTheDocument();
+  });
+
+  it("abre a configuração do checklist de devolução", async () => {
+    vi.mocked(fleetService.list).mockResolvedValue([]);
+    renderPage(<FleetPage />);
+    fireEvent.click(await screen.findByRole("button", { name: /Checklist de devolução/ }));
+    expect(screen.getByRole("dialog", { name: "Checklist de devolução" })).toBeInTheDocument();
   });
 });

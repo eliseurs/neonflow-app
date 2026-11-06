@@ -65,8 +65,19 @@ export function nextStage(stage: Stage): Stage | null {
   return i >= 0 && i < FLOW.length - 1 ? FLOW[i + 1] : null;
 }
 
-export function pendingChecks(b: Pick<Booking, "stage" | "checks">): string[] {
-  return (STAGE_CHECKS[b.stage] ?? []).filter((c) => !b.checks?.[c.key]).map((c) => c.label);
+export interface CheckItem {
+  key: string;
+  label: string;
+}
+
+/** Conferências da etapa: as fixas e, em "devolvida", os itens ativos do checklist de devolução (RN-01.6). */
+export function stageChecks(stage: Stage, returnChecklist: CheckItem[] = []): CheckItem[] {
+  const fixed = STAGE_CHECKS[stage] ?? [];
+  return stage === "devolvida" ? [...fixed, ...returnChecklist] : fixed;
+}
+
+export function pendingChecks(b: Pick<Booking, "stage" | "checks">, returnChecklist: CheckItem[] = []): string[] {
+  return stageChecks(b.stage, returnChecklist).filter((c) => !b.checks?.[c.key]).map((c) => c.label);
 }
 
 export function isCancelable(stage: Stage): boolean {

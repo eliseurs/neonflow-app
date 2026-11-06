@@ -12,7 +12,9 @@ import { Button } from "@/shared/ui/Button";
 import { Accent, PageHeader } from "@/shared/ui/Heading";
 import { ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { StageBadge } from "../components/StageBadge";
-import { FLOW, STAGE, STAGE_CHECKS, isCancelable, nextStage, pendingChecks, type Booking } from "../model/booking.types";
+import { activeItems } from "@/modules/checklist/model/checklist.types";
+import { checklistService } from "@/modules/checklist/services/checklist.service";
+import { FLOW, STAGE, isCancelable, nextStage, pendingChecks, stageChecks, type Booking } from "../model/booking.types";
 import { bookingService } from "../services/booking.service";
 
 function Stepper({ booking }: { booking: Booking }) {
@@ -46,6 +48,12 @@ export function BookingDetailPage() {
   const booking = useQuery({ queryKey: ["bookings", id], queryFn: () => bookingService.get(id) });
   const events = useQuery({ queryKey: ["bookings", id, "events"], queryFn: () => bookingService.events(id) });
   const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
+  // Em "devolvida", o checklist de devolução configurado pela central entra nas conferências (RN-01.6).
+  const returnChecklist = useQuery({
+    queryKey: ["checklist-items"],
+    queryFn: checklistService.list,
+    enabled: booking.data?.stage === "devolvida",
+  });
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   const refresh = (b: Booking) => {
@@ -81,10 +89,14 @@ export function BookingDetailPage() {
 
   const b = booking.data;
   const vehicle = vehicles.data?.find((v) => v.id === b.vehicle_id);
-  const checks = STAGE_CHECKS[b.stage] ?? [];
-  const pending = pendingChecks(b);
+  const returnItems = activeItems(returnChecklist.data).map((i) => ({ key: i.key, label: i.label }));
+  const checks = stageChecks(b.stage, returnItems);
+  const pending = pendingChecks(b, returnItems);
   const next = nextStage(b.stage);
   const busy = check.isPending || advance.isPending || cancel.isPending;
+  // RN-01.6: o carro só sai para nova locação com o checklist da devolução anterior aprovado.
+  const awaitingChecklist = b.stage === "confirmada" && vehicle?.status === "aguardando_checklist";
+  const loadingChecklist = b.stage === "devolvida" && returnChecklist.isPending;
 
   return (
     <section className="space-y-8">
@@ -96,7 +108,26 @@ export function BookingDetailPage() {
         <div className="space-y-6">
           {checks.length > 0 && (
             <Panel className="p-6 md:p-8">
-              <h2 className="font-serif text-2xl font-light">Conferências de <Accent>{STAGE[b.stage].label.toLowerCase()}</Accent></h2>
+              <h2 className="font-serif text-2xl font-light">
+                {b.stage === "devolvida" ? (
+                  <>
+                    Checklist de <Accent>devolução</Accent>
+                  </>
+                ) : (
+                  <>
+                    Conferências de <Accent>{STAGE[b.stage].label.toLowerCase()}</Accent>
+                  </>
+                )}
+              </h2>
+              {b.stage === "devolvida" && (
+                <p className="mt-2 text-sm text-bone/55">O carro só volta a ficar disponível com todos os itens conferidos.</p>
+              )}
+              {loadingChecklist && <div className="mt-4"><Loading label="Carregando o checklist..." /></div>}
+              {awaitingChecklist && (
+                <p role="status" className="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/[0.05] px-4 py-3 text-sm text-amber-100">
+                  O carro aguarda o checklist de devolução da reserva anterior. A entrega fica liberada depois que ele for aprovado.
+                </p>
+              )}
               <ul className="mt-6 space-y-3">
                 {checks.map((c) => {
                   const on = Boolean(b.checks?.[c.key]);
@@ -124,7 +155,7 @@ export function BookingDetailPage() {
               </ul>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 {next && (
-                  <Button disabled={busy || pending.length > 0} onClick={() => advance.mutate()}>
+                  <Button disabled={busy || pending.length > 0 || awaitingChecklist || loadingChecklist} onClick={() => advance.mutate()}>
                     Avançar para {STAGE[next].label.toLowerCase()}
                   </Button>
                 )}

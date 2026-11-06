@@ -1,4 +1,6 @@
 // Espelha internal/domain/fleet/entity.go da API.
+import type { Tone } from "@/shared/ui/Badge";
+
 export type Category = "economy" | "premium";
 export type Gear = "manual" | "automatico";
 
@@ -14,9 +16,35 @@ export interface Vehicle {
   in_maintenance: boolean;
   created_at: string;
   updated_at: string;
+  /** Calculado pela API nas leituras da frota (RN-01.1, RN-01.3, RN-01.6). */
+  status?: VehicleStatus;
+  next_booking?: NextBooking;
 }
 
-export type VehicleRequest = Omit<Vehicle, "id" | "created_at" | "updated_at">;
+export type VehicleStatus = "manutencao" | "em_locacao" | "aguardando_checklist" | "reservado" | "livre";
+
+export interface NextBooking {
+  id: string;
+  client_name: string;
+  start_date: string;
+  end_date: string;
+  stage: string;
+}
+
+export const VEHICLE_STATUS: Record<VehicleStatus, { label: string; tone: Tone }> = {
+  manutencao: { label: "Manutenção", tone: "warn" },
+  em_locacao: { label: "Em locação", tone: "ok" },
+  aguardando_checklist: { label: "Aguardando checklist", tone: "warn" },
+  reservado: { label: "Reservado", tone: "gold" },
+  livre: { label: "Livre", tone: "neutral" },
+};
+
+/** Sem o estado calculado (respostas antigas), cai no que o cadastro diz. */
+export function vehicleStatus(v: Pick<Vehicle, "status" | "in_maintenance">): VehicleStatus {
+  return v.status ?? (v.in_maintenance ? "manutencao" : "livre");
+}
+
+export type VehicleRequest = Omit<Vehicle, "id" | "created_at" | "updated_at" | "status" | "next_booking">;
 
 export const CATEGORY_LABEL: Record<Category, string> = { economy: "Economy", premium: "Premium" };
 export const GEAR_LABEL: Record<Gear, string> = { manual: "Manual", automatico: "Automático" };

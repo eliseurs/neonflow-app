@@ -2,6 +2,15 @@
 
 ---
 
+## [2026-11-06] — Checklist de devolução e estado do veículo no painel
+
+- Frota: o selo do cartão mostra o estado calculado pela API (Livre, Reservado, Em locação, Aguardando checklist, Manutenção) e, quando há, a próxima reserva com link. Botão "Checklist de devolução" abre o `ChecklistManager` (`src/modules/checklist`): renomear, ligar e desligar, subir e descer e adicionar itens.
+- Reserva em "devolvida": a lista vira "Checklist de devolução" com "Ocorrências conferidas" e os itens ativos, e só avança com tudo marcado (RN-01.6). Reserva confirmada cujo carro aguarda o checklist de outra mostra o aviso e não deixa entregar.
+- `booking.types`: `stageChecks` e `pendingChecks` aceitam o checklist. `fleet.types`: `VehicleStatus`, `NextBooking`, `VEHICLE_STATUS`, `vehicleStatus`.
+- Testes: `ChecklistManager`, estado e próxima reserva na frota, checklist na reserva devolvida e entrega bloqueada.
+
+---
+
 ## [2026-11-06] — CI no GitHub Actions
 
 - `.github/workflows/ci.yml`: em todo PR e push no `main`, roda `npm ci`, TypeScript (`typecheck`), ESLint, Vitest, build de produção e os testes do protótipo congelado (`prototipo/`, Node 22).
