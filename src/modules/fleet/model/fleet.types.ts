@@ -26,6 +26,8 @@ export type VehicleStatus = "manutencao" | "em_locacao" | "aguardando_checklist"
 export interface NextBooking {
   id: string;
   client_name: string;
+  start_at: string;
+  end_at: string;
   start_date: string;
   end_date: string;
   stage: string;

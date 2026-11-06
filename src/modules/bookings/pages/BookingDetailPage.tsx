@@ -7,7 +7,7 @@ import { apiErrorMessage } from "@/app/providers/api/client";
 import { formatPlate } from "@/modules/fleet/model/fleet.types";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
 import { cn } from "@/shared/lib/cn";
-import { formatCents, formatDate, formatDateTime } from "@/shared/lib/format";
+import { formatCents, formatDateTime } from "@/shared/lib/format";
 import { Button } from "@/shared/ui/Button";
 import { Accent, PageHeader } from "@/shared/ui/Heading";
 import { ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
@@ -200,8 +200,9 @@ export function BookingDetailPage() {
               {vehicle && <dd className="text-bone/55 tracking-[0.12em]">{formatPlate(vehicle.plate)}</dd>}
             </div>
             <div>
-              <dt className="text-bone/45">Período</dt>
-              <dd className="mt-1 text-bone/85">{formatDate(b.start_date)} → {formatDate(b.end_date)} · {b.days} {b.days === 1 ? "diária" : "diárias"}</dd>
+              <dt className="text-bone/45">Retirada e devolução</dt>
+              <dd className="mt-1 text-bone/85">{formatDateTime(b.start_at)} → {formatDateTime(b.end_at)}</dd>
+              <dd className="text-bone/55">{b.days} {b.days === 1 ? "diária" : "diárias"} de 24 h</dd>
             </div>
             {b.place && (
               <div>

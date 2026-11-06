@@ -7,6 +7,10 @@ export interface Booking {
   id: string;
   vehicle_id: string;
   client_name: string;
+  /** Retirada e devolução combinadas, ISO com fuso (RN-02.23). */
+  start_at: string;
+  end_at: string;
+  /** Dia da retirada e da devolução em Gramado (compatibilidade). */
   start_date: string;
   end_date: string;
   place: string;
@@ -31,9 +35,22 @@ export interface BookingEvent {
 export interface CreateBookingRequest {
   vehicle_id: string;
   client_name: string;
-  start_date: string;
-  end_date: string;
+  /** Data e hora de Gramado, como o campo datetime-local (AAAA-MM-DDTHH:MM). */
+  start_at: string;
+  end_at: string;
   place: string;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Diárias entre dois valores de datetime-local: blocos de 24 horas a partir da retirada,
+ * arredondando para cima (RN-02.24), mínimo 1. Devolve 0 se o período for inválido.
+ */
+export function rentalDays(start: string, end: string): number {
+  const diff = Date.parse(end) - Date.parse(start);
+  if (!Number.isFinite(diff) || diff <= 0) return 0;
+  return Math.max(1, Math.ceil(diff / DAY_MS));
 }
 
 export const FLOW: Stage[] = ["preparacao", "confirmada", "em_locacao", "devolvida", "encerrada"];

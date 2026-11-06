@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isActive, isCancelable, nextStage, pendingChecks, stageChecks } from "./booking.types";
+import { isActive, isCancelable, nextStage, pendingChecks, rentalDays, stageChecks } from "./booking.types";
 
 describe("etapas da reserva", () => {
   it("segue o fluxo da API", () => {
@@ -35,5 +35,13 @@ describe("etapas da reserva", () => {
     expect(stageChecks("devolvida", items).map((c) => c.key)).toEqual(["issues", "combustivel", "pneus"]);
     expect(stageChecks("confirmada", items).map((c) => c.key)).toEqual(["delivery"]);
     expect(pendingChecks({ stage: "devolvida", checks: { issues: true, pneus: true } }, items)).toEqual(["Combustível"]);
+  });
+
+  it("conta diárias em blocos de 24 horas (RN-02.24)", () => {
+    expect(rentalDays("2026-12-10T14:00", "2026-12-11T14:00")).toBe(1);
+    expect(rentalDays("2026-12-10T14:00", "2026-12-11T15:00")).toBe(2);
+    expect(rentalDays("2026-12-10T10:00", "2026-12-10T13:00")).toBe(1);
+    expect(rentalDays("2026-12-10T14:00", "2026-12-10T14:00")).toBe(0);
+    expect(rentalDays("2026-12-10T14:00", "")).toBe(0);
   });
 });

@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
 import { cn } from "@/shared/lib/cn";
-import { formatCents, formatDate, formatDateTime } from "@/shared/lib/format";
+import { formatCents, formatDateTime } from "@/shared/lib/format";
 import { Button } from "@/shared/ui/Button";
 import { Dialog } from "@/shared/ui/Dialog";
 import { PageHeader } from "@/shared/ui/Heading";
@@ -37,7 +37,7 @@ export function BookingsPage() {
   const [creating, setCreating] = useState(false);
 
   const vehicleName = useMemo(() => new Map(vehicles.data?.map((v) => [v.id, v.name])), [vehicles.data]);
-  const list = (bookings.data ?? []).filter((b) => matches(b, filter)).sort((a, b) => a.start_date.localeCompare(b.start_date));
+  const list = (bookings.data ?? []).filter((b) => matches(b, filter)).sort((a, b) => a.start_at.localeCompare(b.start_at));
 
   const add = (
     <Button onClick={() => setCreating(true)}>
@@ -95,7 +95,8 @@ export function BookingsPage() {
                 <p className="text-sm text-bone/55">{vehicleName.get(b.vehicle_id) ?? "Veículo"}{b.place && ` · ${b.place}`}</p>
               </div>
               <p className="text-sm text-bone/80">
-                {formatDate(b.start_date)} → {formatDate(b.end_date)}
+                <span className="block whitespace-nowrap">{formatDateTime(b.start_at)}</span>
+                <span className="block whitespace-nowrap">→ {formatDateTime(b.end_at)}</span>
                 <span className="block text-bone/45">{b.days} {b.days === 1 ? "diária" : "diárias"}</span>
               </p>
               <p className="text-sm text-bone/80">

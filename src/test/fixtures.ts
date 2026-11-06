@@ -22,6 +22,8 @@ export const booking = (over: Partial<Booking> = {}): Booking => ({
   id: "b1",
   vehicle_id: "v1",
   client_name: "Cliente Teste",
+  start_at: "2026-12-10T09:00:00-03:00",
+  end_at: "2026-12-12T09:00:00-03:00",
   start_date: "2026-12-10",
   end_date: "2026-12-12",
   place: "Aeroporto",

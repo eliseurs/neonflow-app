@@ -95,7 +95,10 @@ describe("FleetPage", () => {
     vi.mocked(fleetService.list).mockResolvedValue([
       vehicle({
         status: "reservado",
-        next_booking: { id: "b9", client_name: "Cliente Teste", start_date: "2026-12-10", end_date: "2026-12-12", stage: "confirmada" },
+        next_booking: {
+          id: "b9", client_name: "Cliente Teste", stage: "confirmada", start_date: "2026-12-10", end_date: "2026-12-12",
+          start_at: "2026-12-10T14:00:00-03:00", end_at: "2026-12-12T10:30:00-03:00",
+        },
       }),
       vehicle({ id: "v2", name: "Devolvido Teste", plate: "XYZ1234", status: "aguardando_checklist" }),
       vehicle({ id: "v3", name: "Sem Estado", plate: "XYZ1235", status: undefined }),
@@ -105,7 +108,7 @@ describe("FleetPage", () => {
     expect(screen.getByText("Aguardando checklist")).toBeInTheDocument();
     expect(screen.getByText("Livre")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Próxima reserva/ })).toHaveAttribute("href", "/reservas/b9");
-    expect(screen.getByText(/10\/12\/2026 → 12\/12\/2026 · Cliente Teste/)).toBeInTheDocument();
+    expect(screen.getByText(/10\/12\/2026 14:00 → 12\/12\/2026 10:30 · Cliente Teste/)).toBeInTheDocument();
   });
 
   it("abre a configuração do checklist de devolução", async () => {
