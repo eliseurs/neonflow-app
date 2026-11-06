@@ -31,6 +31,9 @@ export function LandingPage({ initialLang, number = whatsappNumber() }: LandingP
   const [lang, setLang] = useState<Lang>(initialLang ?? browserLang);
   const [service, setService] = useState<ServiceKind>("aluguel");
   const [notesPreset, setNotesPreset] = useState<string>();
+  // Vira true quando a pessoa escolhe o serviço no cartão do topo: o botão de continuar passa a chamar atenção.
+  const [picked, setPicked] = useState(false);
+  const [pulse, setPulse] = useState(0);
   const t = content[lang];
   const chat = whatsappUrl(number);
 
@@ -86,7 +89,11 @@ export function LandingPage({ initialLang, number = whatsappNumber() }: LandingP
                   type="button"
                   role="radio"
                   aria-checked={service === o.kind}
-                  onClick={() => setService(o.kind)}
+                  onClick={() => {
+                    setService(o.kind);
+                    setPicked(true);
+                    setPulse((n) => n + 1);
+                  }}
                   className={cn(
                     "flex items-center justify-center gap-2 rounded-xl py-4 text-[15px] transition-all duration-500 ease-silk",
                     service === o.kind ? "bg-gold text-noir shadow-[0_10px_30px_-10px_rgba(201,168,106,0.7)]" : "text-bone/70 hover:bg-white/[0.04] hover:text-bone",
@@ -97,13 +104,28 @@ export function LandingPage({ initialLang, number = whatsappNumber() }: LandingP
                 </button>
               ))}
             </div>
+            <p aria-live="polite" className={cn("mt-5 min-h-[20px] text-sm text-gold transition-opacity duration-500", picked ? "opacity-100" : "opacity-0")}>
+              {picked && (
+                <span key={pulse} className="inline-flex animate-rise items-center gap-2">
+                  <Check className="h-4 w-4" aria-hidden />
+                  {t.hero.picked.replace("{service}", heroOptions.find((o) => o.kind === service)?.label ?? "")}
+                </span>
+              )}
+            </p>
             <button
+              key={`continuar-${pulse}`}
               type="button"
               onClick={goToContact}
-              className="group mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-gold/25 py-4 text-[11px] font-semibold uppercase tracking-[0.25em] text-gold transition-all duration-300 ease-silk hover:border-gold/60 hover:bg-gold/[0.06]"
+              data-ready={picked || undefined}
+              className={cn(
+                "group mt-3 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[11px] font-semibold uppercase tracking-[0.25em] transition-all duration-500 ease-silk",
+                picked
+                  ? "btn-gold animate-nudge"
+                  : "border border-gold/25 text-gold hover:border-gold/60 hover:bg-gold/[0.06]",
+              )}
             >
               {t.hero.continue}
-              <ArrowDown className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-y-0.5" aria-hidden />
+              <ArrowDown className={cn("h-3.5 w-3.5", picked ? "animate-arrow-down" : "transition-transform duration-300 group-hover:translate-y-0.5")} aria-hidden />
             </button>
             <nav aria-label={t.services.overline} className="mt-5 flex justify-center gap-6 text-sm text-bone/50">
               <a href="#aluguel" className="hover:text-gold">{t.hero.rentalCta}</a>

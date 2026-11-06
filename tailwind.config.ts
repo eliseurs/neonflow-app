@@ -32,6 +32,12 @@ export default {
         },
         "drawer-in": { "0%": { transform: "translateX(100%)" }, "100%": { transform: "none" } },
         "fade-in": { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+        // Chama atenção para o próximo passo: cresce de leve e acende um halo dourado.
+        nudge: {
+          "0%,100%": { transform: "scale(1)", boxShadow: "0 0 0 0 rgba(201,168,106,0.55)" },
+          "50%": { transform: "scale(1.025)", boxShadow: "0 0 0 10px rgba(201,168,106,0)" },
+        },
+        "arrow-down": { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(4px)" } },
       },
       animation: {
         rise: "rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both",
@@ -39,6 +45,8 @@ export default {
         "slow-float": "slow-float 6s ease-in-out infinite",
         "drawer-in": "drawer-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both",
         "fade-in": "fade-in 0.4s ease both",
+        nudge: "nudge 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) 3",
+        "arrow-down": "arrow-down 1s ease-in-out infinite",
       },
     },
   },

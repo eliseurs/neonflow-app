@@ -24,6 +24,8 @@ export interface LandingContent {
   hero: {
     overline: string; title: string; titleAccent: string; lead: string; rentalCta: string; transferCta: string;
     step: string; stepHint: string; cardTitle: string; cardLead: string; choose: string; continue: string;
+    /** "{service}" vira o serviço escolhido. */
+    picked: string;
   };
   trust: { title: string; text: string }[];
   services: { overline: string; title: string; titleAccent: string; lead: string; rental: Card; transfer: Card };
@@ -81,6 +83,7 @@ export const content: Record<Lang, LandingContent> = {
       cardLead: "Escolha o serviço para seguir com datas e trajeto.",
       choose: "Escolha o serviço",
       continue: "Continuar abaixo",
+      picked: "{service} escolhido. Agora toque em “Continuar abaixo”.",
     },
     trust: [
       { title: "Voo acompanhado", text: "Pelo número informado na reserva" },
@@ -245,6 +248,7 @@ export const content: Record<Lang, LandingContent> = {
       cardLead: "Choose the service to continue with dates and route.",
       choose: "Choose the service",
       continue: "Continue below",
+      picked: "{service} selected. Now tap “Continue below”.",
     },
     trust: [
       { title: "Flight tracked", text: "Using the number in your booking" },

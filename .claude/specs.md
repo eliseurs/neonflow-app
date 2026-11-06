@@ -2,6 +2,13 @@
 
 ---
 
+## [2026-11-05] — Próximo passo indicado no cartão do topo
+
+- Ao escolher Aluguel ou Transfer no cartão "Passo 1 de 2", aparece "✓ {serviço} escolhido. Agora toque em “Continuar abaixo”." (região `aria-live`) e o botão "Continuar abaixo" vira dourado, pulsa com halo três vezes (`animate-nudge`) e a seta desce em loop (`animate-arrow-down`). Cada nova escolha reinicia o pulso. `prefers-reduced-motion` desliga as animações.
+- Texto novo `hero.picked` (PT/EN). Teste da landing cobre o antes e o depois.
+
+---
+
 ## [2026-11-05] — Estilo LuxuryBus e logo novo
 
 - Logo trocado pelo de `nepo/resources/logo.jpg`: símbolo (anel, estrada e seta) redesenhado em SVG e "neon flow" em Poppins 500. Atualizados `public/brand/*`, `favicon.svg` e `apple-touch-icon.png`; `Wordmark` com tamanhos `sm`, `md`, `lg`. Fonte Poppins (só peso 500) no `index.html`.

@@ -76,8 +76,18 @@ describe("LandingPage", () => {
     renderLanding();
     const hero = screen.getByRole("radiogroup", { name: "Escolha o serviço" });
     expect(within(hero).getByRole("radio", { name: "Aluguel" })).toHaveAttribute("aria-checked", "true");
+    const continuar = () => screen.getByRole("button", { name: "Continuar abaixo" });
+    expect(continuar()).not.toHaveClass("btn-gold");
+    expect(screen.queryByText(/Agora toque em/)).toBeNull();
+
+    fireEvent.click(within(hero).getByRole("radio", { name: "Aluguel" }));
+    expect(screen.getByText("Aluguel escolhido. Agora toque em “Continuar abaixo”.")).toBeInTheDocument();
+    expect(continuar()).toHaveClass("btn-gold", "animate-nudge");
+
     fireEvent.click(within(hero).getByRole("radio", { name: "Transfer" }));
-    fireEvent.click(screen.getByRole("button", { name: "Continuar abaixo" }));
+    expect(screen.getByText("Transfer escolhido. Agora toque em “Continuar abaixo”.")).toBeInTheDocument();
+
+    fireEvent.click(continuar());
     expect(scroll).toHaveBeenCalled();
     const form = screen.getByRole("button", { name: "Enviar pelo WhatsApp" }).closest("form")!;
     expect(within(form).getByRole("radio", { name: "Transfer" })).toHaveAttribute("aria-checked", "true");
