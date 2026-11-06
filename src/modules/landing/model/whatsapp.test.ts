@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { content } from "./landing.content";
-import { composeMessage, whatsappNumber, whatsappUrl, formatPhone } from "./whatsapp";
+import { captureReferral, composeMessage, whatsappNumber, whatsappUrl, formatPhone } from "./whatsapp";
 
 describe("whatsapp", () => {
   it("normaliza o número e trata vazio como canal desligado", () => {
@@ -40,5 +40,21 @@ describe("whatsapp", () => {
     expect(formatPhone("5554999990000")).toBe("+55 54 99999-0000");
     expect(formatPhone("555433330000")).toBe("+55 54 3333-0000");
     expect(formatPhone("41787560108")).toBe("+41787560108");
+  });
+
+  it("guarda o código de indicação da URL durante a visita (RN-07.2)", () => {
+    sessionStorage.clear();
+    expect(captureReferral("?ref=htl234")).toBe("HTL234");
+    expect(captureReferral("")).toBe("HTL234"); // volta sem ?ref= e continua
+    expect(captureReferral("?ref=<script>")).toBe("HTL234"); // inválido é ignorado
+    sessionStorage.clear();
+    expect(captureReferral("?ref=ab")).toBe("");
+  });
+
+  it("põe a indicação na mensagem", () => {
+    const c = content.pt.contact;
+    const msg = composeMessage({ service: "aluguel", name: "Ana", start: "", end: "", route: "", notes: "", referral: "HTL234" }, c, "pt");
+    expect(msg).toContain("Indicação: HTL234");
+    expect(composeMessage({ service: "aluguel", name: "Ana", start: "", end: "", route: "", notes: "" }, c, "pt")).not.toContain("Indicação");
   });
 });

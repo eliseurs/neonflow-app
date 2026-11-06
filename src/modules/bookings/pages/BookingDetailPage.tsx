@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { formatPlate, kmPlanLabel } from "@/modules/fleet/model/fleet.types";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
+import { partnersService } from "@/modules/partners/services/partners.service";
 import { cn } from "@/shared/lib/cn";
 import { formatCents, formatDateTime, operationInstant, operationNowInput } from "@/shared/lib/format";
 import { Field, inputClass } from "@/shared/ui/Field";
@@ -50,7 +51,8 @@ export function BookingDetailPage() {
   const qc = useQueryClient();
   const booking = useQuery({ queryKey: ["bookings", id], queryFn: () => bookingService.get(id) });
   const events = useQuery({ queryKey: ["bookings", id, "events"], queryFn: () => bookingService.events(id) });
-  const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
+    const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
+  const partners = useQuery({ queryKey: ["partners"], queryFn: () => partnersService.list(), enabled: Boolean(booking.data?.referred_by_partner_id) });
   // Em "devolvida", o checklist de devolução configurado pela central entra nas conferências (RN-01.6).
   const returnChecklist = useQuery({
     queryKey: ["checklist-items"],
@@ -300,10 +302,21 @@ export function BookingDetailPage() {
               <dd className="mt-1 text-bone/85">{formatDateTime(b.start_at)} → {formatDateTime(b.end_at)}</dd>
               <dd className="text-bone/55">{b.days} {b.days === 1 ? "diária" : "diárias"} de 24 h</dd>
             </div>
-            {b.place && (
+                        {b.place && (
               <div>
                 <dt className="text-bone/45">Local de retirada</dt>
                 <dd className="mt-1 text-bone/85">{b.place}</dd>
+              </div>
+            )}
+            {b.referred_by_partner_id && (
+              <div>
+                <dt className="text-bone/45">Indicado por</dt>
+                <dd className="mt-1 text-bone/85">
+                  {(() => {
+                    const p = partners.data?.find((x) => x.id === b.referred_by_partner_id);
+                    return p ? `${p.name} · ${p.referral_code}` : "Parceiro";
+                  })()}
+                </dd>
               </div>
             )}
                         <div>

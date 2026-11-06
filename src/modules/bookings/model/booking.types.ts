@@ -32,8 +32,10 @@ export interface Booking {
   /** Odômetro na entrega e na devolução e o excedente cobrado (RN-02.18). */
   delivered_km: number | null;
   returned_km: number | null;
-  excess_km: number;
+    excess_km: number;
   excess_km_cents: number;
+  /** Parceiro que indicou o cliente (RN-07.5). */
+  referred_by_partner_id: string | null;
   expires_at: string;
   created_by: string | null;
   created_at: string;
@@ -55,7 +57,9 @@ export interface CreateBookingRequest {
     end_at: string;
   place: string;
   /** "livre" ou "limitado"; vazio: limitado se o veículo tiver limite (RN-02.18). */
-  km_plan?: KmPlan;
+    km_plan?: KmPlan;
+  /** Parceiro que indicou; vazio = sem indicação. */
+  referred_by_partner_id?: string;
 }
 
 export type KmPlan = "livre" | "limitado";

@@ -10,6 +10,13 @@ vi.mock("../services/booking.service", () => ({
   bookingService: { list: vi.fn(), create: vi.fn(), available: vi.fn() },
 }));
 vi.mock("@/modules/fleet/services/fleet.service", () => ({ fleetService: { list: vi.fn() } }));
+vi.mock("@/modules/partners/services/partners.service", () => ({
+  partnersService: {
+    list: () => Promise.resolve([
+      { id: "p1", name: "Hotel Teste", kinds: ["indicador"], referral_code: "HTL234", active: true },
+    ]),
+  },
+}));
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -111,5 +118,20 @@ describe("BookingsPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Criar pré-reserva" }));
     await waitFor(() => expect(bookingService.create).toHaveBeenCalled());
     expect(vi.mocked(bookingService.create).mock.calls[0][0].km_plan).toBe("livre");
+  });
+
+  it("registra o parceiro que indicou (RN-07.5)", async () => {
+    vi.mocked(bookingService.list).mockResolvedValue([]);
+    vi.mocked(bookingService.available).mockResolvedValue([vehicle()]);
+    vi.mocked(bookingService.create).mockResolvedValue(booking({ id: "nova" }));
+    renderPage(<BookingsPage />, { path: "/reservas", route: "/reservas" });
+    fireEvent.click((await screen.findAllByRole("button", { name: /Nova reserva/ }))[0]);
+    fireEvent.change(await screen.findByLabelText("Veículo disponível"), { target: { value: "v1" } });
+    await waitFor(() => expect(screen.getByRole("option", { name: "HTL234 · Hotel Teste" })).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Indicado por"), { target: { value: "p1" } });
+    fireEvent.change(screen.getByLabelText(/Cliente/), { target: { value: "Cliente Teste" } });
+    fireEvent.click(screen.getByRole("button", { name: "Criar pré-reserva" }));
+    await waitFor(() => expect(bookingService.create).toHaveBeenCalled());
+    expect(vi.mocked(bookingService.create).mock.calls[0][0].referred_by_partner_id).toBe("p1");
   });
 });

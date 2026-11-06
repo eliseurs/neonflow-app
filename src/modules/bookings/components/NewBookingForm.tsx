@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { CATEGORY_LABEL, formatPlate } from "@/modules/fleet/model/fleet.types";
+import { partnersService } from "@/modules/partners/services/partners.service";
 import { cn } from "@/shared/lib/cn";
 import { formatCents, localDateTime } from "@/shared/lib/format";
 import { Button } from "@/shared/ui/Button";
@@ -18,7 +19,10 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
   const [end, setEnd] = useState(localDateTime(2, 10));
   const [vehicleId, setVehicleId] = useState("");
   const [client, setClient] = useState("");
-    const [place, setPlace] = useState("");
+      const [place, setPlace] = useState("");
+  // Parceiro que indicou: o código vem na mensagem do WhatsApp ("Indicação: CÓDIGO") (RN-07.5).
+  const [referrer, setReferrer] = useState("");
+  const partners = useQuery({ queryKey: ["partners"], queryFn: () => partnersService.list() });
   // Plano de km (RN-02.18): limitado por padrão quando o veículo tem limite.
   const [kmPlan, setKmPlan] = useState<KmPlan>("limitado");
 
@@ -45,7 +49,10 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
   const submit = (e: FormEvent) => {
     e.preventDefault();
         const plan: KmPlan = vehicle?.km_limit_per_day ? kmPlan : "livre";
-    create.mutate({ vehicle_id: vehicleId, client_name: client.trim(), start_at: start, end_at: end, place: place.trim(), km_plan: plan });
+        create.mutate({
+      vehicle_id: vehicleId, client_name: client.trim(), start_at: start, end_at: end, place: place.trim(), km_plan: plan,
+      ...(referrer ? { referred_by_partner_id: referrer } : {}),
+    });
   };
 
   return (
@@ -85,6 +92,14 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
       </Field>
       {available.isError && <div className="sm:col-span-2"><ErrorNote>{apiErrorMessage(available.error)}</ErrorNote></div>}
 
+            <Field id="booking-referrer" label="Indicado por" hint="Se a mensagem trouxe &quot;Indicação: CÓDIGO&quot;, escolha o parceiro desse código." className="sm:col-span-2">
+        <select id="booking-referrer" value={referrer} onChange={(e) => setReferrer(e.target.value)} className={inputClass}>
+          <option value="" className="bg-noir">Sem indicação</option>
+          {partners.data?.filter((p) => p.active).map((p) => (
+            <option key={p.id} value={p.id} className="bg-noir">{p.referral_code} · {p.name}</option>
+          ))}
+        </select>
+      </Field>
       <Field id="booking-client" label="Cliente" hint="Só o nome, por enquanto. Documentos virão depois (PEN-48)." className="sm:col-span-2">
         <input id="booking-client" value={client} onChange={(e) => setClient(e.target.value)} className={inputClass} />
       </Field>

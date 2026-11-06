@@ -5,8 +5,27 @@ export interface ContactRequest {
   name: string;
   start: string;
   end: string;
-  route: string;
+    route: string;
   notes: string;
+  /** Código de indicação do parceiro, vindo de ?ref= (RN-07.2). */
+  referral?: string;
+}
+
+const REF_KEY = "neonflow-ref";
+const REF_FORMAT = /^[A-Z0-9]{6,12}$/;
+
+/** Lê ?ref= da URL e guarda durante a visita; sem ?ref=, devolve o guardado. Inválido é ignorado. */
+export function captureReferral(search: string = window.location.search): string {
+  const raw = new URLSearchParams(search).get("ref")?.trim().toUpperCase() ?? "";
+  try {
+    if (REF_FORMAT.test(raw)) {
+      sessionStorage.setItem(REF_KEY, raw);
+      return raw;
+    }
+    return sessionStorage.getItem(REF_KEY) ?? "";
+  } catch {
+    return REF_FORMAT.test(raw) ? raw : "";
+  }
 }
 
 // Número da central em formato internacional, só dígitos (ex.: 5554...). Vazio = canal ainda não configurado.
@@ -41,7 +60,8 @@ export function composeMessage(req: ContactRequest, c: LandingContent["contact"]
     [m.start, req.start && formatDate(req.start, lang)],
     [m.end, req.end && formatDate(req.end, lang)],
     [m.route, req.route.trim()],
-    [m.notes, req.notes.trim()],
+        [m.notes, req.notes.trim()],
+    [m.referral, req.referral ?? ""],
   ];
   const lines = fields.filter(([, value]) => value).map(([label, value]) => `${label}: ${value}`);
   return [m.greeting, "", ...lines].join("\n");

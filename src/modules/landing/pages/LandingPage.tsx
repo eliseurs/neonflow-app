@@ -9,7 +9,7 @@ import { Reveal } from "@/shared/ui/Reveal";
 import { ContactForm } from "../components/ContactForm";
 import { SiteHeader, WhatsAppIcon } from "../components/SiteHeader";
 import { content, type Lang, type ServiceKind } from "../model/landing.content";
-import { formatPhone, whatsappNumber, whatsappUrl } from "../model/whatsapp";
+import { captureReferral, formatPhone, whatsappNumber, whatsappUrl } from "../model/whatsapp";
 
 interface LandingPageProps {
   initialLang?: Lang;
@@ -30,7 +30,9 @@ function browserLang(): Lang {
 export function LandingPage({ initialLang, number = whatsappNumber() }: LandingPageProps) {
   const [lang, setLang] = useState<Lang>(initialLang ?? browserLang);
   const [service, setService] = useState<ServiceKind>("aluguel");
-  const [notesPreset, setNotesPreset] = useState<string>();
+    const [notesPreset, setNotesPreset] = useState<string>();
+  // Código de indicação (?ref=) guardado durante a visita (RN-07.2).
+  const [referral] = useState(() => captureReferral());
   // Vira true quando a pessoa escolhe o serviço no cartão do topo: o botão de continuar passa a chamar atenção.
   const [picked, setPicked] = useState(false);
   const [pulse, setPulse] = useState(0);
@@ -303,7 +305,7 @@ export function LandingPage({ initialLang, number = whatsappNumber() }: LandingP
               <SectionHeading id="contato-titulo" center overline={t.contact.overline} title={t.contact.title} accent={t.contact.titleAccent} lead={t.contact.lead} />
             </Reveal>
             <Reveal delay={120} className="mt-12">
-              <ContactForm content={t.contact} lang={lang} number={number} service={service} onServiceChange={setService} notesPreset={notesPreset} />
+              <ContactForm content={t.contact} lang={lang} number={number} service={service} onServiceChange={setService} notesPreset={notesPreset} referral={referral} />
             </Reveal>
           </div>
         </section>

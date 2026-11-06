@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { partnersService } from "@/modules/partners/services/partners.service";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
@@ -19,7 +20,10 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
   const [plate, setPlate] = useState(vehicle?.plate ?? "");
   const [name, setName] = useState(vehicle?.name ?? "");
   const [category, setCategory] = useState<Category>(vehicle?.category ?? "economy");
-  const [owner, setOwner] = useState(vehicle?.owner ?? "");
+    const [owner, setOwner] = useState(vehicle?.owner ?? "");
+  // Dono cadastrado como parceiro (RN-07.4); vazio = só o nome livre.
+  const [ownerPartnerId, setOwnerPartnerId] = useState(vehicle?.owner_partner_id ?? "");
+  const owners = useQuery({ queryKey: ["partners", "proprietario"], queryFn: () => partnersService.list("proprietario") });
   const [seats, setSeats] = useState(String(vehicle?.seats ?? ""));
   const [gear, setGear] = useState<Gear>(vehicle?.gear ?? "automatico");
   // A diária é sempre digitada pela central: sem valor sugerido (RN-01.5).
@@ -61,7 +65,8 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
       plate: normalized,
       name: name.trim(),
       category,
-      owner: owner.trim(),
+            owner: owner.trim(),
+      owner_partner_id: ownerPartnerId || null,
       seats: seatCount,
       gear,
             daily_rate_cents: cents,
@@ -95,8 +100,26 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
           ))}
         </select>
       </Field>
-      <Field id="vehicle-owner" label="Proprietário" hint="Dono do veículo: a empresa ou o parceiro." className="sm:col-span-2">
-        <input id="vehicle-owner" required value={owner} onChange={(e) => setOwner(e.target.value)} className={inputClass} />
+            <Field id="vehicle-owner-partner" label="Parceiro proprietário" hint="Cadastre o dono em Parceiros para ligar o carro a ele." className="sm:col-span-2">
+        <select
+          id="vehicle-owner-partner"
+          value={ownerPartnerId}
+          onChange={(e) => {
+            const id = e.target.value;
+            setOwnerPartnerId(id);
+            const p = owners.data?.find((o) => o.id === id);
+            if (p) setOwner(p.name);
+          }}
+          className={inputClass}
+        >
+          <option value="" className="bg-noir">Nenhum (frota própria ou dono não cadastrado)</option>
+          {owners.data?.filter((o) => o.active || o.id === ownerPartnerId).map((o) => (
+            <option key={o.id} value={o.id} className="bg-noir">{o.name}</option>
+          ))}
+        </select>
+      </Field>
+      <Field id="vehicle-owner" label="Proprietário" hint="Nome do dono: a empresa ou o parceiro." className="sm:col-span-2">
+        <input id="vehicle-owner" required disabled={Boolean(ownerPartnerId)} value={owner} onChange={(e) => setOwner(e.target.value)} className={inputClass} />
       </Field>
       <Field id="vehicle-seats" label="Lugares">
         <input id="vehicle-seats" type="number" min={1} inputMode="numeric" value={seats} onChange={(e) => setSeats(e.target.value)} className={inputClass} />

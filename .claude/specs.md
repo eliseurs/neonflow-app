@@ -2,6 +2,16 @@
 
 ---
 
+## [2026-11-06] — Parceiros e indicação
+
+- `/parceiros` (`src/modules/partners`), admin e central: lista com filtro por tipo, papéis, código, contato e percentuais; cadastro e edição (papéis múltiplos, dados básicos, comissão, repasse ao proprietário e percentual do motorista, ativo). Ao cadastrar, abre o link e o QR de indicação.
+- Link `/?ref=CÓDIGO` com botão de copiar e QR em PNG para baixar. Nova dependência `qrcode` (MIT, aprovada em 06/11/2026), gerada no navegador, sem serviço externo.
+- Veículo: "Parceiro proprietário" (preenche o nome do proprietário). Nova reserva: "Indicado por"; o detalhe mostra quem indicou.
+- Landing: `captureReferral` guarda o código da URL na sessão; a mensagem do WhatsApp leva "Indicação: CÓDIGO" (PT) ou "Referral: CODE" (EN).
+- Testes: `PartnersPage`, `partners.types`, vínculos em frota e reservas, indicação na landing.
+
+---
+
 ## [2026-11-06] — Usuários e troca de senha no painel
 
 - `/usuarios` (`src/modules/users`), só para admin: lista com papel, ativo/desativado e "você"; criar (nome, e-mail, senha inicial de 10+ caracteres, papel), editar (nome, papel, ativo; e-mail fixo) e redefinir a senha de outro usuário. O admin não consegue tirar o próprio papel nem se desativar.
