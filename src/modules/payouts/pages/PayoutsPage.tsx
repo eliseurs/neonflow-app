@@ -14,7 +14,7 @@ import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { KIND_BASE, KIND_TITLE, totalsByPartner, type Payout, type PayoutKind, type PayoutStatus } from "../model/payouts.types";
 import { payoutsService } from "../services/payouts.service";
 
-const KINDS: PayoutKind[] = ["repasse", "comissao"];
+const KINDS: PayoutKind[] = ["repasse", "motorista", "comissao"];
 const STATUSES: { value: PayoutStatus; label: string }[] = [
   { value: "pendente", label: "A pagar" },
   { value: "paga", label: "Pagos" },
@@ -82,9 +82,11 @@ export function PayoutsPage() {
       {list.isSuccess && items.length === 0 && (
         <EmptyState
           title={status === "pendente" ? "Nada a pagar" : "Nenhum pagamento registrado"}
-          text={kind === "repasse"
-            ? "O repasse aparece quando uma reserva de carro de parceiro é encerrada."
-            : "A comissão aparece quando uma reserva com \"Indicado por\" é encerrada."}
+                    text={{
+            repasse: "O repasse aparece quando uma reserva de carro de parceiro é encerrada.",
+            motorista: "O pagamento do motorista aparece quando um transfer é concluído.",
+            comissao: "A comissão aparece quando uma reserva ou um transfer com \"Indicado por\" termina.",
+          }[kind]}
         />
       )}
 
@@ -110,13 +112,18 @@ export function PayoutsPage() {
               <div className="min-w-0 flex-1">
                 <p className="font-serif text-xl font-light">{p.partner_name}</p>
                 <p className="text-sm text-bone/55">
-                  <Link to={`/reservas/${p.booking_id}`} className="underline-offset-4 hover:text-gold hover:underline">
+                                    <Link
+                    to={p.transfer_id ? `/transfers/${p.transfer_id}` : `/reservas/${p.booking_id}`}
+                    className="underline-offset-4 hover:text-gold hover:underline"
+                  >
                     {p.client_name}
                   </Link>{" "}
-                  · {p.vehicle_name} · até {formatDateTime(p.end_at)}
+                  · {p.description} · {p.transfer_id ? "em" : "até"} {formatDateTime(p.end_at)}
                 </p>
                 <p className="text-xs text-bone/45">
-                  {p.percent === null ? "Percentual a definir" : `${String(p.percent).replace(".", ",")}%`} {KIND_BASE[p.kind]} de {formatCents(p.base_cents)}
+                                    {p.kind === "motorista"
+                    ? `Valor fixo: ${KIND_BASE.motorista}`
+                    : `${p.percent === null ? "Percentual a definir" : `${String(p.percent).replace(".", ",")}%`} ${KIND_BASE[p.kind]} de ${formatCents(p.base_cents)}`}
                 </p>
                 {p.paid_at && (
                   <p className="text-xs text-bone/45">Pago em {formatDateTime(p.paid_at)}{p.paid_by_name && ` por ${p.paid_by_name}`}</p>
@@ -144,7 +151,7 @@ export function PayoutsPage() {
           <div className="space-y-5">
             <p className="text-bone/80">
               Você pagou <strong className="text-gold">{formatCents(paying.amount_cents ?? 0)}</strong> a {paying.partner_name} (
-              {paying.kind === "repasse" ? "repasse" : "comissão"} da reserva de {paying.client_name})?
+                            {{ repasse: "repasse", motorista: "corrida", comissao: "comissão" }[paying.kind]} de {paying.client_name})?
             </p>
             <p className="text-xs text-bone/45">O pagamento é feito fora do sistema, por Pix. Aqui fica o registro de quando e quem marcou.</p>
             {pay.isError && <ErrorNote>{apiErrorMessage(pay.error, "Não foi possível marcar como pago.")}</ErrorNote>}

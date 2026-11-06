@@ -2,6 +2,15 @@
 
 ---
 
+## [2026-11-06] — Transfer
+
+- `/transfers` (`src/modules/transfers`): lista em aberto (o próximo primeiro), concluídos e cancelados; "Novo transfer" com cliente, data e hora, origem, destino, voo, passageiros, preço combinado e "Indicado por".
+- `/transfers/:id`: abrir ou reabrir a oferta (valor e prazo; não diminui), copiar a mensagem para o WhatsApp dos motoristas (sem o nome do cliente), registrar quem aceitou, "Motorista desistiu", marcar o pagamento, iniciar, concluir com a espera extra e cancelar com a multa calculada (zero se o voo foi cancelado). Histórico das ações.
+- Repasses: nova aba "Motoristas" (valor fixo: oferta + espera); itens de transfer levam ao transfer.
+- Menu: "Transfer". Testes: `TransfersPage`, `TransferDetailPage`, `transfer.types`, aba de motoristas.
+
+---
+
 ## [2026-11-06] — Indicadores na tela inicial
 
 - Tela inicial: "Faturamento de <mês>" com as retiradas no mês (diárias, atraso e km) e o pago no mês lado a lado (q97), e "Ocupação hoje" com o percentual e "x de y carros em locação" (q98), de `GET /api/dashboard`.
