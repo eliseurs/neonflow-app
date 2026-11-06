@@ -14,12 +14,16 @@ import { CustomerDetailPage } from "@/modules/customers/pages/CustomerDetailPage
 import { CustomersPage } from "@/modules/customers/pages/CustomersPage";
 import { TransferDetailPage } from "@/modules/transfers/pages/TransferDetailPage";
 import { TransfersPage } from "@/modules/transfers/pages/TransfersPage";
+import { PublicTermsPage } from "@/modules/terms/pages/PublicTermsPage";
+import { TermsAdminPage } from "@/modules/terms/pages/TermsAdminPage";
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage />} />
+      {/* Página pública do cliente: o código do link é a autorização. */}
+      <Route path="/termos/:token" element={<PublicTermsPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/central" element={<DashboardPage />} />
@@ -30,7 +34,8 @@ export function AppRoutes() {
                     <Route path="/parceiros" element={<PartnersPage />} />
                     <Route path="/repasses" element={<PayoutsPage />} />
                     <Route path="/transfers" element={<TransfersPage />} />
-          <Route path="/clientes" element={<CustomersPage />} />
+                    <Route path="/clientes" element={<CustomersPage />} />
+          <Route path="/termos" element={<TermsAdminPage />} />
           <Route path="/clientes/:id" element={<CustomerDetailPage />} />
           <Route path="/transfers/:id" element={<TransferDetailPage />} />
         </Route>

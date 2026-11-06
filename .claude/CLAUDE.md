@@ -26,7 +26,7 @@
 
 ### Estado atual
 
-Landing pública em `/` (PT/EN, `src/modules/landing`). Painel da central no mesmo visual da landing: login (`POST /auth/login`), sessão com expiração em Zustand persistido, `ProtectedRoute`, layout com sidebar (abas no celular). Central com contadores do dia; frota (lista, cadastro e edição com diária); reservas (lista por etapa, nova pré-reserva pela disponibilidade, detalhe com conferências, avanço de etapa, cancelamento e histórico), parceiros (proprietário, motorista, indicador) com link e QR de indicação; transfer com oferta aos motoristas; repasses; clientes com histórico; tudo sobre a API (`/api/vehicles`, `/api/bookings`, `/api/availability`, `/api/partners`). A landing guarda `?ref=CÓDIGO` na visita e manda "Indicação: CÓDIGO" no WhatsApp.
+Landing pública em `/` (PT/EN, `src/modules/landing`). Painel da central no mesmo visual da landing: login (`POST /auth/login`), sessão com expiração em Zustand persistido, `ProtectedRoute`, layout com sidebar (abas no celular). Central com contadores do dia; frota (lista, cadastro e edição com diária); reservas (lista por etapa, nova pré-reserva pela disponibilidade, detalhe com conferências, avanço de etapa, cancelamento e histórico), parceiros (proprietário, motorista, indicador) com link e QR de indicação; transfer com oferta aos motoristas; repasses; clientes com histórico; fotos do veículo e da reserva; termos e aceite do cliente pelo link (`/termos/:token`, público); tudo sobre a API (`/api/vehicles`, `/api/bookings`, `/api/availability`, `/api/partners`). A landing guarda `?ref=CÓDIGO` na visita e manda "Indicação: CÓDIGO" no WhatsApp.
 
 ## Comandos úteis
 

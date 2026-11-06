@@ -43,6 +43,12 @@ export const apiClient = {
   put: async <T>(url: string, body?: unknown) => (await axiosInstance.put<T>(url, body)).data,
   patch: async <T>(url: string, body?: unknown) => (await axiosInstance.patch<T>(url, body)).data,
   delete: async <T>(url: string) => (await axiosInstance.delete<T>(url)).data,
+  /** Envia um arquivo em multipart (campo "file"); o padrão JSON converteria o FormData. */
+  upload: async <T>(url: string, file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return (await axiosInstance.post<T>(url, form, { headers: { "Content-Type": "multipart/form-data" }, timeout: 60_000 })).data;
+  },
 };
 
 export function apiErrorMessage(error: unknown, fallback = "Não foi possível concluir a operação."): string {
