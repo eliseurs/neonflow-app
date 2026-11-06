@@ -20,10 +20,10 @@ interface StatCardProps {
 
 export function StatCard({ label, value }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-ink-line bg-ink-soft p-4">
-      <p className="text-sm text-slate-400">{label}</p>
-      <p className="font-display text-2xl font-semibold">{value}</p>
-    </div>
+    <Panel className="p-6">
+      <p className="text-[11px] uppercase tracking-[0.2em] text-bone/55">{label}</p>
+      <p className="mt-4 font-serif text-5xl font-light text-gold">{value}</p>
+    </Panel>
   );
 }
 ```

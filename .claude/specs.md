@@ -2,6 +2,19 @@
 
 ---
 
+## [2026-11-05] — Painel da central no visual da landing
+
+- Tema único: `noir`, `bone`, `gold` e Fraunces + Inter também no painel. Saíram os tokens `ink`/`mint` e as fontes DM Sans e Manrope (`tailwind.config.ts`, `index.css`, `index.html`).
+- `src/shared/ui`: `Brand` (Wordmark, antes só na landing), `Heading` (Overline, SectionHeading movidos da landing, e `PageHeader`), `Button`, `Field`, `Panel` (EmptyState, ErrorNote, Loading), `Badge`, `Dialog`. `PlaceholderPage` removido. `src/shared/lib/format.ts`: reais ↔ centavos e datas sem fuso.
+- Layout: sidebar com logo, navegação em pílulas e usuário; no celular, barra fixa com abas. Login redesenhado com link de volta ao site.
+- Central (`/central`): retiradas e devoluções de hoje, pré-reservas aguardando pagamento, veículos em manutenção, próximas retiradas e carros na rua. O dia é a unidade, sem horário (PEN-29); indicadores definitivos seguem em PEN-11.
+- Frota (`/frota`): cartões por veículo (categoria, placa, diária, proprietário, lugares, câmbio, manutenção); cadastro e edição em painel lateral. A diária é digitada pela central, sem valor sugerido (RN-01.5); placa validada como na API.
+- Reservas (`/reservas`): filtro por etapa (padrão: ativas); nova pré-reserva escolhe o período, consulta `GET /availability`, mostra diárias × diária e cria em `POST /bookings`. Cliente só com nome (PEN-48).
+- Detalhe (`/reservas/:id`): etapas, conferências da etapa atual (`PATCH /checks`), avanço só com todas marcadas, cancelamento em dois passos em preparação e confirmada, prazo de pagamento e histórico (`/events`).
+- Testes: `FleetPage`, `BookingsPage`, `BookingDetailPage`, `DashboardPage`, `booking.types`, `format` e rotas; fixtures fictícias em `src/test/`.
+
+---
+
 ## [2026-11-05] — Landing pública
 
 - `src/modules/landing/`: `LandingPage` em `/` (pública), PT/EN pelo idioma do navegador com botão de troca, linha visual LuxuryBus (fundo `noir`, dourado do logo, Fraunces 300 + Inter) e logo caminho B.

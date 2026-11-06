@@ -2,7 +2,8 @@ import { MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ContactForm } from "../components/ContactForm";
-import { Overline, SectionHeading } from "../components/SectionHeading";
+import { Wordmark } from "@/shared/ui/Brand";
+import { Overline, SectionHeading } from "@/shared/ui/Heading";
 import { content, type Lang, type ServiceKind } from "../model/landing.content";
 import { whatsappNumber, whatsappUrl } from "../model/whatsapp";
 
@@ -16,15 +17,6 @@ const outlineButton =
 
 function browserLang(): Lang {
   return typeof navigator !== "undefined" && !navigator.language.toLowerCase().startsWith("pt") ? "en" : "pt";
-}
-
-function Wordmark() {
-  return (
-    <span className="flex items-center gap-3">
-      <img src="/brand/neonflow-simbolo.svg" alt="" className="h-9 w-9" />
-      <span className="font-serif text-lg font-light tracking-[0.16em] text-bone">NEON FLOW</span>
-    </span>
-  );
 }
 
 export function LandingPage({ initialLang, number = whatsappNumber() }: LandingPageProps) {

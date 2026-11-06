@@ -35,13 +35,15 @@ src/
     layout/AppLayout.tsx        # sidebar + carrega /auth/me
   modules/
     auth/                       # LoginPage, auth.service, auth.store, auth.types
-    dashboard/pages/            # Central (placeholder)
-    fleet/pages/                # Frota (placeholder)
-    bookings/pages/             # Reservas (placeholder)
+    landing/                    # landing pública PT/EN
+    dashboard/pages/            # Central: contadores do dia e agenda
+    fleet/                      # model (tipos, placa), services, VehicleForm, FleetPage
+    bookings/                   # model (etapas, conferências), services, NewBookingForm, StageBadge, páginas de lista e detalhe
   shared/
-    ui/PlaceholderPage.tsx
+    ui/                         # Brand, Heading (Overline, SectionHeading, PageHeader), Button, Field, Panel, Badge, Dialog
     lib/cn.ts                   # clsx + tailwind-merge
-  test/setup.ts
+    lib/format.ts               # reais ↔ centavos, datas sem fuso
+  test/                         # setup, render (renderPage), fixtures fictícias
 prototipo/                      # demo estática congelada (ver prototipo/README.md)
 docs/                           # deploy, qualidade
 ```
@@ -57,15 +59,22 @@ docs/                           # deploy, qualidade
 | `/central` | DashboardPage | `ProtectedRoute` |
 | `/frota` | FleetPage | `ProtectedRoute` |
 | `/reservas` | BookingsPage | `ProtectedRoute` |
+| `/reservas/:id` | BookingDetailPage | `ProtectedRoute` |
 | `*` | → `/` (landing) | — |
 
 ---
 
 ## Identidade visual
 
-Herdada do protótipo: fundo `ink` `#101b25`, superfícies `ink-soft` `#16232f`, linhas `ink-line` `#22313e`, destaque `mint` `#6cedc4`. Fontes DM Sans (texto) e Manrope (títulos). Tokens em `tailwind.config.ts`.
+Landing e painel seguem a linha LuxuryBus: fundo `noir` `#060606`, texto `bone` `#F9F9F9`, destaque `gold` `#C9A86A` (o dourado do logo) e `gold-soft` `#DCC596`. Fraunces 300 nos títulos, com a segunda metade em itálico dourado; Inter no texto. Tokens em `tailwind.config.ts`; as cores do protótipo (`ink`, `mint`) saíram do app.
 
-A landing pública segue a linha LuxuryBus: `noir` `#060606`, `bone`, `gold` `#C9A86A` (o dourado do logo), Fraunces 300 nos títulos (segunda metade em itálico dourado) e Inter no texto.
+Padrões do painel (componentes em `src/shared/ui`):
+
+- Cabeçalho de tela: `PageHeader` (overline dourada com travessão, título serif, acento opcional, ações à direita).
+- Superfícies: `Panel` (borda `white/8%`, fundo `white/3%`, raio 14 px).
+- Botões em pílula, rótulos em caixa alta com espaçamento largo: `primary` (dourado), `outline`, `ghost`, `danger`.
+- Formulários em `Dialog` lateral; campos com `Field` + `inputClass`.
+- Etapas da reserva em `Badge` por tom (preparação âmbar, confirmada dourada, em locação verde, finais apagadas).
 
 ---
 

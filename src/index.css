@@ -4,11 +4,7 @@
 
 @layer base {
   html {
-    @apply bg-ink text-slate-100 antialiased;
-  }
-  h1,
-  h2,
-  h3 {
-    @apply font-display;
+    @apply bg-noir font-sans text-bone antialiased;
+    color-scheme: dark;
   }
 }
