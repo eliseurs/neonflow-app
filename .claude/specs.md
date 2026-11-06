@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-06] — Atraso por minuto e km controlado
+
+- Devolução: a prévia e o detalhe mostram o atraso em minutos ("1 h 05 min", "1 dia 6 h 00 min") e o valor pela diária ÷ 1440 (`lateMinutes`, `lateCents`, `formatMinutes`), espelhando a API (`extra_minutes`). A prévia do km excedente usa só as diárias contratadas (q90).
+- Km controlado: o veículo aceita limite de km sem valor do excedente ("200 km/dia · excedente a definir"); a nova reserva oferece o plano limitado e avisa que o valor é definido pela central; na devolução o excedente aparece em km com "valor a definir pela central". Valor sem limite é recusado.
+- Landing: a tolerância diz que cada minuto de atraso é cobrado proporcionalmente à diária (PT e EN).
+
+---
+
 ## [2026-11-06] — Parceiros e indicação
 
 - `/parceiros` (`src/modules/partners`), admin e central: lista com filtro por tipo, papéis, código, contato e percentuais; cadastro e edição (papéis múltiplos, dados básicos, comissão, repasse ao proprietário e percentual do motorista, ativo). Ao cadastrar, abre o link e o QR de indicação.

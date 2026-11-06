@@ -23,7 +23,8 @@ export interface Booking {
   delivered_at: string | null;
   returned_at: string | null;
   /** Diárias extras do atraso na devolução e o valor delas (RN-02.19). */
-    extra_days: number;
+            /** Minutos de atraso na devolução, cobrados a diária ÷ 1440 (RN-02.19). */
+    extra_minutes: number;
   extra_cents: number;
   /** Caução e plano de km copiados do veículo na criação (RN-06.4, RN-02.18). km_limit_per_day null = km livre. */
   deposit_cents: number | null;
@@ -64,9 +65,9 @@ export interface CreateBookingRequest {
 
 export type KmPlan = "livre" | "limitado";
 
-/** Km acima da franquia: limite por dia × diárias cobradas (reserva + atraso). Espelha a API. */
-export function excessKm(limitPerDay: number, chargedDays: number, driven: number): number {
-  return Math.max(driven - limitPerDay * chargedDays, 0);
+/** Km acima da franquia: limite por dia × diárias contratadas; atraso não traz franquia (q90). Espelha a API. */
+export function excessKm(limitPerDay: number, contractedDays: number, driven: number): number {
+  return Math.max(driven - limitPerDay * contractedDays, 0);
 }
 
 /** Cobranças além da reserva: atraso (RN-02.19) e km excedente (RN-02.18). */
@@ -75,14 +76,31 @@ export function extrasCents(b: Pick<Booking, "extra_cents" | "excess_km_cents">)
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const MINUTE_MS = 60 * 1000;
+const MINUTES_PER_DAY = 24 * 60;
 /** Tolerância na devolução: até 1 hora depois do combinado não cobra (RN-02.19). */
 export const LATE_TOLERANCE_MS = 60 * 60 * 1000;
 
-/** Diárias extras de uma devolução: 1 por bloco de 24 horas iniciado depois da tolerância. Espelha a API. */
-export function lateDays(endAt: string, returnedMs: number): number {
-  const late = returnedMs - Date.parse(endAt) - LATE_TOLERANCE_MS;
-  if (!Number.isFinite(late) || late <= 0) return 0;
-  return Math.ceil(late / DAY_MS);
+/** Minutos de atraso: nada até 1 hora; depois, os minutos exatos desde o combinado. Espelha a API. */
+export function lateMinutes(endAt: string, returnedMs: number): number {
+  const late = returnedMs - Date.parse(endAt);
+  if (!Number.isFinite(late) || late <= LATE_TOLERANCE_MS) return 0;
+  return Math.floor(late / MINUTE_MS);
+}
+
+/** Valor do atraso: diária ÷ 1440 por minuto, arredondado ao centavo. Espelha a API. */
+export function lateCents(minutes: number, dailyRateCents: number): number {
+  return Math.floor((minutes * dailyRateCents + MINUTES_PER_DAY / 2) / MINUTES_PER_DAY);
+}
+
+/** "65 min" → "1 h 05 min"; "1 dia 6 h 00 min". */
+export function formatMinutes(minutes: number): string {
+  const days = Math.floor(minutes / MINUTES_PER_DAY);
+  const hours = Math.floor((minutes % MINUTES_PER_DAY) / 60);
+  const mins = minutes % 60;
+  const time = hours === 0 && days === 0 ? `${mins} min` : `${hours} h ${String(mins).padStart(2, "0")} min`;
+  if (days === 0) return time;
+  return `${days === 1 ? "1 dia" : `${days} dias`} ${time}`;
 }
 
 /** Em locação e já passou da devolução combinada mais a tolerância. */

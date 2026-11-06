@@ -89,7 +89,7 @@ describe("BookingsPage", () => {
   it("sinaliza devolução atrasada e o valor do atraso", async () => {
     vi.mocked(bookingService.list).mockResolvedValue([
       booking({ id: "a", client_name: "Atrasado Teste", stage: "em_locacao", end_at: "2026-01-02T09:00:00-03:00" }),
-      booking({ id: "b", client_name: "Devolvido Teste", stage: "devolvida", extra_days: 1, extra_cents: 10000 }),
+      booking({ id: "b", client_name: "Devolvido Teste", stage: "devolvida", extra_minutes: 1440, extra_cents: 10000 }),
     ]);
     renderPage(<BookingsPage />);
     expect(await screen.findByText("Devolução atrasada")).toBeInTheDocument();
