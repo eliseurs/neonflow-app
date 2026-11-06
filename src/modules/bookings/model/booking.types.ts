@@ -19,6 +19,12 @@ export interface Booking {
   daily_rate_cents: number;
   total_cents: number;
   checks: Record<string, boolean>;
+  /** Hora real da entrega e da devolução, informadas pela central (RN-02.19). */
+  delivered_at: string | null;
+  returned_at: string | null;
+  /** Diárias extras do atraso na devolução e o valor delas (RN-02.19). */
+  extra_days: number;
+  extra_cents: number;
   expires_at: string;
   created_by: string | null;
   created_at: string;
@@ -42,6 +48,20 @@ export interface CreateBookingRequest {
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+/** Tolerância na devolução: até 1 hora depois do combinado não cobra (RN-02.19). */
+export const LATE_TOLERANCE_MS = 60 * 60 * 1000;
+
+/** Diárias extras de uma devolução: 1 por bloco de 24 horas iniciado depois da tolerância. Espelha a API. */
+export function lateDays(endAt: string, returnedMs: number): number {
+  const late = returnedMs - Date.parse(endAt) - LATE_TOLERANCE_MS;
+  if (!Number.isFinite(late) || late <= 0) return 0;
+  return Math.ceil(late / DAY_MS);
+}
+
+/** Em locação e já passou da devolução combinada mais a tolerância. */
+export function isOverdue(b: Pick<Booking, "stage" | "end_at">, now: number = Date.now()): boolean {
+  return b.stage === "em_locacao" && now > Date.parse(b.end_at) + LATE_TOLERANCE_MS;
+}
 
 /**
  * Diárias entre dois valores de datetime-local: blocos de 24 horas a partir da retirada,

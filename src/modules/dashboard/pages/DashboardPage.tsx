@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { StageBadge } from "@/modules/bookings/components/StageBadge";
-import { isActive, type Booking } from "@/modules/bookings/model/booking.types";
+import { isActive, isOverdue, type Booking } from "@/modules/bookings/model/booking.types";
 import { bookingService } from "@/modules/bookings/services/booking.service";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
 import { formatDate, formatDateTime, operationDay } from "@/shared/lib/format";
@@ -34,7 +34,10 @@ function Agenda({ title, items, date, empty }: { title: string; items: Booking[]
               <Link to={`/reservas/${b.id}`} className="flex items-center justify-between gap-4 py-3 hover:text-gold">
                 <span>
                   {b.client_name}
-                  <span className="block text-xs text-bone/45">{formatDateTime(date(b))}</span>
+                  <span className="block text-xs text-bone/45">
+                    {formatDateTime(date(b))}
+                    {isOverdue(b) && <span className="text-rose-300"> · atrasada</span>}
+                  </span>
                 </span>
                 <StageBadge stage={b.stage} />
               </Link>

@@ -40,6 +40,22 @@ export function formatDateTime(iso: string): string {
   return `${p.day}/${p.month}/${p.year} ${p.hour}:${p.minute}`;
 }
 
+/** Agora no horário de Gramado, no formato do campo datetime-local ("2026-12-10T14:05"). */
+export function operationNowInput(now: Date = new Date()): string {
+  const p = parts(now);
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;
+}
+
+/**
+ * Valor de datetime-local lido como horário de Gramado → instante em ms.
+ * Gramado está em UTC−3 o ano todo (sem horário de verão desde 2019).
+ */
+export function operationInstant(local: string): number {
+  // Date.parse é tolerante demais (aceita ":00-03:00"); só o formato do datetime-local vale.
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(local)) return Number.NaN;
+  return Date.parse(`${local}:00-03:00`);
+}
+
 /** Dia (AAAA-MM-DD) de um instante no horário de Gramado. */
 export function operationDay(date: Date | string = new Date()): string {
   const p = parts(typeof date === "string" ? new Date(date) : date);

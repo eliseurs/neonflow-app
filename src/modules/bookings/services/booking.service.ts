@@ -9,7 +9,9 @@ export const bookingService = {
   create: async (req: CreateBookingRequest) => (await apiClient.post<ApiResponse<Booking>>("/bookings", req)).data,
   setChecks: async (id: string, checks: Record<string, boolean>) =>
     (await apiClient.patch<ApiResponse<Booking>>(`/bookings/${id}/checks`, checks)).data,
-  advance: async (id: string) => (await apiClient.post<ApiResponse<Booking>>(`/bookings/${id}/advance`)).data,
+  /** at: hora real da entrega ou da devolução (AAAA-MM-DDTHH:MM, horário de Gramado); vazia, vale agora. */
+  advance: async (id: string, at?: string) =>
+    (await apiClient.post<ApiResponse<Booking>>(`/bookings/${id}/advance`, at ? { at } : undefined)).data,
   cancel: async (id: string) => (await apiClient.post<ApiResponse<Booking>>(`/bookings/${id}/cancel`)).data,
   available: async (start: string, end: string) =>
     (await apiClient.get<ApiResponse<Vehicle[]>>(`/availability?start_at=${encodeURIComponent(start)}&end_at=${encodeURIComponent(end)}`)).data,

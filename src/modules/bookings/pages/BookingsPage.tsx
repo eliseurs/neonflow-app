@@ -12,7 +12,7 @@ import { PageHeader } from "@/shared/ui/Heading";
 import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { NewBookingForm } from "../components/NewBookingForm";
 import { StageBadge } from "../components/StageBadge";
-import { STAGE, isActive, type Booking, type Stage } from "../model/booking.types";
+import { STAGE, isActive, isOverdue, type Booking, type Stage } from "../model/booking.types";
 import { bookingService } from "../services/booking.service";
 
 type Filter = "ativas" | "todas" | Stage;
@@ -102,6 +102,8 @@ export function BookingsPage() {
               <p className="text-sm text-bone/80">
                 {formatCents(b.total_cents)}
                 {b.stage === "preparacao" && <span className="block text-amber-200/80">Paga até {formatDateTime(b.expires_at)}</span>}
+                {isOverdue(b) && <span className="block text-rose-300">Devolução atrasada</span>}
+                {b.extra_cents > 0 && <span className="block text-amber-200/80">+ {formatCents(b.extra_cents)} de atraso</span>}
               </p>
               <StageBadge stage={b.stage} />
               <ChevronRight className="hidden h-4 w-4 text-bone/40 md:block" aria-hidden />
