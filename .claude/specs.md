@@ -9,6 +9,7 @@
 - Tudo com textos já aprovados; sem preço. Novos textos PT/EN em `landing.content.ts` (trust, final, footer, menu).
 - Sistema: `.text-gold-grad`/`Accent`, `.btn-gold` com reflexo, `Reveal`/`useReveal`, `ease-silk` e animações (`rise`, `ambient-glow`, `slow-float`, `drawer-in`) no Tailwind; `buttonClass` separado de `Button`. O painel herda o logo, o botão e os acentos.
 - `whatsapp.ts`: `formatPhone` para exibir o número.
+- WhatsApp da central definido: `VITE_WHATSAPP_NUMBER=5551997192854` no Railway (PEN-66). O `Dockerfile` passa a repassar a variável ao build.
 - Testes: landing (cartão do hero, frota preenchendo o formulário, menu com Esc e travamento da rolagem, cabeçalho ao rolar), `useReveal` e `formatPhone`.
 
 ---

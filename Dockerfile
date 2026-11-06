@@ -12,6 +12,9 @@ COPY . .
 # No Railway, defina como variável do serviço apontando para a URL pública da API + /api.
 ARG VITE_API_BASE_URL=""
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+# WhatsApp da central (só dígitos, com DDI). Vazio desativa os botões de WhatsApp da landing.
+ARG VITE_WHATSAPP_NUMBER=""
+ENV VITE_WHATSAPP_NUMBER=$VITE_WHATSAPP_NUMBER
 
 RUN npm run build
 
