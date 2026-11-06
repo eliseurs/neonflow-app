@@ -5,6 +5,7 @@ import { LoginPage } from "@/modules/auth/pages/LoginPage";
 import { DashboardPage } from "@/modules/dashboard/pages/DashboardPage";
 import { FleetPage } from "@/modules/fleet/pages/FleetPage";
 import { BookingsPage } from "@/modules/bookings/pages/BookingsPage";
+import { BookingDetailPage } from "@/modules/bookings/pages/BookingDetailPage";
 import { LandingPage } from "@/modules/landing/pages/LandingPage";
 
 export function AppRoutes() {
@@ -17,6 +18,7 @@ export function AppRoutes() {
           <Route path="/central" element={<DashboardPage />} />
           <Route path="/frota" element={<FleetPage />} />
           <Route path="/reservas" element={<BookingsPage />} />
+          <Route path="/reservas/:id" element={<BookingDetailPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

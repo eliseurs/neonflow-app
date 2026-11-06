@@ -10,6 +10,8 @@ import type { User } from "@/modules/auth/model/auth.types";
 vi.mock("@/modules/auth/services/auth.service", () => ({
   authService: { login: vi.fn(), me: vi.fn() },
 }));
+vi.mock("@/modules/fleet/services/fleet.service", () => ({ fleetService: { list: vi.fn().mockResolvedValue([]) } }));
+vi.mock("@/modules/bookings/services/booking.service", () => ({ bookingService: { list: vi.fn().mockResolvedValue([]) } }));
 
 const user: User = { id: "u1", name: "Maria Central", email: "maria@neonflow.test", role: "central", created_at: "", updated_at: "" };
 const future = () => new Date(Date.now() + 3_600_000).toISOString();
@@ -39,7 +41,7 @@ describe("rotas", () => {
   it("mostra o painel com sessão válida e carrega /auth/me", async () => {
     useAuthStore.getState().setSession("tok", future(), user);
     renderAt("/reservas");
-    expect(screen.getByRole("heading", { name: "Reservas" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Reservas/ })).toBeInTheDocument();
     await waitFor(() => expect(authService.me).toHaveBeenCalled());
   });
 
@@ -50,7 +52,7 @@ describe("rotas", () => {
     fireEvent.change(screen.getByLabelText("Senha"), { target: { value: "senha-forte-123" } });
     fireEvent.click(screen.getByRole("button", { name: "Entrar" }));
 
-    expect(await screen.findByRole("heading", { name: "Veículos" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /^Veículos/ })).toBeInTheDocument();
     expect(useAuthStore.getState().token).toBe("tok");
     expect(vi.mocked(authService.login).mock.calls[0][0]).toEqual({ email: "maria@neonflow.test", password: "senha-forte-123" });
   });
@@ -68,8 +70,8 @@ describe("rotas", () => {
   it("sair limpa a sessão e volta ao login", async () => {
     useAuthStore.getState().setSession("tok", future(), user);
     renderAt("/central");
-    expect(await screen.findByRole("heading", { name: "Olá, Maria" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Sair/ }));
+    expect(await screen.findByRole("heading", { name: /^Olá, Maria\./ })).toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole("button", { name: /Sair/ })[0]);
     expect(screen.getByRole("button", { name: "Entrar" })).toBeInTheDocument();
     expect(useAuthStore.getState().token).toBeNull();
   });
@@ -92,6 +94,6 @@ describe("rotas", () => {
     fireEvent.change(screen.getByLabelText("E-mail"), { target: { value: "maria@neonflow.test" } });
     fireEvent.change(screen.getByLabelText("Senha"), { target: { value: "senha-forte-123" } });
     fireEvent.click(screen.getByRole("button", { name: "Entrar" }));
-    expect(await screen.findByText("CENTRAL DE MOBILIDADE")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /^Olá, Maria\./ })).toBeInTheDocument();
   });
 });

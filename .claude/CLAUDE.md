@@ -26,7 +26,7 @@
 
 ### Estado atual
 
-Landing pública em `/` (PT/EN, `src/modules/landing`). Painel: login (`POST /auth/login`), sessão com expiração em Zustand persistido, `ProtectedRoute`, layout com sidebar e telas placeholder de Central, Frota e Reservas. As telas de frota e reservas ainda são placeholders; a API delas já existe (`/api/vehicles`, `/api/bookings`, `/api/availability`).
+Landing pública em `/` (PT/EN, `src/modules/landing`). Painel da central no mesmo visual da landing: login (`POST /auth/login`), sessão com expiração em Zustand persistido, `ProtectedRoute`, layout com sidebar (abas no celular). Central com contadores do dia; frota (lista, cadastro e edição com diária); reservas (lista por etapa, nova pré-reserva pela disponibilidade, detalhe com conferências, avanço de etapa, cancelamento e histórico), tudo sobre a API (`/api/vehicles`, `/api/bookings`, `/api/availability`).
 
 ## Comandos úteis
 

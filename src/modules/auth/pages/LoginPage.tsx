@@ -1,7 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { apiErrorMessage } from "@/app/providers/api/client";
+import { Wordmark } from "@/shared/ui/Brand";
+import { Button } from "@/shared/ui/Button";
+import { Field, inputClass } from "@/shared/ui/Field";
+import { Overline } from "@/shared/ui/Heading";
+import { ErrorNote } from "@/shared/ui/Panel";
 import { authService } from "../services/auth.service";
 import { useAuthStore } from "../store/auth.store";
 
@@ -31,49 +36,37 @@ export function LoginPage() {
   };
 
   return (
-    <main className="grid min-h-screen place-items-center p-4">
-      <form onSubmit={submit} className="w-full max-w-sm rounded-2xl border border-ink-line bg-ink-soft p-8" noValidate>
-        <h1 className="font-display text-2xl font-bold">
-          neon<span className="text-mint">flow</span>
-        </h1>
-        <p className="mt-1 text-sm text-slate-400">Central de mobilidade</p>
+    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-noir px-4 py-12 font-sans text-bone">
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_70%_30%,rgba(201,168,106,0.14),transparent_55%)]" />
+      <img src="/brand/neonflow-simbolo.svg" alt="" aria-hidden className="pointer-events-none absolute -right-32 top-1/2 hidden w-[520px] -translate-y-1/2 opacity-[0.08] md:block" />
 
-        <label className="mt-8 block text-sm" htmlFor="email">E-mail</label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="username"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-ink-line bg-ink px-3 py-2 outline-none focus:border-mint"
-        />
+      <div className="relative w-full max-w-md">
+        <Link to="/" aria-label="Neon Flow — início">
+          <Wordmark />
+        </Link>
+        <form onSubmit={submit} className="mt-10 rounded-[14px] border border-white/[0.08] bg-white/[0.03] p-8 md:p-10" noValidate>
+          <Overline>Central de mobilidade</Overline>
+          <h1 className="mt-4 font-serif text-4xl font-light leading-tight">
+            Acesso <em className="text-gold">da equipe.</em>
+          </h1>
 
-        <label className="mt-4 block text-sm" htmlFor="password">Senha</label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-ink-line bg-ink px-3 py-2 outline-none focus:border-mint"
-        />
+          <div className="mt-8 space-y-5">
+            <Field id="email" label="E-mail">
+              <input id="email" type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+            </Field>
+            <Field id="password" label="Senha">
+              <input id="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} />
+            </Field>
+          </div>
 
-        {login.isError && (
-          <p role="alert" className="mt-4 text-sm text-rose-400">
-            {apiErrorMessage(login.error, "Não foi possível entrar.")}
-          </p>
-        )}
+          {login.isError && <div className="mt-5"><ErrorNote>{apiErrorMessage(login.error, "Não foi possível entrar.")}</ErrorNote></div>}
 
-        <button
-          type="submit"
-          disabled={login.isPending || !email || !password}
-          className="mt-6 w-full rounded-lg bg-mint py-2 font-semibold text-ink transition hover:bg-mint-dark disabled:opacity-50"
-        >
-          {login.isPending ? "Entrando..." : "Entrar"}
-        </button>
-      </form>
+          <Button type="submit" className="mt-8 w-full" disabled={login.isPending || !email || !password}>
+            {login.isPending ? "Entrando..." : "Entrar"}
+          </Button>
+        </form>
+        <Link to="/" className="mt-6 inline-block text-sm text-bone/50 hover:text-gold">← Voltar ao site</Link>
+      </div>
     </main>
   );
 }
