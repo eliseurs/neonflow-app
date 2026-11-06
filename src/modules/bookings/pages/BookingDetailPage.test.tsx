@@ -7,6 +7,12 @@ import { bookingService } from "../services/booking.service";
 import { checklistService } from "@/modules/checklist/services/checklist.service";
 import { BookingDetailPage } from "./BookingDetailPage";
 
+vi.mock("@/modules/photos/services/photo.service", () => ({
+  photoService: { booking: () => Promise.resolve([]), uploadBooking: () => Promise.resolve({}), remove: () => Promise.resolve({}) },
+}));
+vi.mock("@/modules/terms/services/terms.service", () => ({
+  termsService: { acceptance: () => Promise.resolve(null), createLink: () => Promise.resolve({ token: "t", path: "/termos/t", expires_at: "2026-12-17T10:00:00-03:00" }) },
+}));
 vi.mock("../services/booking.service", () => ({
   bookingService: { get: vi.fn(), events: vi.fn(), setChecks: vi.fn(), advance: vi.fn(), cancel: vi.fn() },
 }));

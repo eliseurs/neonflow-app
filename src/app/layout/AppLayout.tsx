@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, Car, Contact, Handshake, KeyRound, LayoutDashboard, LogOut, Plane, Users, Wallet } from "lucide-react";
+import { CalendarDays, Car, Contact, FileText, Handshake, KeyRound, LayoutDashboard, LogOut, Plane, Users, Wallet } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { authService } from "@/modules/auth/services/auth.service";
@@ -17,7 +17,8 @@ const NAV = [
   { to: "/frota", label: "Frota", icon: Car },
     { to: "/parceiros", label: "Parceiros", icon: Handshake },
   { to: "/repasses", label: "Repasses", icon: Wallet },
-  { to: "/usuarios", label: "Usuários", icon: Users, adminOnly: true },
+    { to: "/usuarios", label: "Usuários", icon: Users, adminOnly: true },
+  { to: "/termos", label: "Termos", icon: FileText, adminOnly: true },
 ];
 
 const ROLE_LABEL: Record<string, string> = { admin: "Administração", central: "Central" };

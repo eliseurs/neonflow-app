@@ -7,6 +7,9 @@ import { apiErrorMessage } from "@/app/providers/api/client";
 import { formatPlate, kmPlanLabel } from "@/modules/fleet/model/fleet.types";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
 import { partnersService } from "@/modules/partners/services/partners.service";
+import { PhotoGallery } from "@/modules/photos/components/PhotoGallery";
+import { STAGE_LABEL, photoStageOpen } from "@/modules/photos/model/photo.types";
+import { TermsPanel } from "@/modules/terms/components/TermsPanel";
 import { cn } from "@/shared/lib/cn";
 import { formatCents, formatDateTime, operationInstant, operationNowInput } from "@/shared/lib/format";
 import { Field, inputClass } from "@/shared/ui/Field";
@@ -286,6 +289,26 @@ export function BookingDetailPage() {
                   ))}
               </div>
               {pending.length > 0 && <p className="mt-4 text-sm text-bone/50">Falta: {pending.join(", ")}.</p>}
+            </Panel>
+          )}
+
+          {(b.stage === "preparacao" || b.stage === "confirmada") && (
+            <TermsPanel bookingId={b.id} clientName={b.client_name} customerId={b.customer_id} canSend />
+          )}
+
+          {b.stage !== "preparacao" && b.stage !== "cancelada" && (
+            <Panel className="space-y-6 p-6 md:p-8">
+              <h2 className="font-serif text-2xl font-light">Fotos do carro</h2>
+              {(["entrega", "devolucao"] as const).map((st) => (
+                <div key={st} className="space-y-2">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-bone/55">{STAGE_LABEL[st]}</h3>
+                  <PhotoGallery
+                    target={{ kind: "reserva", id: b.id, stage: st }}
+                    canUpload={photoStageOpen(st, b.stage)}
+                    label={`Foto da ${STAGE_LABEL[st].toLowerCase()}`}
+                  />
+                </div>
+              ))}
             </Panel>
           )}
 

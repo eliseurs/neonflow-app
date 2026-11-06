@@ -45,6 +45,8 @@ src/
     payouts/                    # repasses aos donos, motoristas e comissões dos indicadores (RN-03.12 a 03.14)
     transfers/                  # transfer operado pela central: oferta, aceite, conclusão (RN-02.9 a 02.31)
     customers/                  # clientes: cadastro, busca, histórico, anonimização (RN-04.7, RN-04.8)
+    photos/                     # galeria de fotos do veículo e da reserva (bucket privado, ADR-0014)
+    terms/                      # termos em versões, link de aceite e página pública do cliente (RN-02.3)
   shared/
     ui/                         # Brand, Heading (Overline, Accent, SectionHeading, PageHeader), Button, buttonClass, Field, Panel, Badge, Dialog, Reveal
     lib/cn.ts                   # clsx + tailwind-merge

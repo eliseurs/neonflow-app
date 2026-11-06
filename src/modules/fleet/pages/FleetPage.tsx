@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { ClipboardCheck, Plus } from "lucide-react";
+import { Camera, ClipboardCheck, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { ChecklistManager } from "@/modules/checklist/components/ChecklistManager";
+import { PhotoGallery } from "@/modules/photos/components/PhotoGallery";
 import { formatCents, formatDateTime } from "@/shared/lib/format";
 import { Badge } from "@/shared/ui/Badge";
 import { Button } from "@/shared/ui/Button";
@@ -17,7 +18,8 @@ import { fleetService } from "../services/fleet.service";
 export function FleetPage() {
   const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
   const [editing, setEditing] = useState<Vehicle | "new" | null>(null);
-  const [checklistOpen, setChecklistOpen] = useState(false);
+    const [checklistOpen, setChecklistOpen] = useState(false);
+  const [photosOf, setPhotosOf] = useState<Vehicle | null>(null);
 
   const add = (
     <Button onClick={() => setEditing("new")}>
@@ -94,12 +96,24 @@ export function FleetPage() {
                   <dd className="text-bone/85">{kmPlanLabel(v.km_limit_per_day, v.extra_km_cents, formatCents)}</dd>
                 </div>
               </dl>
-              <Button variant="outline" className="mt-6" onClick={() => setEditing(v)} aria-label={`Editar ${v.name}`}>
-                Editar
-              </Button>
+                            <div className="mt-6 flex flex-wrap gap-3">
+                <Button variant="outline" onClick={() => setEditing(v)} aria-label={`Editar ${v.name}`}>
+                  Editar
+                </Button>
+                <Button variant="ghost" onClick={() => setPhotosOf(v)} aria-label={`Fotos de ${v.name}`}>
+                  <Camera className="h-4 w-4" aria-hidden /> Fotos
+                </Button>
+              </div>
             </Panel>
           ))}
         </div>
+      )}
+
+            {photosOf && (
+        <Dialog title={`Fotos · ${photosOf.name}`} onClose={() => setPhotosOf(null)}>
+          <p className="mb-4 text-sm text-bone/60">A primeira é a capa. Até haver fotos, o site usa imagens ilustrativas (RN-01.7).</p>
+          <PhotoGallery target={{ kind: "veiculo", id: photosOf.id }} label={`Foto de ${photosOf.name}`} />
+        </Dialog>
       )}
 
       {checklistOpen && (

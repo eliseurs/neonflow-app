@@ -2,6 +2,15 @@
 
 ---
 
+## [2026-11-06] — Fotos e aceite dos termos
+
+- `PhotoGallery` (`src/modules/photos`): enviar várias fotos de uma vez (JPEG, PNG, WebP, até 10 MB, conferido antes de enviar), ver, apagar e, no veículo, escolher a capa. Frota: botão "Fotos" em cada veículo. Reserva: "Fotos do carro" com entrega e devolução, envio liberado só na etapa certa.
+- `apiClient.upload`: multipart com prazo de 60 s (o padrão JSON converteria o FormData).
+- Termos (`src/modules/terms`): `/termos` (só admin) publica o texto em versões; na reserva em pré-reserva ou confirmada, `TermsPanel` gera o link e abre o WhatsApp do cliente com a mensagem (ou sem número, se o cliente não tem cadastro) e mostra o aceite registrado; `/termos/:token` é a página pública em que o cliente lê, digita o nome e aceita.
+- Menu: "Termos" para admin. Testes: `PhotoGallery`, `photoStageOpen`, termos (admin, painel, página pública, mensagem).
+
+---
+
 ## [2026-11-06] — Clientes
 
 - `/clientes` (`src/modules/customers`): busca por nome, WhatsApp ou e-mail, contagem de reservas e transfers, idioma; "Novo cliente".
