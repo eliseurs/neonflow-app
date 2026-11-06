@@ -1,13 +1,16 @@
 // Espelha internal/domain/payout da API (RN-03.12, RN-03.13).
-export type PayoutKind = "comissao" | "repasse";
+export type PayoutKind = "comissao" | "repasse" | "motorista";
 export type PayoutStatus = "pendente" | "paga";
 
 export interface Payout {
   id: string;
   kind: PayoutKind;
-  booking_id: string;
+    /** Origem: reserva de aluguel ou transfer. */
+  booking_id: string | null;
+  transfer_id: string | null;
   client_name: string;
-  vehicle_name: string;
+  /** Carro da reserva ou "origem → destino" do transfer. */
+  description: string;
   end_at: string;
   partner_id: string;
   partner_name: string;
@@ -23,12 +26,14 @@ export interface Payout {
 
 export const KIND_TITLE: Record<PayoutKind, string> = {
   comissao: "Comissões de indicadores",
-  repasse: "Repasses aos proprietários",
+    repasse: "Repasses aos proprietários",
+  motorista: "Motoristas",
 };
 
 export const KIND_BASE: Record<PayoutKind, string> = {
-  comissao: "sobre as diárias",
+    comissao: "sobre o valor do serviço",
   repasse: "sobre diárias, atraso e km",
+  motorista: "oferta aceita + espera extra",
 };
 
 export interface PartnerTotal {

@@ -8,7 +8,7 @@ import { PayoutsPage } from "./PayoutsPage";
 vi.mock("../services/payouts.service", () => ({ payoutsService: { list: vi.fn(), pay: vi.fn() } }));
 
 const payout = (over: Partial<Payout> = {}): Payout => ({
-  id: "o1", kind: "repasse", booking_id: "b1", client_name: "Cliente Teste", vehicle_name: "Sedã Teste",
+  id: "o1", kind: "repasse", booking_id: "b1", transfer_id: null, client_name: "Cliente Teste", description: "Sedã Teste",
   end_at: "2026-12-12T10:00:00-03:00", partner_id: "p1", partner_name: "Dono Teste", base_cents: 34000,
   percent: 70, amount_cents: 23800, status: "pendente", paid_at: null, paid_by_name: null, created_at: "", ...over,
 });
@@ -51,7 +51,7 @@ describe("PayoutsPage", () => {
     renderPage(<PayoutsPage />);
     fireEvent.click(await screen.findByRole("button", { name: /Marcar como pago: Dono Teste/ }));
     const dialog = screen.getByRole("dialog", { name: "Confirmar pagamento" });
-    expect(within(dialog).getByText(/repasse da reserva de Cliente Teste/)).toBeInTheDocument();
+    expect(within(dialog).getByText(/repasse de Cliente Teste/)).toBeInTheDocument();
     fireEvent.click(within(dialog).getByRole("button", { name: "Sim, marcar como pago" }));
     await waitFor(() => expect(payoutsService.pay).toHaveBeenCalledWith("o1"));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
@@ -64,6 +64,17 @@ describe("PayoutsPage", () => {
     renderPage(<PayoutsPage />);
     expect(await screen.findByText(/Pago em 13\/12\/2026 10:00 por Central Teste/)).toBeInTheDocument();
     expect(screen.getByText("Pago")).toBeInTheDocument();
-    expect(screen.getByText(/10% sobre as diárias/)).toBeInTheDocument();
+    expect(screen.getByText(/10% sobre o valor do serviço/)).toBeInTheDocument();
+  });
+
+  it("mostra o pagamento do motorista do transfer com link para a corrida", async () => {
+    vi.mocked(payoutsService.list).mockResolvedValue([
+      payout({ kind: "motorista", booking_id: null, transfer_id: "t1", description: "Aeroporto POA → Gramado", percent: null, amount_cents: 30000 }),
+    ]);
+    renderPage(<PayoutsPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Motoristas" }));
+    await waitFor(() => expect(payoutsService.list).toHaveBeenCalledWith("motorista", "pendente"));
+    expect(await screen.findByText(/Valor fixo: oferta aceita \+ espera extra/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Cliente Teste" })).toHaveAttribute("href", "/transfers/t1");
   });
 });

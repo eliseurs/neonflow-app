@@ -10,6 +10,8 @@ import { LandingPage } from "@/modules/landing/pages/LandingPage";
 import { UsersPage } from "@/modules/users/pages/UsersPage";
 import { PartnersPage } from "@/modules/partners/pages/PartnersPage";
 import { PayoutsPage } from "@/modules/payouts/pages/PayoutsPage";
+import { TransferDetailPage } from "@/modules/transfers/pages/TransferDetailPage";
+import { TransfersPage } from "@/modules/transfers/pages/TransfersPage";
 
 export function AppRoutes() {
   return (
@@ -24,7 +26,9 @@ export function AppRoutes() {
                     <Route path="/reservas/:id" element={<BookingDetailPage />} />
                     <Route path="/usuarios" element={<UsersPage />} />
                     <Route path="/parceiros" element={<PartnersPage />} />
-          <Route path="/repasses" element={<PayoutsPage />} />
+                    <Route path="/repasses" element={<PayoutsPage />} />
+          <Route path="/transfers" element={<TransfersPage />} />
+          <Route path="/transfers/:id" element={<TransferDetailPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
