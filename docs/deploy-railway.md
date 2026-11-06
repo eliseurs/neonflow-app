@@ -26,6 +26,7 @@ Até 03/11/2026 a demo morava em `neonflow-app-production.up.railway.app`. Desde
 | Serviço | Variável | Valor |
 |---|---|---|
 | `neonflow-app` | `VITE_API_BASE_URL` | `https://neonflow-api-hml.up.railway.app/api` (embutida no build: mudar exige redeploy) |
+| `neonflow-app` | `VITE_WHATSAPP_NUMBER` | `5551997192854` (WhatsApp da central, só dígitos; embutida no build: mudar exige redeploy) |
 | `neonflow-prototipo` | `BASIC_AUTH_USER`, `BASIC_AUTH_PASSWORD` | não definidas: demo pública. Defina para proteger |
 | `neonflow-api` | ver `neonflow-api/docs/deploy-railway.md` | |
 
