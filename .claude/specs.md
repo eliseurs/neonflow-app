@@ -2,6 +2,13 @@
 
 ---
 
+## [2026-11-06] — CI no GitHub Actions
+
+- `.github/workflows/ci.yml`: em todo PR e push no `main`, roda `npm ci`, TypeScript (`typecheck`), ESLint, Vitest, build de produção e os testes do protótipo congelado (`prototipo/`, Node 22).
+- O mesmo que `make check` mais o build. A API tem workflow equivalente com PostgreSQL (`neonflow-api`). PEN-31 e PEN-32 resolvidas.
+
+---
+
 ## [2026-11-05] — Próximo passo indicado no cartão do topo
 
 - Ao escolher Aluguel ou Transfer no cartão "Passo 1 de 2", aparece "✓ {serviço} escolhido. Agora toque em “Continuar abaixo”." (região `aria-live`) e o botão "Continuar abaixo" vira dourado, pulsa com halo três vezes (`animate-nudge`) e a seta desce em loop (`animate-arrow-down`). Cada nova escolha reinicia o pulso. `prefers-reduced-motion` desliga as animações.

@@ -47,5 +47,5 @@ Para rodar com a API local: `cd ../neonflow-api && make up`, depois `npm run dev
 
 1. Ler `.claude/rules.md` e `.claude/style.md`
 2. Fazer as alterações seguindo os padrões
-3. Rodar `make check`
+3. Rodar `make check` (o CI do GitHub roda o mesmo, mais o build, em todo PR: `.github/workflows/ci.yml`)
 4. Atualizar `.claude/specs.md` com o que foi alterado
