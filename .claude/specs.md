@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-06] — Despacho do transfer revisto
+
+- Detalhe do transfer em "aguardando motorista": painel "Motorista" (`DriverPanel`) com o valor para o motorista (só aumenta) e a lista de motoristas e proprietários ativos. Cada um tem o botão WhatsApp, que abre a conversa individual com uma mensagem pessoal e registra o chamado, e o botão "Aceitou", que pede o carro da corrida (sugere o carro dele se for dono de um só) e confirma pelo valor.
+- Aviso de corrida no mesmo dia, rótulo de motorista ou proprietário, "Sem WhatsApp no cadastro" e link para Parceiros quando não há ninguém.
+- Sai a oferta com prazo e a mensagem para grupo. O histórico mostra valores em reais.
+
+---
+
 ## [2026-11-06] — Transfer
 
 - `/transfers` (`src/modules/transfers`): lista em aberto (o próximo primeiro), concluídos e cancelados; "Novo transfer" com cliente, data e hora, origem, destino, voo, passageiros, preço combinado e "Indicado por".

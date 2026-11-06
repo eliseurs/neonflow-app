@@ -18,14 +18,15 @@ describe("TransfersPage", () => {
       transfer({ id: "a", pickup_at: "2026-12-12T08:00:00-03:00", destination: "Canela" }),
       transfer({ id: "b", pickup_at: "2026-12-10T08:00:00-03:00", stage: "com_motorista", driver_name: "Motorista Teste" }),
       transfer({ id: "c", stage: "concluido", destination: "Bento Gonçalves" }),
-      transfer({ id: "d", offer_cents: 20000, offer_expires_at: "2020-01-01T00:00:00-03:00", destination: "Nova Petrópolis" }),
+      transfer({ id: "d", offer_cents: 35000, destination: "Nova Petrópolis" }),
     ]);
     renderPage(<TransfersPage />);
     expect(await screen.findByText("Aeroporto POA → Canela")).toBeInTheDocument();
     const links = screen.getAllByRole("link").map((l) => l.getAttribute("href"));
     expect(links.indexOf("/transfers/b")).toBeLessThan(links.indexOf("/transfers/a"));
     expect(screen.getByText(/Motorista Teste/)).toBeInTheDocument();
-    expect(screen.getByText(/prazo vencido, reabra com valor maior/)).toBeInTheDocument();
+    expect(screen.getByText(/Valor para o motorista R\$\s350,00 · chame e marque quem aceitou/)).toBeInTheDocument();
+    expect(screen.getAllByText("Defina o valor e chame um motorista").length).toBeGreaterThan(0);
     expect(screen.queryByText("Aeroporto POA → Bento Gonçalves")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Concluídos" }));
     expect(screen.getByText("Aeroporto POA → Bento Gonçalves")).toBeInTheDocument();
