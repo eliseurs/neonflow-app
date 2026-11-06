@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { ChecklistManager } from "@/modules/checklist/components/ChecklistManager";
-import { formatCents, formatDate } from "@/shared/lib/format";
+import { formatCents, formatDateTime } from "@/shared/lib/format";
 import { Badge } from "@/shared/ui/Badge";
 import { Button } from "@/shared/ui/Button";
 import { Dialog } from "@/shared/ui/Dialog";
@@ -65,7 +65,7 @@ export function FleetPage() {
                   className="mt-4 block rounded-xl border border-gold/20 bg-gold/[0.05] px-3 py-2 text-sm text-bone/80 transition-colors hover:border-gold/50"
                 >
                   <span className="block text-[10px] uppercase tracking-[0.2em] text-gold">Próxima reserva</span>
-                  {formatDate(v.next_booking.start_date)} → {formatDate(v.next_booking.end_date)} · {v.next_booking.client_name}
+                  {formatDateTime(v.next_booking.start_at)} → {formatDateTime(v.next_booking.end_at)} · {v.next_booking.client_name}
                 </Link>
               )}
               <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">

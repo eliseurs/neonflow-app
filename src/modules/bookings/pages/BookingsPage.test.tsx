@@ -43,11 +43,12 @@ describe("BookingsPage", () => {
     renderPage(<BookingsPage />, { path: "/reservas", route: "/reservas" });
 
     fireEvent.click((await screen.findAllByRole("button", { name: /Nova reserva/ }))[0]);
-    fireEvent.change(screen.getByLabelText("Retirada"), { target: { value: "2026-12-10" } });
-    fireEvent.change(screen.getByLabelText("Devolução"), { target: { value: "2026-12-13" } });
-    await waitFor(() => expect(bookingService.available).toHaveBeenLastCalledWith("2026-12-10", "2026-12-13"));
+    // 49 horas: 3 diárias de 24 h (RN-02.24).
+    fireEvent.change(screen.getByLabelText("Retirada"), { target: { value: "2026-12-10T14:00" } });
+    fireEvent.change(screen.getByLabelText("Devolução"), { target: { value: "2026-12-12T15:00" } });
+    await waitFor(() => expect(bookingService.available).toHaveBeenLastCalledWith("2026-12-10T14:00", "2026-12-12T15:00"));
     fireEvent.change(await screen.findByLabelText("Veículo disponível"), { target: { value: "v1" } });
-    expect(screen.getByText(/3 diárias/)).toBeInTheDocument();
+    expect(screen.getByText(/3 diárias de 24 h/)).toBeInTheDocument();
     expect(screen.getByText(/R\$\s300,00/)).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText(/Cliente/), { target: { value: " Cliente Teste " } });
@@ -58,8 +59,8 @@ describe("BookingsPage", () => {
     expect(vi.mocked(bookingService.create).mock.calls[0][0]).toEqual({
       vehicle_id: "v1",
       client_name: "Cliente Teste",
-      start_date: "2026-12-10",
-      end_date: "2026-12-13",
+      start_at: "2026-12-10T14:00",
+      end_at: "2026-12-12T15:00",
       place: "Aeroporto",
     });
   });
@@ -71,9 +72,9 @@ describe("BookingsPage", () => {
     fireEvent.click((await screen.findAllByRole("button", { name: /Nova reserva/ }))[0]);
     expect(await screen.findByText("Nenhum veículo livre no período")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Retirada"), { target: { value: "2026-12-10" } });
-    fireEvent.change(screen.getByLabelText("Devolução"), { target: { value: "2026-12-10" } });
-    expect(screen.getByText(/mínimo de 1 diária/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Retirada"), { target: { value: "2026-12-10T14:00" } });
+    fireEvent.change(screen.getByLabelText("Devolução"), { target: { value: "2026-12-10T13:00" } });
+    expect(screen.getByText("A devolução precisa ser depois da retirada.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Criar pré-reserva" })).toBeDisabled();
   });
 });

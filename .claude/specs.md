@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-06] — Reserva com horário no painel
+
+- Nova reserva: campos de data e hora (datetime-local, passos de 15 min), padrão amanhã às 10h por 1 diária, aviso "horário de Gramado; 25 horas contam 2 diárias" e prévia "N diárias de 24 h". Envia `start_at`/`end_at`; a disponibilidade também.
+- Listas, detalhe, frota e central mostram data e hora sempre no horário de Gramado (`formatDateTime`, `operationDay`, `OPERATION_TZ`), qualquer que seja o fuso do navegador. "Retiradas hoje" e "Devoluções hoje" usam o dia de Gramado; "Próximas retiradas" vai até a devolução combinada.
+- `booking.types`: `rentalDays` (blocos de 24 horas, RN-02.24). Testes passam em America/Sao_Paulo e em UTC (o fuso do CI); o painel inicial usa relógio fixo.
+
+---
+
 ## [2026-11-06] — Checklist de devolução e estado do veículo no painel
 
 - Frota: o selo do cartão mostra o estado calculado pela API (Livre, Reservado, Em locação, Aguardando checklist, Manutenção) e, quando há, a próxima reserva com link. Botão "Checklist de devolução" abre o `ChecklistManager` (`src/modules/checklist`): renomear, ligar e desligar, subir e descer e adicionar itens.

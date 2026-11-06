@@ -6,7 +6,7 @@ import { StageBadge } from "@/modules/bookings/components/StageBadge";
 import { isActive, type Booking } from "@/modules/bookings/model/booking.types";
 import { bookingService } from "@/modules/bookings/services/booking.service";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
-import { formatDate, isoDate } from "@/shared/lib/format";
+import { formatDate, formatDateTime, operationDay } from "@/shared/lib/format";
 import { PageHeader } from "@/shared/ui/Heading";
 import { ErrorNote, Panel } from "@/shared/ui/Panel";
 
@@ -34,7 +34,7 @@ function Agenda({ title, items, date, empty }: { title: string; items: Booking[]
               <Link to={`/reservas/${b.id}`} className="flex items-center justify-between gap-4 py-3 hover:text-gold">
                 <span>
                   {b.client_name}
-                  <span className="block text-xs text-bone/45">{formatDate(date(b))}</span>
+                  <span className="block text-xs text-bone/45">{formatDateTime(date(b))}</span>
                 </span>
                 <StageBadge stage={b.stage} />
               </Link>
@@ -50,13 +50,17 @@ export function DashboardPage() {
   const name = useAuthStore((s) => s.user?.name);
   const bookings = useQuery({ queryKey: ["bookings"], queryFn: bookingService.list });
   const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
-  const today = isoDate();
+  // "Hoje" e a hora das retiradas são os de Gramado, qualquer que seja o fuso do navegador.
+  const today = operationDay();
+  const now = new Date().toISOString();
   const all = bookings.data ?? [];
   const count = (v?: number) => (bookings.isSuccess || vehicles.isSuccess ? (v ?? 0) : "—");
 
   // Sem horário de retirada e devolução ainda (PEN-29): o dia é a unidade.
-  const pickups = all.filter((b) => (b.stage === "confirmada" || b.stage === "preparacao") && b.start_date >= today).sort((a, b) => a.start_date.localeCompare(b.start_date));
-  const returns = all.filter((b) => b.stage === "em_locacao").sort((a, b) => a.end_date.localeCompare(b.end_date));
+  const pickups = all
+    .filter((b) => (b.stage === "confirmada" || b.stage === "preparacao") && b.end_at > now)
+    .sort((a, b) => a.start_at.localeCompare(b.start_at));
+  const returns = all.filter((b) => b.stage === "em_locacao").sort((a, b) => a.end_at.localeCompare(b.end_at));
 
   return (
     <section className="space-y-8">
@@ -70,15 +74,15 @@ export function DashboardPage() {
       {(bookings.isError || vehicles.isError) && <ErrorNote>{apiErrorMessage(bookings.error ?? vehicles.error, "Não foi possível carregar a central.")}</ErrorNote>}
 
       <div className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
-        <Stat label="Retiradas hoje" value={count(all.filter((b) => b.stage === "confirmada" && b.start_date === today).length)} to="/reservas" />
-        <Stat label="Devoluções hoje" value={count(all.filter((b) => b.stage === "em_locacao" && b.end_date === today).length)} to="/reservas" />
+        <Stat label="Retiradas hoje" value={count(all.filter((b) => b.stage === "confirmada" && operationDay(b.start_at) === today).length)} to="/reservas" />
+        <Stat label="Devoluções hoje" value={count(all.filter((b) => b.stage === "em_locacao" && operationDay(b.end_at) === today).length)} to="/reservas" />
         <Stat label="Aguardando pagamento" value={count(all.filter((b) => b.stage === "preparacao").length)} to="/reservas" />
         <Stat label="Em manutenção" value={vehicles.isSuccess ? vehicles.data.filter((v) => v.in_maintenance).length : "—"} to="/frota" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Agenda title="Próximas retiradas" items={pickups.slice(0, 6)} date={(b) => b.start_date} empty="Nenhuma retirada marcada." />
-        <Agenda title="Carros na rua" items={returns.slice(0, 6)} date={(b) => b.end_date} empty="Nenhum carro em locação." />
+        <Agenda title="Próximas retiradas" items={pickups.slice(0, 6)} date={(b) => b.start_at} empty="Nenhuma retirada marcada." />
+        <Agenda title="Carros na rua" items={returns.slice(0, 6)} date={(b) => b.end_at} empty="Nenhum carro em locação." />
       </div>
 
       {bookings.isSuccess && all.filter((b) => isActive(b.stage)).length === 0 && (

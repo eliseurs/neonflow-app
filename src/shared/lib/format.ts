@@ -23,8 +23,32 @@ export function formatDate(iso: string): string {
   return `${d}/${m}/${y}`;
 }
 
+/** Fuso da operação (Gramado). Datas e horas do painel são sempre mostradas nele. */
+export const OPERATION_TZ = "America/Sao_Paulo";
+
+function parts(date: Date): Record<string, string> {
+  const fmt = new Intl.DateTimeFormat("en-GB", {
+    timeZone: OPERATION_TZ,
+    year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+  });
+  return Object.fromEntries(fmt.formatToParts(date).map((p) => [p.type, p.value]));
+}
+
+/** Instante ISO → "10/12/2026 14:00", no horário de Gramado. */
 export function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+  const p = parts(new Date(iso));
+  return `${p.day}/${p.month}/${p.year} ${p.hour}:${p.minute}`;
+}
+
+/** Dia (AAAA-MM-DD) de um instante no horário de Gramado. */
+export function operationDay(date: Date | string = new Date()): string {
+  const p = parts(typeof date === "string" ? new Date(date) : date);
+  return `${p.year}-${p.month}-${p.day}`;
+}
+
+/** Valor de um campo datetime-local: dia deslocado e hora cheia (ex.: "2026-12-10T10:00"). */
+export function localDateTime(offsetDays = 0, hour = 10, from = new Date()): string {
+  return `${isoDate(offsetDays, from)}T${String(hour).padStart(2, "0")}:00`;
 }
 
 /** Data local de hoje (ou deslocada em dias) como AAAA-MM-DD. */

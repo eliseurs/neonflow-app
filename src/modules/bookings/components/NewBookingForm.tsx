@@ -3,26 +3,23 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { CATEGORY_LABEL, formatPlate } from "@/modules/fleet/model/fleet.types";
-import { formatCents, isoDate } from "@/shared/lib/format";
+import { formatCents, localDateTime } from "@/shared/lib/format";
 import { Button } from "@/shared/ui/Button";
 import { Field, inputClass } from "@/shared/ui/Field";
 import { ErrorNote, Loading } from "@/shared/ui/Panel";
-import type { Booking } from "../model/booking.types";
+import { rentalDays, type Booking } from "../model/booking.types";
 import { bookingService } from "../services/booking.service";
-
-function daysBetween(start: string, end: string): number {
-  return Math.round((Date.parse(end) - Date.parse(start)) / 86_400_000);
-}
 
 export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void }) {
   const qc = useQueryClient();
-  const [start, setStart] = useState(isoDate());
-  const [end, setEnd] = useState(isoDate(1));
+  // Padrão: amanhã às 10h, por 1 diária.
+  const [start, setStart] = useState(localDateTime(1, 10));
+  const [end, setEnd] = useState(localDateTime(2, 10));
   const [vehicleId, setVehicleId] = useState("");
   const [client, setClient] = useState("");
   const [place, setPlace] = useState("");
 
-  const days = start && end ? daysBetween(start, end) : 0;
+  const days = start && end ? rentalDays(start, end) : 0;
   const validPeriod = days >= 1;
 
   const available = useQuery({
@@ -44,18 +41,21 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    create.mutate({ vehicle_id: vehicleId, client_name: client.trim(), start_date: start, end_date: end, place: place.trim() });
+    create.mutate({ vehicle_id: vehicleId, client_name: client.trim(), start_at: start, end_at: end, place: place.trim() });
   };
 
   return (
     <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2" noValidate>
       <Field id="booking-start" label="Retirada">
-        <input id="booking-start" type="date" value={start} onChange={(e) => { setStart(e.target.value); setVehicleId(""); }} className={inputClass} />
+        <input id="booking-start" type="datetime-local" step={900} value={start} onChange={(e) => { setStart(e.target.value); setVehicleId(""); }} className={inputClass} />
       </Field>
       <Field id="booking-end" label="Devolução">
-        <input id="booking-end" type="date" min={start || undefined} value={end} onChange={(e) => { setEnd(e.target.value); setVehicleId(""); }} className={inputClass} />
+        <input id="booking-end" type="datetime-local" step={900} min={start || undefined} value={end} onChange={(e) => { setEnd(e.target.value); setVehicleId(""); }} className={inputClass} />
       </Field>
-      {!validPeriod && <p className="text-sm text-amber-200 sm:col-span-2">A devolução precisa ser depois da retirada (mínimo de 1 diária).</p>}
+      <p className="-mt-2 text-xs text-bone/45 sm:col-span-2">
+        Horário de Gramado, combinado com o cliente. Cada diária vale 24 horas a partir da retirada: 25 horas contam 2 diárias.
+      </p>
+      {!validPeriod && <p className="text-sm text-amber-200 sm:col-span-2">A devolução precisa ser depois da retirada.</p>}
 
       <Field id="booking-vehicle" label="Veículo disponível" className="sm:col-span-2">
         {available.isFetching ? (
@@ -91,7 +91,7 @@ export function NewBookingForm({ onCreated }: { onCreated: (b: Booking) => void 
       {vehicle && (
         <div className="flex items-baseline justify-between rounded-xl border border-gold/30 bg-gold/[0.05] px-4 py-3 sm:col-span-2">
           <span className="text-sm text-bone/70">
-            {days} {days === 1 ? "diária" : "diárias"} × {formatCents(vehicle.daily_rate_cents)}
+            {days} {days === 1 ? "diária" : "diárias"} de 24 h × {formatCents(vehicle.daily_rate_cents)}
           </span>
           <span className="font-serif text-2xl font-light text-gold">{formatCents(days * vehicle.daily_rate_cents)}</span>
         </div>

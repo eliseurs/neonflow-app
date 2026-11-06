@@ -12,5 +12,5 @@ export const bookingService = {
   advance: async (id: string) => (await apiClient.post<ApiResponse<Booking>>(`/bookings/${id}/advance`)).data,
   cancel: async (id: string) => (await apiClient.post<ApiResponse<Booking>>(`/bookings/${id}/cancel`)).data,
   available: async (start: string, end: string) =>
-    (await apiClient.get<ApiResponse<Vehicle[]>>(`/availability?start_date=${start}&end_date=${end}`)).data,
+    (await apiClient.get<ApiResponse<Vehicle[]>>(`/availability?start_at=${encodeURIComponent(start)}&end_at=${encodeURIComponent(end)}`)).data,
 };
