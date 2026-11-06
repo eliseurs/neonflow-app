@@ -4,14 +4,20 @@ import { bookingService } from "@/modules/bookings/services/booking.service";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
 import { booking, vehicle } from "@/test/fixtures";
 import { renderPage } from "@/test/render";
+import { dashboardService } from "../services/dashboard.service";
 import { DashboardPage } from "./DashboardPage";
 
 vi.mock("@/modules/bookings/services/booking.service", () => ({ bookingService: { list: vi.fn() } }));
 vi.mock("@/modules/fleet/services/fleet.service", () => ({ fleetService: { list: vi.fn() } }));
+vi.mock("../services/dashboard.service", () => ({ dashboardService: { summary: vi.fn() } }));
 
 // Relógio fixo: 10/12/2026 às 12:00 em Gramado (15:00 UTC), em qualquer fuso de máquina.
 beforeEach(() => {
-  vi.resetAllMocks();
+    vi.resetAllMocks();
+  vi.mocked(dashboardService.summary).mockResolvedValue({
+    month: "2026-12", pickup_revenue_cents: 54000, pickup_count: 2, paid_cents: 30000, paid_count: 1,
+    rented_today: 1, fleet_size: 3, occupancy_percent: 33.3,
+  });
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date("2026-12-10T15:00:00Z"));
 });
@@ -48,5 +54,26 @@ describe("DashboardPage", () => {
     renderPage(<DashboardPage />);
     expect(await screen.findByRole("link", { name: "Criar uma reserva" })).toHaveAttribute("href", "/reservas");
     expect(screen.getByText("Nenhum carro em locação.")).toBeInTheDocument();
+  });
+
+  it("mostra o faturamento do mês lado a lado e a ocupação de hoje (q97, q98)", async () => {
+    vi.mocked(bookingService.list).mockResolvedValue([]);
+    vi.mocked(fleetService.list).mockResolvedValue([]);
+    renderPage(<DashboardPage />);
+    expect(await screen.findByText("Faturamento de dezembro de 2026")).toBeInTheDocument();
+    expect(screen.getByText(/R\$\s540,00/)).toBeInTheDocument();
+    expect(screen.getByText(/Retiradas no mês · 2 reservas/)).toBeInTheDocument();
+    expect(screen.getByText(/R\$\s300,00/)).toBeInTheDocument();
+    expect(screen.getByText(/Pago no mês · 1 pagamento\./)).toBeInTheDocument();
+    expect(screen.getByText("33,3%")).toBeInTheDocument();
+    expect(screen.getByText("1 de 3 carros em locação")).toBeInTheDocument();
+  });
+
+  it("avisa quando os indicadores não carregam", async () => {
+    vi.mocked(bookingService.list).mockResolvedValue([]);
+    vi.mocked(fleetService.list).mockResolvedValue([]);
+    vi.mocked(dashboardService.summary).mockRejectedValue(new Error("rede"));
+    renderPage(<DashboardPage />);
+    expect(await screen.findByText(/Não foi possível carregar os indicadores do mês/)).toBeInTheDocument();
   });
 });

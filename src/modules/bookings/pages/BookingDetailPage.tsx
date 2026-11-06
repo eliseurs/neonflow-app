@@ -68,7 +68,10 @@ export function BookingDetailPage() {
   const refresh = (b: Booking) => {
     qc.setQueryData(["bookings", id], b);
     qc.invalidateQueries({ queryKey: ["bookings"], exact: true });
-    qc.invalidateQueries({ queryKey: ["bookings", id, "events"] });
+        qc.invalidateQueries({ queryKey: ["bookings", id, "events"] });
+    // Pagamento, entrega e encerramento mudam os indicadores e os repasses.
+    qc.invalidateQueries({ queryKey: ["dashboard"] });
+    qc.invalidateQueries({ queryKey: ["payouts"] });
   };
 
   const check = useMutation({

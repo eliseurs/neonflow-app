@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-06] — Indicadores na tela inicial
+
+- Tela inicial: "Faturamento de <mês>" com as retiradas no mês (diárias, atraso e km) e o pago no mês lado a lado (q97), e "Ocupação hoje" com o percentual e "x de y carros em locação" (q98), de `GET /api/dashboard`.
+- A reserva traz `paid_at`; alterar conferências, avançar ou cancelar atualiza os indicadores e os repasses.
+- Testes: indicadores e erro na `DashboardPage`, `monthLabel`.
+
+---
+
 ## [2026-11-06] — Repasses e comissões
 
 - `/repasses` (`src/modules/payouts`), admin e central: abas "Repasses aos proprietários" e "Comissões de indicadores", situação "A pagar" ou "Pagos". A pagar mostra o total por parceiro; cada item tem cliente (link para a reserva), carro, percentual, base e valor. "Marcar como pago" pede confirmação; pagos mostram data e quem marcou. Sem percentual: "Percentual a definir".

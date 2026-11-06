@@ -6,7 +6,9 @@ import { StageBadge } from "@/modules/bookings/components/StageBadge";
 import { isActive, isOverdue, type Booking } from "@/modules/bookings/model/booking.types";
 import { bookingService } from "@/modules/bookings/services/booking.service";
 import { fleetService } from "@/modules/fleet/services/fleet.service";
-import { formatDate, formatDateTime, operationDay } from "@/shared/lib/format";
+import { formatCents, formatDate, formatDateTime, operationDay } from "@/shared/lib/format";
+import { monthLabel } from "../model/dashboard.types";
+import { dashboardService } from "../services/dashboard.service";
 import { PageHeader } from "@/shared/ui/Heading";
 import { ErrorNote, Panel } from "@/shared/ui/Panel";
 
@@ -52,7 +54,9 @@ function Agenda({ title, items, date, empty }: { title: string; items: Booking[]
 export function DashboardPage() {
   const name = useAuthStore((s) => s.user?.name);
   const bookings = useQuery({ queryKey: ["bookings"], queryFn: bookingService.list });
-  const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
+    const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
+  const summary = useQuery({ queryKey: ["dashboard"], queryFn: dashboardService.summary });
+  const s = summary.data;
   // "Hoje" e a hora das retiradas são os de Gramado, qualquer que seja o fuso do navegador.
   const today = operationDay();
   const now = new Date().toISOString();
@@ -81,6 +85,40 @@ export function DashboardPage() {
         <Stat label="Devoluções hoje" value={count(all.filter((b) => b.stage === "em_locacao" && operationDay(b.end_at) === today).length)} to="/reservas" />
         <Stat label="Aguardando pagamento" value={count(all.filter((b) => b.stage === "preparacao").length)} to="/reservas" />
         <Stat label="Em manutenção" value={vehicles.isSuccess ? vehicles.data.filter((v) => v.in_maintenance).length : "—"} to="/frota" />
+      </div>
+
+            {summary.isError && <ErrorNote>{apiErrorMessage(summary.error, "Não foi possível carregar os indicadores do mês.")}</ErrorNote>}
+      <div className="grid gap-3 md:gap-4 lg:grid-cols-3">
+        {/* q97: os dois faturamentos lado a lado. */}
+        <Panel className="p-5 md:p-6 lg:col-span-2">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-bone/55">
+            Faturamento {s ? `de ${monthLabel(s.month)}` : "do mês"}
+          </p>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="font-serif text-3xl font-light text-gold md:text-4xl">{s ? formatCents(s.pickup_revenue_cents) : "—"}</p>
+              <p className="mt-1 text-xs text-bone/50">
+                Retiradas no mês{s && ` · ${s.pickup_count} ${s.pickup_count === 1 ? "reserva" : "reservas"}`}. Diárias, atraso e km.
+              </p>
+            </div>
+            <div>
+              <p className="font-serif text-3xl font-light text-gold md:text-4xl">{s ? formatCents(s.paid_cents) : "—"}</p>
+              <p className="mt-1 text-xs text-bone/50">
+                Pago no mês{s && ` · ${s.paid_count} ${s.paid_count === 1 ? "pagamento" : "pagamentos"}`}. Valor das reservas pagas.
+              </p>
+            </div>
+          </div>
+        </Panel>
+        {/* q98: carros alugados hoje ÷ frota. */}
+        <Link to="/frota" className="group">
+          <Panel className="h-full p-5 transition group-hover:border-gold/40 md:p-6">
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-bone/55">Ocupação hoje</p>
+            <p className="mt-3 font-serif text-4xl font-light text-gold md:text-5xl">
+              {s ? `${String(s.occupancy_percent).replace(".", ",")}%` : "—"}
+            </p>
+            <p className="mt-1 text-xs text-bone/50">{s && `${s.rented_today} de ${s.fleet_size} ${s.fleet_size === 1 ? "carro" : "carros"} em locação`}</p>
+          </Panel>
+        </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
