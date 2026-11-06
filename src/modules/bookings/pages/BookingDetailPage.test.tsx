@@ -12,6 +12,9 @@ vi.mock("../services/booking.service", () => ({
 }));
 vi.mock("@/modules/fleet/services/fleet.service", () => ({ fleetService: { list: vi.fn() } }));
 vi.mock("@/modules/checklist/services/checklist.service", () => ({ checklistService: { list: vi.fn() } }));
+vi.mock("@/modules/partners/services/partners.service", () => ({
+  partnersService: { list: () => Promise.resolve([{ id: "p1", name: "Hotel Teste", referral_code: "HTL234" }]) },
+}));
 
 const open = () => renderPage(<BookingDetailPage />, { path: "/reservas/:id", route: "/reservas/b1" });
 
@@ -192,5 +195,11 @@ describe("BookingDetailPage", () => {
     await waitFor(() => expect(bookingService.advance).toHaveBeenCalledWith("b1", "2026-12-12T09:30", 10450));
     expect(await screen.findByText(/10000 → 10450 km \(450 km rodados\)/)).toBeInTheDocument();
     expect(screen.getByText(/Reserva R\$\s200,00 \+ km R\$\s75,00/)).toBeInTheDocument();
+  });
+
+  it("mostra quem indicou", async () => {
+    vi.mocked(bookingService.get).mockResolvedValue(booking({ referred_by_partner_id: "p1" }));
+    open();
+    expect(await screen.findByText("Hotel Teste · HTL234")).toBeInTheDocument();
   });
 });

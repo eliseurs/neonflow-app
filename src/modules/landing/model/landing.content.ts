@@ -56,7 +56,7 @@ export interface LandingContent {
     notes: string;
     submit: string;
     unavailable: string;
-    message: { greeting: string; service: string; name: string; start: string; end: string; route: string; notes: string };
+        message: { greeting: string; service: string; name: string; start: string; end: string; route: string; notes: string; referral: string };
   };
   final: { title: string; titleAccent: string; lead: string; cta: string; back: string };
   footer: { region: string; staff: string; rights: string; about: string; pills: string[]; explore: string; contact: string; top: string; whatsapp: string };
@@ -206,7 +206,8 @@ export const content: Record<Lang, LandingContent> = {
         start: "Início",
         end: "Término",
         route: "Trajeto/local",
-        notes: "Observações",
+                notes: "Observações",
+        referral: "Indicação",
       },
     },
     final: {
@@ -371,7 +372,8 @@ export const content: Record<Lang, LandingContent> = {
         start: "Start",
         end: "End",
         route: "Route/location",
-        notes: "Notes",
+                notes: "Notes",
+        referral: "Referral",
       },
     },
     final: {

@@ -40,7 +40,8 @@ src/
     fleet/                      # model (tipos, placa), services, VehicleForm, FleetPage
     bookings/                   # model (etapas, conferências), services, NewBookingForm, StageBadge, páginas de lista e detalhe
     checklist/                  # checklist de devolução configurável: model, service, ChecklistManager
-    users/                      # gestão de usuários (admin) e troca da própria senha
+        users/                      # gestão de usuários (admin) e troca da própria senha
+    partners/                   # parceiros, link e QR de indicação (RN-07; pacote qrcode, gerado no navegador)
   shared/
     ui/                         # Brand, Heading (Overline, Accent, SectionHeading, PageHeader), Button, buttonClass, Field, Panel, Badge, Dialog, Reveal
     lib/cn.ts                   # clsx + tailwind-merge

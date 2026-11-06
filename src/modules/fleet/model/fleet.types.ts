@@ -15,9 +15,11 @@ export interface Vehicle {
   daily_rate_cents: number;
     in_maintenance: boolean;
   /** Caução (RN-06.4) e quilometragem (RN-02.18), configuráveis; null = não informado. */
-  deposit_cents: number | null;
+    deposit_cents: number | null;
   km_limit_per_day: number | null;
   extra_km_cents: number | null;
+  /** Parceiro proprietário cadastrado (RN-07.4); "owner" continua como nome. */
+  owner_partner_id: string | null;
   created_at: string;
   updated_at: string;
   /** Calculado pela API nas leituras da frota (RN-01.1, RN-01.3, RN-01.6). */

@@ -11,7 +11,9 @@ interface ContactFormProps {
   service: ServiceKind;
   onServiceChange: (service: ServiceKind) => void;
   /** Observação sugerida por um clique na página (ex.: o carro escolhido na frota). */
-  notesPreset?: string;
+    notesPreset?: string;
+  /** Código do parceiro que indicou (RN-07.2); vai na mensagem. */
+  referral?: string;
 }
 
 const field =
@@ -30,7 +32,7 @@ function Labeled({ id, text, icon, className, children }: { id: string; text: st
   );
 }
 
-export function ContactForm({ content: c, lang, number, service, onServiceChange, notesPreset }: ContactFormProps) {
+export function ContactForm({ content: c, lang, number, service, onServiceChange, notesPreset, referral }: ContactFormProps) {
   const [form, setForm] = useState<Omit<ContactRequest, "service">>({ name: "", start: "", end: "", route: "", notes: "" });
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value });
 
@@ -40,7 +42,7 @@ export function ContactForm({ content: c, lang, number, service, onServiceChange
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    const url = whatsappUrl(number, composeMessage({ ...form, service }, c, lang));
+        const url = whatsappUrl(number, composeMessage({ ...form, service, referral }, c, lang));
     if (url) window.open(url, "_blank", "noopener,noreferrer");
   };
 

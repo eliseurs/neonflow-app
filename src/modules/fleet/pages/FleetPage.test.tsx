@@ -8,6 +8,14 @@ import { FleetPage } from "./FleetPage";
 vi.mock("../services/fleet.service", () => ({
   fleetService: { list: vi.fn(), create: vi.fn(), update: vi.fn() },
 }));
+vi.mock("@/modules/partners/services/partners.service", () => ({
+  partnersService: {
+    list: () => Promise.resolve([
+      { id: "p1", name: "Dono Teste", kinds: ["proprietario"], referral_code: "OWN234", active: true },
+      { id: "p2", name: "Inativo Teste", kinds: ["proprietario"], referral_code: "OFF234", active: false },
+    ]),
+  },
+}));
 vi.mock("@/modules/checklist/services/checklist.service", () => ({
   checklistService: { list: vi.fn().mockResolvedValue([]), create: vi.fn(), update: vi.fn() },
 }));
@@ -57,9 +65,10 @@ describe("FleetPage", () => {
       gear: "automatico",
             daily_rate_cents: 12345,
       in_maintenance: false,
-      deposit_cents: null,
+            deposit_cents: null,
       km_limit_per_day: null,
       extra_km_cents: null,
+      owner_partner_id: null,
     });
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
@@ -149,5 +158,21 @@ describe("FleetPage", () => {
     renderPage(<FleetPage />);
     expect(await screen.findByText(/R\$\s1\.500,00/)).toBeInTheDocument();
     expect(screen.getByText(/200 km\/dia · R\$\s1,50 por km excedente/)).toBeInTheDocument();
+  });
+
+  it("liga o carro ao parceiro proprietário e usa o nome dele (RN-07.4)", async () => {
+    vi.mocked(fleetService.list).mockResolvedValue([vehicle()]);
+    vi.mocked(fleetService.update).mockResolvedValue(vehicle());
+    renderPage(<FleetPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Editar Carro Teste" }));
+    const select = await screen.findByLabelText("Parceiro proprietário");
+    await waitFor(() => expect(screen.getByRole("option", { name: "Dono Teste" })).toBeInTheDocument());
+    expect(screen.queryByRole("option", { name: "Inativo Teste" })).toBeNull();
+    fireEvent.change(select, { target: { value: "p1" } });
+    expect(screen.getByLabelText("Proprietário")).toHaveValue("Dono Teste");
+    expect(screen.getByLabelText("Proprietário")).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+    await waitFor(() => expect(fleetService.update).toHaveBeenCalled());
+    expect(vi.mocked(fleetService.update).mock.calls[0][1]).toMatchObject({ owner: "Dono Teste", owner_partner_id: "p1" });
   });
 });
