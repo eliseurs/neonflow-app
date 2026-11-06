@@ -36,7 +36,7 @@ src/
   modules/
     auth/                       # LoginPage, auth.service, auth.store, auth.types
     landing/                    # landing pública PT/EN
-    dashboard/pages/            # Central: contadores do dia e agenda
+    dashboard/pages/            # Central: contadores do dia, agenda, faturamento do mês e ocupação
     fleet/                      # model (tipos, placa), services, VehicleForm, FleetPage
     bookings/                   # model (etapas, conferências), services, NewBookingForm, StageBadge, páginas de lista e detalhe
     checklist/                  # checklist de devolução configurável: model, service, ChecklistManager

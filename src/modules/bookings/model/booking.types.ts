@@ -21,7 +21,9 @@ export interface Booking {
   checks: Record<string, boolean>;
   /** Hora real da entrega e da devolução, informadas pela central (RN-02.19). */
   delivered_at: string | null;
-  returned_at: string | null;
+    returned_at: string | null;
+  /** Quando a central marcou o pagamento; nulo = não pago. */
+  paid_at: string | null;
   /** Diárias extras do atraso na devolução e o valor delas (RN-02.19). */
             /** Minutos de atraso na devolução, cobrados a diária ÷ 1440 (RN-02.19). */
     extra_minutes: number;
