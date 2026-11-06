@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isActive, isCancelable, nextStage, pendingChecks } from "./booking.types";
+import { isActive, isCancelable, nextStage, pendingChecks, stageChecks } from "./booking.types";
 
 describe("etapas da reserva", () => {
   it("segue o fluxo da API", () => {
@@ -28,5 +28,12 @@ describe("etapas da reserva", () => {
     expect(isActive("devolvida")).toBe(true);
     expect(isActive("encerrada")).toBe(false);
     expect(isActive("cancelada")).toBe(false);
+  });
+
+  it("em devolvida, o checklist de devolução entra nas conferências", () => {
+    const items = [{ key: "combustivel", label: "Combustível" }, { key: "pneus", label: "Pneus" }];
+    expect(stageChecks("devolvida", items).map((c) => c.key)).toEqual(["issues", "combustivel", "pneus"]);
+    expect(stageChecks("confirmada", items).map((c) => c.key)).toEqual(["delivery"]);
+    expect(pendingChecks({ stage: "devolvida", checks: { issues: true, pneus: true } }, items)).toEqual(["Combustível"]);
   });
 });
