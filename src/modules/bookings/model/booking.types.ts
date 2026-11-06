@@ -37,8 +37,10 @@ export interface Booking {
   returned_km: number | null;
     excess_km: number;
   excess_km_cents: number;
-  /** Parceiro que indicou o cliente (RN-07.5). */
+    /** Parceiro que indicou o cliente (RN-07.5). */
   referred_by_partner_id: string | null;
+  /** Cliente cadastrado; client_name é o nome no dia da reserva. */
+  customer_id: string | null;
   expires_at: string;
   created_by: string | null;
   created_at: string;
@@ -61,8 +63,9 @@ export interface CreateBookingRequest {
   place: string;
   /** "livre" ou "limitado"; vazio: limitado se o veículo tiver limite (RN-02.18). */
     km_plan?: KmPlan;
-  /** Parceiro que indicou; vazio = sem indicação. */
+    /** Parceiro que indicou; vazio = sem indicação. */
   referred_by_partner_id?: string;
+  customer_id?: string;
 }
 
 export type KmPlan = "livre" | "limitado";

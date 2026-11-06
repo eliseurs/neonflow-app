@@ -12,6 +12,12 @@ vi.mock("@/modules/auth/services/auth.service", () => ({
 }));
 vi.mock("@/modules/fleet/services/fleet.service", () => ({ fleetService: { list: vi.fn().mockResolvedValue([]) } }));
 vi.mock("@/modules/bookings/services/booking.service", () => ({ bookingService: { list: vi.fn().mockResolvedValue([]) } }));
+// A tela inicial busca os indicadores; sem o mock, o teste tentaria a rede.
+vi.mock("@/modules/dashboard/services/dashboard.service", () => ({
+  dashboardService: {
+    summary: () => Promise.resolve({ month: "2026-11", pickup_revenue_cents: 0, pickup_count: 0, paid_cents: 0, paid_count: 0, rented_today: 0, fleet_size: 0, occupancy_percent: 0 }),
+  },
+}));
 
 const user: User = { id: "u1", name: "Maria Central", email: "maria@neonflow.test", role: "central", created_at: "", updated_at: "" };
 const future = () => new Date(Date.now() + 3_600_000).toISOString();

@@ -2,6 +2,15 @@
 
 ---
 
+## [2026-11-06] — Clientes
+
+- `/clientes` (`src/modules/customers`): busca por nome, WhatsApp ou e-mail, contagem de reservas e transfers, idioma; "Novo cliente".
+- `/clientes/:id`: contato com botão WhatsApp, observações, histórico com links para a reserva e o transfer, editar; para o admin, "Anonimizar cliente" com confirmação.
+- `CustomerPicker` no campo "Cliente" da nova reserva e do novo transfer: busca no cadastro ou cadastra na hora com nome e WhatsApp; sem cadastro, segue só com o nome. Os detalhes da reserva e do transfer levam à ficha do cliente.
+- Testes: `CustomersPage`, `CustomerDetailPage`, seleção e cadastro na nova reserva. `AppRoutes.test` passa a simular os indicadores (antes tentava a rede).
+
+---
+
 ## [2026-11-06] — Despacho do transfer revisto
 
 - Detalhe do transfer em "aguardando motorista": painel "Motorista" (`DriverPanel`) com o valor para o motorista (só aumenta) e a lista de motoristas e proprietários ativos. Cada um tem o botão WhatsApp, que abre a conversa individual com uma mensagem pessoal e registra o chamado, e o botão "Aceitou", que pede o carro da corrida (sugere o carro dele se for dono de um só) e confirma pelo valor.

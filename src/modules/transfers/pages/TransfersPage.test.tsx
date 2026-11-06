@@ -5,6 +5,16 @@ import { transfer } from "@/test/transferFixture";
 import { transferService } from "../services/transfer.service";
 import { TransfersPage } from "./TransfersPage";
 
+vi.mock("@/modules/customers/services/customer.service", () => ({
+  customerService: {
+    list: () => Promise.resolve([
+      { id: "c1", name: "Ana Cadastrada", whatsapp: "5554999990001", email: "", language: "pt", notes: "", anonymized_at: null,
+        created_at: "", updated_at: "", booking_count: 1, transfer_count: 0 },
+    ]),
+    create: (req: { name: string }) => Promise.resolve({ id: "c2", name: req.name, whatsapp: "", email: "", language: "pt", notes: "",
+      anonymized_at: null, created_at: "", updated_at: "", booking_count: 0, transfer_count: 0 }),
+  },
+}));
 vi.mock("../services/transfer.service", () => ({ transferService: { list: vi.fn(), create: vi.fn() } }));
 vi.mock("@/modules/partners/services/partners.service", () => ({
   partnersService: { list: () => Promise.resolve([{ id: "p1", name: "Hotel Teste", referral_code: "HTL234", active: true }]) },

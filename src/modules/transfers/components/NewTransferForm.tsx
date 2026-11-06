@@ -3,6 +3,8 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { partnersService } from "@/modules/partners/services/partners.service";
+import { CustomerPicker } from "@/modules/customers/components/CustomerPicker";
+import type { PickedCustomer } from "@/modules/customers/model/customer.types";
 import { localDateTime, parseReais } from "@/shared/lib/format";
 import { Button } from "@/shared/ui/Button";
 import { Field, inputClass } from "@/shared/ui/Field";
@@ -12,7 +14,8 @@ import { transferService } from "../services/transfer.service";
 
 export function NewTransferForm({ onDone }: { onDone: (t?: Transfer) => void }) {
   const qc = useQueryClient();
-  const [client, setClient] = useState("");
+    const [picked, setPicked] = useState<PickedCustomer>({ name: "", customerId: null });
+  const client = picked.name;
   const [pickup, setPickup] = useState(() => localDateTime(1, 9));
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
@@ -43,6 +46,7 @@ export function NewTransferForm({ onDone }: { onDone: (t?: Transfer) => void }) 
     create.mutate({
       client_name: client.trim(), pickup_at: pickup, origin: origin.trim(), destination: destination.trim(), flight: flight.trim(),
       passengers: pax, notes: notes.trim(), price_cents: cents, ...(referrer ? { referred_by_partner_id: referrer } : {}),
+      ...(picked.customerId ? { customer_id: picked.customerId } : {}),
     });
   };
 
@@ -50,9 +54,7 @@ export function NewTransferForm({ onDone }: { onDone: (t?: Transfer) => void }) 
 
   return (
     <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2" noValidate>
-      <Field id="transfer-client" label="Cliente" hint="Só o nome, por enquanto (PEN-48)." className="sm:col-span-2">
-        <input id="transfer-client" value={client} onChange={(e) => setClient(e.target.value)} className={inputClass} />
-      </Field>
+            <CustomerPicker id="transfer-client" value={picked} onChange={setPicked} className="sm:col-span-2" />
       <Field id="transfer-pickup" label="Data e hora" hint="Horário de Gramado.">
         <input id="transfer-pickup" type="datetime-local" value={pickup} onChange={(e) => setPickup(e.target.value)} className={inputClass} />
       </Field>

@@ -136,7 +136,21 @@ export function BookingDetailPage() {
   return (
     <section className="space-y-8">
       {back}
-      <PageHeader overline="Reserva" title={b.client_name} actions={<StageBadge stage={b.stage} />} />
+      <PageHeader
+        overline="Reserva"
+        title={b.client_name}
+        description={b.customer_id ? undefined : "Cliente sem cadastro."}
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            {b.customer_id && (
+              <Link to={`/clientes/${b.customer_id}`} className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold hover:underline">
+                Ficha do cliente
+              </Link>
+            )}
+            <StageBadge stage={b.stage} />
+          </div>
+        }
+      />
       {b.stage !== "cancelada" ? <Stepper booking={b} /> : <p className="text-sm text-bone/55">Reserva cancelada. O período do veículo está livre.</p>}
 
       <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
