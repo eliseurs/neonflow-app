@@ -11,6 +11,8 @@ import { Button } from "@/shared/ui/Button";
 import { Dialog } from "@/shared/ui/Dialog";
 import { PageHeader } from "@/shared/ui/Heading";
 import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
+import { buttonClass } from "@/shared/ui/buttonClass";
+import { FleetComparison } from "../components/FleetComparison";
 import { VehicleForm } from "../components/VehicleForm";
 import { CATEGORY_LABEL, GEAR_LABEL, VEHICLE_STATUS, formatPlate, kmPlanLabel, vehicleStatus, type Vehicle } from "../model/fleet.types";
 import { fleetService } from "../services/fleet.service";
@@ -59,7 +61,9 @@ export function FleetPage() {
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">{CATEGORY_LABEL[v.category]}</p>
                 <Badge tone={VEHICLE_STATUS[vehicleStatus(v)].tone}>{VEHICLE_STATUS[vehicleStatus(v)].label}</Badge>
               </div>
-              <h2 className="mt-3 font-serif text-2xl font-light">{v.name}</h2>
+                            <h2 className="mt-3 font-serif text-2xl font-light">
+                <Link to={`/frota/${v.id}`} className="hover:text-gold">{v.name}</Link>
+              </h2>
               <p className="mt-1 text-sm tracking-[0.15em] text-bone/60">{formatPlate(v.plate)}</p>
               {v.next_booking && (
                 <Link
@@ -97,6 +101,9 @@ export function FleetPage() {
                 </div>
               </dl>
                             <div className="mt-6 flex flex-wrap gap-3">
+                                <Link to={`/frota/${v.id}`} className={buttonClass("primary")} aria-label={`Ficha de ${v.name}`}>
+                  Ver ficha
+                </Link>
                 <Button variant="outline" onClick={() => setEditing(v)} aria-label={`Editar ${v.name}`}>
                   Editar
                 </Button>
@@ -109,7 +116,9 @@ export function FleetPage() {
         </div>
       )}
 
-            {photosOf && (
+                  {vehicles.isSuccess && vehicles.data.length > 0 && <FleetComparison />}
+
+      {photosOf && (
         <Dialog title={`Fotos · ${photosOf.name}`} onClose={() => setPhotosOf(null)}>
           <p className="mb-4 text-sm text-bone/60">A primeira é a capa. Até haver fotos, o site usa imagens ilustrativas (RN-01.7).</p>
           <PhotoGallery target={{ kind: "veiculo", id: photosOf.id }} label={`Foto de ${photosOf.name}`} />

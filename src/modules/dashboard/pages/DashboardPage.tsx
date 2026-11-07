@@ -53,7 +53,7 @@ function Agenda({ title, items, date, empty }: { title: string; items: Booking[]
 
 export function DashboardPage() {
   const name = useAuthStore((s) => s.user?.name);
-  const bookings = useQuery({ queryKey: ["bookings"], queryFn: bookingService.list });
+  const bookings = useQuery({ queryKey: ["bookings"], queryFn: () => bookingService.list() });
     const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
   const summary = useQuery({ queryKey: ["dashboard"], queryFn: dashboardService.summary });
   const s = summary.data;

@@ -31,7 +31,7 @@ function matches(b: Booking, filter: Filter): boolean {
 
 export function BookingsPage() {
   const navigate = useNavigate();
-  const bookings = useQuery({ queryKey: ["bookings"], queryFn: bookingService.list });
+  const bookings = useQuery({ queryKey: ["bookings"], queryFn: () => bookingService.list() });
   const vehicles = useQuery({ queryKey: ["vehicles"], queryFn: fleetService.list });
   const [filter, setFilter] = useState<Filter>("ativas");
   const [creating, setCreating] = useState(false);

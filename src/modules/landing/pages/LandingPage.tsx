@@ -60,13 +60,22 @@ const linkCta =
 const chip = "inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[13px] text-bone/80";
 
 function browserLang(): Lang {
+  // ?lang=en vem da página do carro; sem ele, o idioma do navegador.
+  const param = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("lang") : null;
+  if (param === "en" || param === "pt") return param;
   return typeof navigator !== "undefined" && !navigator.language.toLowerCase().startsWith("pt") ? "en" : "pt";
+}
+
+/** ?carro= vem do "Pedir este carro" da página do carro: já abre o contato com ele. */
+function carFromUrl(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  return new URLSearchParams(window.location.search).get("carro")?.trim().slice(0, 120) || undefined;
 }
 
 export function LandingPage({ initialLang, number = whatsappNumber(), fleetLoader = loadPublicFleet }: LandingPageProps) {
   const [lang, setLang] = useState<Lang>(initialLang ?? browserLang);
   const [service, setService] = useState<ServiceKind>("aluguel");
-    const [notesPreset, setNotesPreset] = useState<string>();
+  const [notesPreset, setNotesPreset] = useState<string | undefined>(carFromUrl);
   // Código de indicação (?ref=) guardado durante a visita (RN-07.2).
   const [referral] = useState(() => captureReferral());
   // Vira true quando a pessoa escolhe o serviço no cartão do topo: o botão de continuar passa a chamar atenção.
@@ -92,8 +101,9 @@ export function LandingPage({ initialLang, number = whatsappNumber(), fleetLoade
           model: c.name,
           chips: [...t.fleet.chips, `${c.seats} ${t.fleet.seats}`, t.fleet.gear[c.gear]],
           photoId: c.photo_id,
+          link: `/carros/${c.id}${lang === "en" ? "?lang=en" : ""}`,
         }))
-      : t.fleet.cars.map((c) => ({ key: c.category, category: c.category, model: c.model, chips: c.chips, photoId: null }));
+      : t.fleet.cars.map((c) => ({ key: c.category, category: c.category, model: c.model, chips: c.chips, photoId: null, link: null as string | null }));
   const chat = whatsappUrl(number);
 
   useEffect(() => {
@@ -102,6 +112,12 @@ export function LandingPage({ initialLang, number = whatsappNumber(), fleetLoade
   }, [lang]);
 
   const goToContact = () => document.getElementById("contato")?.scrollIntoView({ behavior: "smooth" });
+  // Chegou da página do carro (?carro=): rola até o contato depois de montar a página.
+  useEffect(() => {
+    if (!carFromUrl()) return;
+    const timer = setTimeout(goToContact, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const request = (kind: ServiceKind, notes?: string) => {
     setService(kind);
@@ -265,16 +281,25 @@ export function LandingPage({ initialLang, number = whatsappNumber(), fleetLoade
                   delay={i * 120}
                   className="group overflow-hidden rounded-[22px] border border-white/[0.08] bg-[#0b0b0b] transition-[border-color,box-shadow] duration-500 ease-silk hover:border-gold/30 hover:shadow-[0_30px_80px_-40px_rgba(201,168,106,0.4)]"
                 >
-                  <CarStage
-                    photoId={car.photoId}
-                    alt={car.model}
-                    sizes={cards.length > 2 ? "(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 50vw, 100vw"}
-                  />
+                  {/* Carro do cadastro: foto e nome abrem a página do carro. O texto fixo (sem API) não tem página. */}
+                  {car.link ? (
+                    <Link to={car.link} aria-label={`${t.fleet.details}: ${car.model}`} className="block">
+                      <CarStage
+                        photoId={car.photoId}
+                        alt={car.model}
+                        sizes={cards.length > 2 ? "(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 50vw, 100vw"}
+                      />
+                    </Link>
+                  ) : (
+                    <CarStage photoId={car.photoId} alt={car.model} sizes="(min-width: 768px) 50vw, 100vw" />
+                  )}
                   <div className="p-8 md:p-10">
                     <p className="text-[11px] tracking-[0.3em] text-gold">
                       0{i + 1} / 0{cards.length} · {car.category.toUpperCase()}
                     </p>
-                    <h3 className="mt-3 font-serif text-4xl font-light tracking-[-0.035em]">{car.model}</h3>
+                    <h3 className="mt-3 font-serif text-4xl font-light tracking-[-0.035em]">
+                      {car.link ? <Link to={car.link} className="transition-colors hover:text-gold">{car.model}</Link> : car.model}
+                    </h3>
                     <div className="mt-6 flex flex-wrap gap-2">
                       {car.chips.map((c) => (
                         <span key={c} className={chip}>
@@ -283,10 +308,18 @@ export function LandingPage({ initialLang, number = whatsappNumber(), fleetLoade
                         </span>
                       ))}
                     </div>
-                    <button type="button" onClick={() => request("aluguel", car.model)} className={cn(linkCta, "mt-8")}>
-                      {t.fleet.cta}
-                      <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-                    </button>
+                    <div className="mt-8 flex flex-wrap items-center gap-6">
+                      {car.link && (
+                        <Link to={car.link} className={linkCta}>
+                          {t.fleet.details}
+                          <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                        </Link>
+                      )}
+                      <button type="button" onClick={() => request("aluguel", car.model)} className={cn(linkCta, car.link && "text-bone/70 hover:text-gold")}>
+                        {t.fleet.cta}
+                        <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+                      </button>
+                    </div>
                   </div>
                 </Reveal>
               ))}
