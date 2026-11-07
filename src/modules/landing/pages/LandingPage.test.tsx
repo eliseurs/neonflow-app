@@ -135,7 +135,7 @@ describe("LandingPage", () => {
     renderLanding({
       fleetLoader: () => Promise.resolve([
         publicCar(),
-        publicCar({ id: "v2", name: "Mobi", gear: "manual", photo_id: null }),
+        publicCar({ id: "v2", name: "Mobi", gear: "manual", photo_id: null, min_days: 3 }),
         publicCar({ id: "v3", name: "Mercedes C180", category: "premium", photo_id: "p3" }),
       ]),
     });
@@ -152,6 +152,9 @@ describe("LandingPage", () => {
     expect(screen.queryByRole("img", { name: "Mobi" })).toBeNull();
     expect(screen.getAllByText("Automático").length).toBe(2);
     expect(screen.getByText("Manual")).toBeInTheDocument();
+    expect(screen.getByText("Mínimo de 3 diárias")).toBeInTheDocument();
+    expect(screen.getAllByText("Mínimo de 3 diárias")).toHaveLength(1);
+    expect(screen.queryByText("Mínimo de 1 diárias")).toBeNull();
     expect(screen.queryByText("Volkswagen Jetta")).toBeNull();
     // Foto e nome abrem a página do carro (estilo classificados).
     expect(screen.getByRole("link", { name: "Ver detalhes: Jetta Confortline" })).toHaveAttribute("href", "/carros/v1");

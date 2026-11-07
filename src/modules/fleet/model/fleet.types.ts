@@ -29,8 +29,10 @@ export interface Vehicle {
   color: string;
   fuel: Fuel | "";
   doors: number | null;
-  features: Feature[];
+    features: Feature[];
   description: string;
+  /** Mínimo de diárias deste carro; null = o mínimo geral de 1 (RN-02.32). */
+  min_days: number | null;
   created_at: string;
   updated_at: string;
   /** Calculado pela API nas leituras da frota (RN-01.1, RN-01.3, RN-01.6). */
@@ -143,4 +145,10 @@ export function kmPlanLabel(limit: number | null, extraCents: number | null, mon
 
 export function formatPlate(plate: string): string {
   return /^[A-Z]{3}[0-9]{4}$/.test(plate) ? `${plate.slice(0, 3)}-${plate.slice(3)}` : plate;
+}
+
+/** "1 diária" ou "3 diárias"; null vale 1 (RN-02.32). */
+export function minDaysLabel(min: number | null): string {
+  const n = min ?? 1;
+  return n === 1 ? "1 diária" : `${n} diárias`;
 }

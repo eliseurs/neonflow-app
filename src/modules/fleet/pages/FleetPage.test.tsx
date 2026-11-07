@@ -75,6 +75,7 @@ describe("FleetPage", () => {
       doors: null,
       features: [],
       description: "",
+      min_days: null,
     });
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
@@ -191,5 +192,22 @@ describe("FleetPage", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Salvar" }));
     await waitFor(() => expect(fleetService.update).toHaveBeenCalled());
     expect(vi.mocked(fleetService.update).mock.calls[0][1]).toMatchObject({ km_limit_per_day: 200, extra_km_cents: null });
+  });
+
+  it("configura o mínimo de diárias do carro (RN-02.32)", async () => {
+    vi.mocked(fleetService.list).mockResolvedValue([vehicle({ min_days: 3 })]);
+    vi.mocked(fleetService.update).mockResolvedValue(vehicle());
+    renderPage(<FleetPage />);
+    expect(await screen.findByText("3 diárias")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Editar Carro Teste" }));
+    const field = screen.getByLabelText("Mínimo de diárias");
+    expect(field).toHaveValue("3");
+    fireEvent.change(field, { target: { value: "0" } });
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Mínimo de diárias");
+    fireEvent.change(field, { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+    await waitFor(() => expect(fleetService.update).toHaveBeenCalled());
+    expect(vi.mocked(fleetService.update).mock.calls[0][1]).toMatchObject({ min_days: null });
   });
 });

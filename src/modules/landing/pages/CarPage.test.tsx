@@ -17,8 +17,9 @@ function open(loader: (id: string) => Promise<PublicCar>, route = "/carros/v1?la
 
 describe("CarPage", () => {
   it("mostra galeria, ficha, itens, descrição e o pedido, sem preço", async () => {
-    open(() => Promise.resolve(publicCar({ photo_ids: ["p1", "p2", "p3"] })));
+    open(() => Promise.resolve(publicCar({ photo_ids: ["p1", "p2", "p3"], min_days: 2 })));
     expect(await screen.findByRole("heading", { level: 1, name: "Jetta Confortline" })).toBeInTheDocument();
+    expect(screen.getByText("Mínimo de 2 diárias")).toBeInTheDocument();
     expect(screen.getByText("2014 · Preto")).toBeInTheDocument();
     const specs = screen.getByRole("heading", { name: "Ficha técnica" }).parentElement!;
     expect(within(specs).getByText("Flex")).toBeInTheDocument();

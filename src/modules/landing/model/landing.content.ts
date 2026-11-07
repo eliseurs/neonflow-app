@@ -32,7 +32,9 @@ export interface LandingContent {
   fleet: {
     overline: string; title: string; titleAccent: string; note: string; cta: string;
     /** Selos de cada carro vindo da API; "cars" é o texto fixo usado se a API não responder. */
-    chips: string[]; seats: string; gear: Record<"manual" | "automatico", string>; details: string;
+        chips: string[]; seats: string; gear: Record<"manual" | "automatico", string>; details: string;
+    /** "Mínimo de 3 diárias", só quando o carro exige mais de 1. */
+    minDays: (n: number) => string;
     cars: { category: string; model: string; chips: string[] }[];
   };
   conditions: {
@@ -137,7 +139,8 @@ export const content: Record<Lang, LandingContent> = {
       cta: "Pedir este carro",
       chips: ["Com ou sem motorista", "Seguro incluso"],
       seats: "lugares",
-      details: "Ver detalhes",
+            details: "Ver detalhes",
+      minDays: (n: number) => `Mínimo de ${n} diárias`,
       gear: { manual: "Manual", automatico: "Automático" },
       cars: [
         { category: "Economy", model: "Volkswagen Jetta", chips: ["Com ou sem motorista", "Seguro incluso"] },
@@ -307,7 +310,8 @@ export const content: Record<Lang, LandingContent> = {
       cta: "Request this car",
       chips: ["With or without a driver", "Insurance included"],
       seats: "seats",
-      details: "See details",
+            details: "See details",
+      minDays: (n: number) => `Minimum ${n} days`,
       gear: { manual: "Manual", automatico: "Automatic" },
       cars: [
         { category: "Economy", model: "Volkswagen Jetta", chips: ["With or without a driver", "Insurance included"] },

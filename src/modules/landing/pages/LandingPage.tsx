@@ -99,7 +99,7 @@ export function LandingPage({ initialLang, number = whatsappNumber(), fleetLoade
           key: c.id,
           category: c.category === "premium" ? "Premium" : "Economy",
           model: c.name,
-          chips: [...t.fleet.chips, `${c.seats} ${t.fleet.seats}`, t.fleet.gear[c.gear]],
+                    chips: [...t.fleet.chips, `${c.seats} ${t.fleet.seats}`, t.fleet.gear[c.gear], ...(c.min_days > 1 ? [t.fleet.minDays(c.min_days)] : [])],
           photoId: c.photo_id,
           link: `/carros/${c.id}${lang === "en" ? "?lang=en" : ""}`,
         }))

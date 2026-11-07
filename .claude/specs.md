@@ -2,6 +2,13 @@
 
 ---
 
+## [2026-11-06] — Mínimo de diárias por carro
+
+- Cadastro do veículo: "Mínimo de diárias" (em branco = 1). Cartão da frota e ficha mostram o mínimo (`minDaysLabel`).
+- Site: "Mínimo de X diárias" no cartão da landing e na página do carro quando passa de 1 (PT e EN). A nova reserva já não lista o carro em períodos menores (a API filtra) e mostra o erro da API se houver.
+
+---
+
 ## [2026-11-06] — Página do carro e ficha no painel
 
 - Site: `/carros/:id` (`CarPage`, `CarGallery`): galeria com foto grande, setas, contador, miniaturas e tela cheia (teclado e Esc), em 640/1280/1920; ficha técnica, itens, descrição; "Pedir este carro" volta à landing com o contato preenchido (`/?carro=`), e há o WhatsApp direto. Sem preço (RN-01.9). PT/EN por `?lang=`.

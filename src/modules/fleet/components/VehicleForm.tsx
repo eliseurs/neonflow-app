@@ -39,7 +39,8 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
   const [fuel, setFuel] = useState<Fuel | "">(vehicle?.fuel ?? "");
   const [doors, setDoors] = useState(vehicle?.doors ? String(vehicle.doors) : "");
   const [features, setFeatures] = useState<Feature[]>(vehicle?.features ?? []);
-  const [description, setDescription] = useState(vehicle?.description ?? "");
+    const [description, setDescription] = useState(vehicle?.description ?? "");
+  const [minDays, setMinDays] = useState(vehicle?.min_days ? String(vehicle.min_days) : "");
   const [problem, setProblem] = useState<string | null>(null);
   const toggleFeature = (f: Feature) => setFeatures((fs) => (fs.includes(f) ? fs.filter((x) => x !== f) : [...fs, f]));
 
@@ -72,7 +73,9 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
     const yearN = year.trim() ? Number(year) : null;
     if (yearN !== null && (!Number.isInteger(yearN) || yearN < 1980 || yearN > 2100)) return setProblem("Ano inválido.");
     const doorsN = doors.trim() ? Number(doors) : null;
-    if (doorsN !== null && (!Number.isInteger(doorsN) || doorsN < 2 || doorsN > 5)) return setProblem("Portas: de 2 a 5.");
+        if (doorsN !== null && (!Number.isInteger(doorsN) || doorsN < 2 || doorsN > 5)) return setProblem("Portas: de 2 a 5.");
+    const minN = minDays.trim() ? Number(minDays) : null;
+    if (minN !== null && (!Number.isInteger(minN) || minN < 1 || minN > 365)) return setProblem("Mínimo de diárias: de 1 a 365.");
     setProblem(null);
     save.mutate({
       plate: normalized,
@@ -92,7 +95,8 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
       fuel,
       doors: doorsN,
       features,
-      description: description.trim(),
+            description: description.trim(),
+      min_days: minN,
     });
   };
 
@@ -155,6 +159,9 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
       </Field>
             <Field id="vehicle-deposit" label="Caução (R$)" hint="Pré-autorização no cartão. Em branco: a definir." className="sm:col-span-2">
         <input id="vehicle-deposit" inputMode="decimal" value={deposit} onChange={(e) => setDeposit(e.target.value)} className={inputClass} />
+      </Field>
+            <Field id="vehicle-min-days" label="Mínimo de diárias" hint="Em branco: 1 diária." className="sm:col-span-2">
+        <input id="vehicle-min-days" inputMode="numeric" value={minDays} onChange={(e) => setMinDays(e.target.value)} className={inputClass} />
       </Field>
       <Field id="vehicle-km-limit" label="Limite de km por dia" hint="Em branco: km livre.">
         <input id="vehicle-km-limit" inputMode="numeric" value={kmLimit} onChange={(e) => setKmLimit(e.target.value)} className={inputClass} />
