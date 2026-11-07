@@ -3,7 +3,9 @@ import type { Vehicle } from "@/modules/fleet/model/fleet.types";
 import type { Booking, BookingEvent, CreateBookingRequest } from "../model/booking.types";
 
 export const bookingService = {
-  list: async () => (await apiClient.get<ApiResponse<Booking[]>>("/bookings")).data,
+  /** vehicleId filtra as reservas de um carro (ficha do veículo). */
+  list: async (vehicleId?: string) =>
+    (await apiClient.get<ApiResponse<Booking[]>>(vehicleId ? `/bookings?vehicle_id=${encodeURIComponent(vehicleId)}` : "/bookings")).data,
   get: async (id: string) => (await apiClient.get<ApiResponse<Booking>>(`/bookings/${id}`)).data,
   events: async (id: string) => (await apiClient.get<ApiResponse<BookingEvent[]>>(`/bookings/${id}/events`)).data,
   create: async (req: CreateBookingRequest) => (await apiClient.post<ApiResponse<Booking>>("/bookings", req)).data,

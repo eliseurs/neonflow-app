@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { publicCar } from "@/test/carFixture";
 import { LandingPage } from "./LandingPage";
 
 function renderLanding(props: Parameters<typeof LandingPage>[0] = {}) {
@@ -133,9 +134,9 @@ describe("LandingPage", () => {
   it("mostra a frota da API com a foto de capa em três larguras, sem travar a página", async () => {
     renderLanding({
       fleetLoader: () => Promise.resolve([
-        { id: "v1", name: "Jetta Confortline", category: "economy", seats: 5, gear: "automatico", photo_id: "p1" },
-        { id: "v2", name: "Mobi", category: "economy", seats: 5, gear: "manual", photo_id: null },
-        { id: "v3", name: "Mercedes C180", category: "premium", seats: 5, gear: "automatico", photo_id: "p3" },
+        publicCar(),
+        publicCar({ id: "v2", name: "Mobi", gear: "manual", photo_id: null }),
+        publicCar({ id: "v3", name: "Mercedes C180", category: "premium", photo_id: "p3" }),
       ]),
     });
     const img = await screen.findByRole("img", { name: "Jetta Confortline" });
@@ -152,11 +153,21 @@ describe("LandingPage", () => {
     expect(screen.getAllByText("Automático").length).toBe(2);
     expect(screen.getByText("Manual")).toBeInTheDocument();
     expect(screen.queryByText("Volkswagen Jetta")).toBeNull();
+    // Foto e nome abrem a página do carro (estilo classificados).
+    expect(screen.getByRole("link", { name: "Ver detalhes: Jetta Confortline" })).toHaveAttribute("href", "/carros/v1");
+    expect(screen.getByRole("link", { name: "Jetta Confortline" })).toHaveAttribute("href", "/carros/v1");
   });
 
   it("sem resposta da API, fica a frota fixa", async () => {
     renderLanding({ fleetLoader: () => Promise.reject(new Error("rede")) });
     await waitFor(() => expect(screen.getByText("Volkswagen Jetta")).toBeInTheDocument());
     expect(screen.getByText("Mercedes-Benz C180")).toBeInTheDocument();
+  });
+
+  it("vindo da página do carro (?carro=), já abre o pedido com ele", async () => {
+    window.history.pushState({}, "", "/?carro=Mobi&lang=pt");
+    renderLanding({ initialLang: undefined });
+    expect(await screen.findByDisplayValue(/Mobi/)).toBeInTheDocument();
+    window.history.pushState({}, "", "/");
   });
 });

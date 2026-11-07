@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { LoginPage } from "@/modules/auth/pages/LoginPage";
 import { DashboardPage } from "@/modules/dashboard/pages/DashboardPage";
 import { FleetPage } from "@/modules/fleet/pages/FleetPage";
+import { VehicleDetailPage } from "@/modules/fleet/pages/VehicleDetailPage";
 import { BookingsPage } from "@/modules/bookings/pages/BookingsPage";
 import { BookingDetailPage } from "@/modules/bookings/pages/BookingDetailPage";
 import { LandingPage } from "@/modules/landing/pages/LandingPage";
@@ -15,6 +16,7 @@ import { CustomersPage } from "@/modules/customers/pages/CustomersPage";
 import { TransferDetailPage } from "@/modules/transfers/pages/TransferDetailPage";
 import { TransfersPage } from "@/modules/transfers/pages/TransfersPage";
 import { PublicTermsPage } from "@/modules/terms/pages/PublicTermsPage";
+import { CarPage } from "@/modules/landing/pages/CarPage";
 import { TermsAdminPage } from "@/modules/terms/pages/TermsAdminPage";
 
 export function AppRoutes() {
@@ -24,10 +26,12 @@ export function AppRoutes() {
             <Route path="/login" element={<LoginPage />} />
       {/* Página pública do cliente: o código do link é a autorização. */}
       <Route path="/termos/:token" element={<PublicTermsPage />} />
+      <Route path="/carros/:id" element={<CarPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/central" element={<DashboardPage />} />
-          <Route path="/frota" element={<FleetPage />} />
+                    <Route path="/frota" element={<FleetPage />} />
+          <Route path="/frota/:id" element={<VehicleDetailPage />} />
           <Route path="/reservas" element={<BookingsPage />} />
                     <Route path="/reservas/:id" element={<BookingDetailPage />} />
                     <Route path="/usuarios" element={<UsersPage />} />

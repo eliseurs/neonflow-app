@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { partnersService } from "@/modules/partners/services/partners.service";
 import { useState, type FormEvent } from "react";
+import { cn } from "@/shared/lib/cn";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { centsToInput, parseReais } from "@/shared/lib/format";
 import { Button } from "@/shared/ui/Button";
 import { Field, inputClass } from "@/shared/ui/Field";
 import { ErrorNote } from "@/shared/ui/Panel";
-import { CATEGORY_LABEL, GEAR_LABEL, PLATE_PATTERN, normalizePlate, type Category, type Gear, type Vehicle } from "../model/fleet.types";
+import { CATEGORY_LABEL, GEAR_LABEL, PLATE_PATTERN, normalizePlate, type Category, type Gear, type Vehicle, FEATURES, FUEL_LABEL, type Feature, type Fuel } from "../model/fleet.types";
 import { fleetService } from "../services/fleet.service";
 
 interface VehicleFormProps {
@@ -33,7 +34,14 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
   const [deposit, setDeposit] = useState(vehicle?.deposit_cents ? centsToInput(vehicle.deposit_cents) : "");
   const [kmLimit, setKmLimit] = useState(vehicle?.km_limit_per_day ? String(vehicle.km_limit_per_day) : "");
   const [extraKm, setExtraKm] = useState(vehicle?.extra_km_cents ? centsToInput(vehicle.extra_km_cents) : "");
+    const [year, setYear] = useState(vehicle?.year ? String(vehicle.year) : "");
+  const [color, setColor] = useState(vehicle?.color ?? "");
+  const [fuel, setFuel] = useState<Fuel | "">(vehicle?.fuel ?? "");
+  const [doors, setDoors] = useState(vehicle?.doors ? String(vehicle.doors) : "");
+  const [features, setFeatures] = useState<Feature[]>(vehicle?.features ?? []);
+  const [description, setDescription] = useState(vehicle?.description ?? "");
   const [problem, setProblem] = useState<string | null>(null);
+  const toggleFeature = (f: Feature) => setFeatures((fs) => (fs.includes(f) ? fs.filter((x) => x !== f) : [...fs, f]));
 
   const save = useMutation({
     mutationFn: (req: Parameters<typeof fleetService.create>[0]) =>
@@ -60,7 +68,11 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
     if (kmLimit.trim() && (!Number.isInteger(limit) || (limit ?? 0) <= 0)) return setProblem("O limite de km por dia deve ser um número inteiro maior que zero.");
     if (extraKm.trim() && !extraCents) return setProblem("Informe o valor do km excedente em reais, maior que zero.");
         // Km controlado: o limite pode vir sem valor (a central define o excedente); valor sem limite, não (RN-02.18).
-    if (limit === null && extraCents !== null) return setProblem("O valor do km excedente exige o limite de km por dia.");
+        if (limit === null && extraCents !== null) return setProblem("O valor do km excedente exige o limite de km por dia.");
+    const yearN = year.trim() ? Number(year) : null;
+    if (yearN !== null && (!Number.isInteger(yearN) || yearN < 1980 || yearN > 2100)) return setProblem("Ano inválido.");
+    const doorsN = doors.trim() ? Number(doors) : null;
+    if (doorsN !== null && (!Number.isInteger(doorsN) || doorsN < 2 || doorsN > 5)) return setProblem("Portas: de 2 a 5.");
     setProblem(null);
     save.mutate({
       plate: normalized,
@@ -74,7 +86,13 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
       in_maintenance: maintenance,
       deposit_cents: depositCents,
       km_limit_per_day: limit,
-      extra_km_cents: extraCents,
+            extra_km_cents: extraCents,
+      year: yearN,
+      color: color.trim(),
+      fuel,
+      doors: doorsN,
+      features,
+      description: description.trim(),
     });
   };
 
@@ -144,6 +162,49 @@ export function VehicleForm({ vehicle, onDone }: VehicleFormProps) {
       <Field id="vehicle-extra-km" label="Km excedente (R$)" hint="Valor de cada km acima da franquia. Em branco: a central define na devolução.">
         <input id="vehicle-extra-km" inputMode="decimal" value={extraKm} onChange={(e) => setExtraKm(e.target.value)} className={inputClass} />
       </Field>
+            <fieldset className="grid gap-5 border-t border-white/[0.08] pt-5 sm:col-span-2 sm:grid-cols-2">
+        <legend className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">Ficha do carro (aparece no site)</legend>
+        <Field id="vehicle-year" label="Ano">
+          <input id="vehicle-year" inputMode="numeric" value={year} onChange={(e) => setYear(e.target.value)} className={inputClass} />
+        </Field>
+        <Field id="vehicle-color" label="Cor">
+          <input id="vehicle-color" value={color} onChange={(e) => setColor(e.target.value)} className={inputClass} />
+        </Field>
+        <Field id="vehicle-fuel" label="Combustível">
+          <select id="vehicle-fuel" value={fuel} onChange={(e) => setFuel(e.target.value as Fuel | "")} className={inputClass}>
+            <option value="" className="bg-noir">Não informar</option>
+            {(Object.keys(FUEL_LABEL) as Fuel[]).map((f) => (
+              <option key={f} value={f} className="bg-noir">{FUEL_LABEL[f].pt}</option>
+            ))}
+          </select>
+        </Field>
+        <Field id="vehicle-doors" label="Portas">
+          <input id="vehicle-doors" inputMode="numeric" value={doors} onChange={(e) => setDoors(e.target.value)} className={inputClass} />
+        </Field>
+        <div className="sm:col-span-2">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-bone/60">Itens</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {FEATURES.map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                role="checkbox"
+                aria-checked={features.includes(f.key)}
+                onClick={() => toggleFeature(f.key)}
+                className={cn(
+                  "rounded-full border px-3 py-1.5 text-xs transition",
+                  features.includes(f.key) ? "border-gold bg-gold text-noir" : "border-white/15 text-bone/70 hover:border-gold/60",
+                )}
+              >
+                {f.pt}
+              </button>
+            ))}
+          </div>
+        </div>
+        <Field id="vehicle-description" label="Descrição" hint="Um texto curto para o site. Até 2000 caracteres." className="sm:col-span-2">
+          <textarea id="vehicle-description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass} />
+        </Field>
+      </fieldset>
       <label className="flex items-center gap-3 text-sm text-bone/80 sm:col-span-2">
         <input type="checkbox" checked={maintenance} onChange={(e) => setMaintenance(e.target.checked)} className="h-4 w-4 accent-[#C9A86A]" />
         Em manutenção (não aceita reservas)

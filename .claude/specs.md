@@ -2,6 +2,16 @@
 
 ---
 
+## [2026-11-06] — Página do carro e ficha no painel
+
+- Site: `/carros/:id` (`CarPage`, `CarGallery`): galeria com foto grande, setas, contador, miniaturas e tela cheia (teclado e Esc), em 640/1280/1920; ficha técnica, itens, descrição; "Pedir este carro" volta à landing com o contato preenchido (`/?carro=`), e há o WhatsApp direto. Sem preço (RN-01.9). PT/EN por `?lang=`.
+- Landing: foto e nome do cartão abrem a página do carro; "Ver detalhes".
+- Painel: `/frota/:id` (`VehicleDetailPage`) com desempenho de 12 meses, ficha, fotos, manutenções (`MaintenanceLog`) e reservas do carro; "Ver ficha" nos cartões; `FleetComparison` no fim da aba Frota destacando o melhor de cada coluna.
+- Formulário do veículo: ano, cor, combustível, portas, itens e descrição. `bookingService.list(vehicleId)`.
+- Testes: página do carro e galeria, ficha no painel (desempenho, manutenção, edição), comparativo, landing com links.
+
+---
+
 ## [2026-11-06] — Frota com fotos na landing
 
 - A seção Frota passa a vir de `GET /api/public/fleet` (`loadPublicFleet`); sem resposta, fica o texto fixo. Cada cartão mostra a capa com `srcset` em 640, 1280 e 1920 (`photoSrcSet`), `sizes` conforme a grade (3 colunas em telas largas quando há mais de 2 carros), `loading="lazy"`, `decoding="async"`, proporção fixa e entrada suave ao carregar; sem foto, o fundo iluminado com o símbolo. Selos: com ou sem motorista, seguro, lugares e câmbio (PT e EN).

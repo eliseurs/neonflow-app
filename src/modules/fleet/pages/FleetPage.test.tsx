@@ -6,7 +6,7 @@ import { fleetService } from "../services/fleet.service";
 import { FleetPage } from "./FleetPage";
 
 vi.mock("../services/fleet.service", () => ({
-  fleetService: { list: vi.fn(), create: vi.fn(), update: vi.fn() },
+  fleetService: { list: vi.fn(), create: vi.fn(), update: vi.fn(), comparison: () => Promise.resolve([]) },
 }));
 vi.mock("@/modules/partners/services/partners.service", () => ({
   partnersService: {
@@ -69,6 +69,12 @@ describe("FleetPage", () => {
       km_limit_per_day: null,
       extra_km_cents: null,
       owner_partner_id: null,
+      year: null,
+      color: "",
+      fuel: "",
+      doors: null,
+      features: [],
+      description: "",
     });
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
