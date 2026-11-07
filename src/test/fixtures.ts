@@ -22,6 +22,7 @@ export const vehicle = (over: Partial<Vehicle> = {}): Vehicle => ({
   doors: null,
   features: [],
   description: "",
+  min_days: null,
   status: "livre",
   created_at: "2026-11-01T00:00:00Z",
   updated_at: "2026-11-01T00:00:00Z",

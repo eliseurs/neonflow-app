@@ -13,7 +13,9 @@ export interface PublicCar {
   fuel: Fuel | "";
   doors: number | null;
   features: Feature[];
-  description: string;
+    description: string;
+  /** Mínimo de diárias do carro (1 quando não configurado). */
+  min_days: number;
   photo_id: string | null;
   /** Só na página do carro: todas as fotos, a capa primeiro. */
   photo_ids?: string[];

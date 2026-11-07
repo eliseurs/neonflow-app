@@ -14,7 +14,7 @@ import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { buttonClass } from "@/shared/ui/buttonClass";
 import { FleetComparison } from "../components/FleetComparison";
 import { VehicleForm } from "../components/VehicleForm";
-import { CATEGORY_LABEL, GEAR_LABEL, VEHICLE_STATUS, formatPlate, kmPlanLabel, vehicleStatus, type Vehicle } from "../model/fleet.types";
+import { CATEGORY_LABEL, GEAR_LABEL, VEHICLE_STATUS, formatPlate, kmPlanLabel, minDaysLabel, vehicleStatus, type Vehicle } from "../model/fleet.types";
 import { fleetService } from "../services/fleet.service";
 
 export function FleetPage() {
@@ -94,6 +94,10 @@ export function FleetPage() {
                 <div>
                   <dt className="text-bone/45">Caução</dt>
                   <dd className="text-bone/85">{v.deposit_cents ? formatCents(v.deposit_cents) : "A definir"}</dd>
+                </div>
+                <div>
+                  <dt className="text-bone/45">Mínimo</dt>
+                  <dd className="text-bone/85">{minDaysLabel(v.min_days)}</dd>
                 </div>
                 <div>
                   <dt className="text-bone/45">Quilometragem</dt>

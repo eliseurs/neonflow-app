@@ -14,7 +14,7 @@ import { PageHeader } from "@/shared/ui/Heading";
 import { ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { MaintenanceLog } from "../components/MaintenanceLog";
 import { VehicleForm } from "../components/VehicleForm";
-import { CATEGORY_LABEL, FEATURES, FUEL_LABEL, GEAR_LABEL, VEHICLE_STATUS, formatPlate, kmPlanLabel, vehicleStatus } from "../model/fleet.types";
+import { CATEGORY_LABEL, FEATURES, FUEL_LABEL, GEAR_LABEL, VEHICLE_STATUS, formatPlate, kmPlanLabel, minDaysLabel, vehicleStatus } from "../model/fleet.types";
 import { fleetService } from "../services/fleet.service";
 
 function Metric({ label, value, hint }: { label: string; value: ReactNode; hint?: string }) {
@@ -55,7 +55,8 @@ export function VehicleDetailPage() {
     ["Câmbio", GEAR_LABEL[v.gear]],
     ["Portas", v.doors ? String(v.doors) : "—"],
     ["Lugares", String(v.seats)],
-    ["Diária", formatCents(v.daily_rate_cents)],
+        ["Diária", formatCents(v.daily_rate_cents)],
+    ["Mínimo", minDaysLabel(v.min_days)],
     ["Caução", v.deposit_cents ? formatCents(v.deposit_cents) : "A definir"],
     ["Quilometragem", kmPlanLabel(v.km_limit_per_day, v.extra_km_cents, formatCents)],
     ["Proprietário", v.owner],

@@ -113,7 +113,7 @@ export function CarPage({ loader = loadPublicCar, number = whatsappNumber() }: {
                 <h1 className="mt-2 font-serif text-4xl font-light tracking-[-0.03em]">{car.name}</h1>
                 {(car.year || car.color) && <p className="mt-1 text-bone/60">{[car.year, car.color].filter(Boolean).join(" · ")}</p>}
                 <div className="mt-5 flex flex-wrap gap-2">
-                  {t.fleet.chips.map((chip) => (
+                                    {[...t.fleet.chips, ...(car.min_days > 1 ? [t.fleet.minDays(car.min_days)] : [])].map((chip) => (
                     <span key={chip} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[13px] text-bone/80">
                       <Check className="h-3.5 w-3.5 text-gold" aria-hidden /> {chip}
                     </span>
