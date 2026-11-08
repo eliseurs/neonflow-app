@@ -18,6 +18,8 @@ import { TransfersPage } from "@/modules/transfers/pages/TransfersPage";
 import { PublicTermsPage } from "@/modules/terms/pages/PublicTermsPage";
 import { CarPage } from "@/modules/landing/pages/CarPage";
 import { TermsAdminPage } from "@/modules/terms/pages/TermsAdminPage";
+import { ContractsPage } from "@/modules/contracts/pages/ContractsPage";
+import { ContractVersionPage } from "@/modules/contracts/pages/ContractVersionPage";
 
 export function AppRoutes() {
   return (
@@ -40,6 +42,8 @@ export function AppRoutes() {
                     <Route path="/transfers" element={<TransfersPage />} />
                     <Route path="/clientes" element={<CustomersPage />} />
           <Route path="/termos" element={<TermsAdminPage />} />
+          <Route path="/contratos" element={<ContractsPage />} />
+          <Route path="/contratos/versoes/:id" element={<ContractVersionPage />} />
           <Route path="/clientes/:id" element={<CustomerDetailPage />} />
           <Route path="/transfers/:id" element={<TransferDetailPage />} />
         </Route>

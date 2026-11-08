@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-08] — Contratos: upload das minutas pelo painel
+
+- Módulo `contracts` (só admin, item "Contratos" no menu): `/contratos` lista os seis contratos da API (RN-08.1) com situação, versão, rótulo e hash da última versão; cada um tem upload de `.md` ou `.txt` com rótulo opcional. O navegador lê o arquivo e envia o texto para `POST /contracts/:code/versions`; a API grava a versão nova como minuta, com o SHA-256.
+- `/contratos/versoes/:id`: texto integral, hash completo, histórico de decisões (com papel de quem decidiu) e comentários por cláusula. Ações de revisão (enviar, aprovar, comentar) ficam para a próxima etapa.
+- Os textos das minutas não entram no repositório: os arquivos ficam fora do Git e sobem pela tela.
+
+---
+
 ## [2026-11-06] — Mínimo de diárias por carro
 
 - Cadastro do veículo: "Mínimo de diárias" (em branco = 1). Cartão da frota e ficha mostram o mínimo (`minDaysLabel`).
