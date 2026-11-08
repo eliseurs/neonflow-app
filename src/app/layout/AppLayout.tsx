@@ -22,7 +22,7 @@ const NAV = [
   { to: "/contratos", label: "Contratos", icon: ScrollText, adminOnly: true },
 ];
 
-const ROLE_LABEL: Record<string, string> = { admin: "Administração", central: "Central" };
+const ROLE_LABEL: Record<string, string> = { admin: "Administração", central: "Central", legal_reviewer: "Jurídico" };
 
 function navClass({ isActive }: { isActive: boolean }) {
   return cn(

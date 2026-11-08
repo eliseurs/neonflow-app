@@ -2,6 +2,12 @@
 
 ---
 
+## [2026-11-08] — Rótulo do papel jurídico no menu
+
+- O menu lateral mostra "Jurídico" para o papel `legal_reviewer` da API (RN-08.4), em vez do código do papel. A lista de usuários continua só com admin e central: a conta da advogada ficou para depois.
+
+---
+
 ## [2026-11-08] — Contratos: upload das minutas pelo painel
 
 - Módulo `contracts` (só admin, item "Contratos" no menu): `/contratos` lista os seis contratos da API (RN-08.1) com situação, versão, rótulo e hash da última versão; cada um tem upload de `.md` ou `.txt` com rótulo opcional. O navegador lê o arquivo e envia o texto para `POST /contracts/:code/versions`; a API grava a versão nova como minuta, com o SHA-256.
