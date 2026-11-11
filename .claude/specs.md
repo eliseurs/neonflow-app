@@ -2,6 +2,15 @@
 
 ---
 
+## [2026-11-10] — Logo novo (nepo/resources/novo_logo.jpg)
+
+- Símbolo, símbolo para fundo claro, ícone completo e favicon vetorizados da arte nova (potrace sobre a máscara do dourado), no lugar do redesenho aproximado de 05/11. O ícone completo (`/brand/neonflow-icone-app.svg`) leva moldura, símbolo e "neon flow" em curvas, sem depender de fonte.
+- `apple-touch-icon.png` sai da própria arte em relevo dourado, recortada em quadrado.
+- Logo em linha (`Wordmark`, menu, cabeçalho e rodapé do site): símbolo novo e "neon flow" em Poppins 600, o peso da arte nova (a fonte carregada passou de 500 para 600).
+- Login: o logo completo, empilhado e com moldura, centralizado acima do formulário.
+
+---
+
 ## [2026-11-08] — Rótulo do papel jurídico no menu
 
 - O menu lateral mostra "Jurídico" para o papel `legal_reviewer` da API (RN-08.4), em vez do código do papel. A lista de usuários continua só com admin e central: a conta da advogada ficou para depois.

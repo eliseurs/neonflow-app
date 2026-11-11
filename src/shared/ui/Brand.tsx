@@ -12,12 +12,13 @@ const sizes = {
   lg: { mark: "h-14 w-14", text: "text-4xl" },
 };
 
-/** Logo do Neon Flow: símbolo (anel, estrada e seta) e "neon flow" em Poppins, ambos dourados. */
+/** Logo do Neon Flow em linha: símbolo (anel, estrada e seta) e "neon flow" em Poppins 600, dourados.
+ *  O logo completo (empilhado, com moldura) é `/brand/neonflow-icone-app.svg`. */
 export function Wordmark({ className, size = "md" }: WordmarkProps) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <img src="/brand/neonflow-simbolo.svg" alt="" className={sizes[size].mark} />
-      <span className={cn("font-brand font-medium lowercase leading-none tracking-[-0.02em] text-[#D4AC62]", sizes[size].text)}>
+      <span className={cn("font-brand font-semibold lowercase leading-none tracking-[-0.02em] text-[#D4AC62]", sizes[size].text)}>
         neon flow
       </span>
     </span>
