@@ -2,6 +2,13 @@
 
 ---
 
+## [2026-11-12] — Acordeão: grupo da tela atual também fecha
+
+- O grupo da tela atual ficava travado aberto e sem chevron. Agora todo grupo abre e fecha no título, com o chevron sempre visível. Ao **navegar** para uma tela de um grupo fechado, ele abre sozinho (ao carregar a página, o que foi fechado continua fechado); grupo fechado com a tela atual dentro fica com o título dourado.
+- Ajuda: Usuários e acesso e Novidades.
+
+---
+
 ## [2026-11-12] — Menu compacto em acordeão e navegação do celular
 
 - Desktop: menu lateral compacto (cabe em 700 px de altura sem rolar) e grupos em acordeão (`NavGroups`): o título abre e fecha o grupo, o grupo da tela atual fica sempre aberto, e os fechados ficam em `localStorage` (`neonflow-nav-fechados`, com fallback se o storage falhar). Rodapé em uma linha: Ajuda · Senha · Sair.
