@@ -7,6 +7,7 @@ import { Button } from "@/shared/ui/Button";
 import { Field, inputClass } from "@/shared/ui/Field";
 import { PageHeader } from "@/shared/ui/Heading";
 import { ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
+import { suggestedTermsBody } from "../model/terms.types";
 import { termsService } from "../services/terms.service";
 
 /** O admin publica o texto dos termos (escrito pelo jurídico). Cada publicação é uma versão nova. */
@@ -15,9 +16,12 @@ export function TermsAdminPage() {
   const versions = useQuery({ queryKey: ["terms"], queryFn: termsService.versions });
   const current = versions.data?.[0];
   const [body, setBody] = useState("");
+  // Sem versão publicada, o campo abre com as condições do site, para revisar e publicar.
+  const empty = versions.isSuccess && versions.data.length === 0;
   useEffect(() => {
     if (current) setBody(current.body);
-  }, [current]);
+    else if (empty) setBody(suggestedTermsBody());
+  }, [current, empty]);
 
   const publish = useMutation({
     mutationFn: () => termsService.publish(body),
@@ -43,6 +47,11 @@ export function TermsAdminPage() {
           <p className="text-sm text-bone/60">
             {current ? `Versão atual: ${current.version}, publicada em ${formatDateTime(current.created_at)}.` : "Nenhuma versão publicada. Sem texto, a central não gera link de aceite."}
           </p>
+          {empty && (
+            <p className="rounded-xl border border-gold/30 bg-gold/[0.04] px-4 py-3 text-sm text-bone/75">
+              O texto abaixo é uma sugestão com as condições do aluguel que o site já mostra. Revise e ajuste antes de publicar: é isso que o cliente vai aceitar.
+            </p>
+          )}
           <Field id="terms-body" label="Texto dos termos">
             <textarea id="terms-body" rows={18} value={body} onChange={(e) => setBody(e.target.value)} className={inputClass} />
           </Field>
