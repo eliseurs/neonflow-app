@@ -1,10 +1,16 @@
 import type { HelpArticle } from "../model/help.types";
+import { clientesParceiros } from "./clientes-parceiros";
 import { contratos } from "./contratos";
+import { frota } from "./frota";
+import { novidades } from "./novidades";
+import { repasses } from "./repasses";
 import { reservas } from "./reservas";
 import { transfer } from "./transfer";
+import { usuarios } from "./usuarios";
+import { visaoGeral } from "./visao-geral";
 
-/** Ordem em que aparecem na Central de ajuda. */
-export const ARTICLES: HelpArticle[] = [reservas, transfer, contratos];
+/** Ordem em que aparecem na Central de ajuda (a ordem do menu, com Novidades por último). */
+export const ARTICLES: HelpArticle[] = [visaoGeral, reservas, transfer, frota, clientesParceiros, repasses, contratos, usuarios, novidades];
 
 export function articlesFor(role: string | undefined): HelpArticle[] {
   return ARTICLES.filter((a) => role !== undefined && a.roles.includes(role as HelpArticle["roles"][number]));

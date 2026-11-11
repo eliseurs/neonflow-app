@@ -11,7 +11,7 @@ import { HelpPage } from "./pages/HelpPage";
  * Abas que ainda não têm artigo (segundo lote). Ao escrever o artigo, tire a rota daqui:
  * o teste falha se uma rota estiver aqui e também tiver artigo, ou se não estiver em lugar nenhum.
  */
-const PENDING = ["/central", "/frota", "/clientes", "/parceiros", "/repasses", "/usuarios"];
+const PENDING: string[] = [];
 
 const loginAs = (role: string) =>
   useAuthStore.setState({ token: "t", expiresAt: "2099-01-01T00:00:00Z", user: { id: "u1", name: "Teste", email: "t@neonflow.test", role } } as never);
@@ -46,8 +46,10 @@ describe("central de ajuda: cobertura", () => {
 
 describe("central de ajuda: acesso e contexto", () => {
   it("cada papel vê só os artigos dos fluxos que usa", () => {
-    expect(articlesFor("central").map((a) => a.slug)).toEqual(["reservas", "transfer"]);
-    expect(articlesFor("legal_reviewer").map((a) => a.slug)).toEqual(["contratos"]);
+    expect(articlesFor("central").map((a) => a.slug)).toEqual([
+      "visao-geral", "reservas", "transfer", "frota", "clientes-parceiros", "repasses", "usuarios", "novidades",
+    ]);
+    expect(articlesFor("legal_reviewer").map((a) => a.slug)).toEqual(["contratos", "usuarios", "novidades"]);
     expect(articlesFor(undefined)).toEqual([]);
   });
 
@@ -57,6 +59,8 @@ describe("central de ajuda: acesso e contexto", () => {
     expect(articleForPath("/contratos/versoes/v1", "admin")?.slug).toBe("contratos");
     expect(articleForPath("/contratos", "central")).toBeUndefined();
     expect(articleForPath("/reservasx", "admin")).toBeUndefined();
+    expect(articleForPath("/central", "central")?.slug).toBe("visao-geral");
+    expect(articleForPath("/parceiros", "admin")?.slug).toBe("clientes-parceiros");
   });
 
   it("índice lista os artigos do papel", () => {
@@ -65,6 +69,14 @@ describe("central de ajuda: acesso e contexto", () => {
     expect(screen.getByRole("link", { name: /Reservas \(aluguel sem motorista\)/ })).toHaveAttribute("href", "/ajuda/reservas");
     expect(screen.getByRole("link", { name: /^Transfer/ })).toHaveAttribute("href", "/ajuda/transfer");
     expect(screen.queryByText("Contratos e termos")).toBeNull();
+    expect(screen.getByRole("link", { name: /^Novidades/ })).toHaveAttribute("href", "/ajuda/novidades");
+  });
+
+  it("atalhos só para as telas que o papel abre", () => {
+    loginAs("central");
+    renderPage(<HelpArticlePage />, { path: "/ajuda/:slug", route: "/ajuda/usuarios" });
+    expect(screen.getByRole("heading", { name: "Usuários e acesso" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Abrir usuarios" })).toBeNull();
   });
 
   it("artigo mostra etapas, passo a passo, dúvidas e regras", () => {

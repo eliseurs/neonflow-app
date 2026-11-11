@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-11] — Central de ajuda (segundo lote) e repasses com percentual a definir
+
+- Artigos de **Visão geral**, **Frota**, **Clientes e parceiros**, **Repasses e comissões**, **Usuários e acesso** e **Novidades** (o que mudou, em linguagem de quem usa). `PENDING` de `help.test.tsx` ficou vazio: toda aba do menu tem artigo.
+- Artigo mostra atalhos "Abrir…" só para telas que o papel abre.
+- Repasses: item com "Percentual a definir" agora mostra **Marcar como pago**. A confirmação busca o parceiro (`partnersService.get`) e mostra o valor que a API vai gravar (`expectedAmount`, mesma conta de `payout.Amount`); sem percentual no parceiro, avisa e leva a Parceiros, sem deixar marcar. Antes o item ficava travado na tela mesmo com o percentual definido depois.
+
+---
+
 ## [2026-11-11] — Central de ajuda (primeiro lote)
 
 - Módulo `help`: `/ajuda` lista os artigos do papel; `/ajuda/:slug` mostra etapas (diagrama), passo a passo, o que o sistema bloqueia, dúvidas comuns e as RN de origem. Artigos de **Reservas**, **Transfer** e **Contratos e termos**, escritos com os nomes reais de botões e etapas.
