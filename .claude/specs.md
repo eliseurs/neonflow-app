@@ -11,6 +11,13 @@
 
 ---
 
+## [2026-11-08] — Ordem de Locação no aceite do cliente
+
+- `/termos/:token`: com a Ordem 04 publicada na API, a página mostra a Ordem (título, versão, hash e texto) e o quadro da reserva com local, caução e quilometragem; a caixa é desmarcada por padrão e o aceite envia versão, hash do texto e do quadro e a confirmação (`termsService.acceptOrder`). Sem Ordem publicada, segue com os termos antigos.
+- Painel da reserva: o aceite diz se foi da Ordem de Locação ou dos termos.
+
+---
+
 ## [2026-11-08] — Rótulo do papel jurídico no menu
 
 - O menu lateral mostra "Jurídico" para o papel `legal_reviewer` da API (RN-08.4), em vez do código do papel. A lista de usuários continua só com admin e central: a conta da advogada ficou para depois.

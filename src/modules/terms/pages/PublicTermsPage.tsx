@@ -8,13 +8,17 @@ import { Field, inputClass } from "@/shared/ui/Field";
 import { ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { termsService } from "../services/terms.service";
 
-/** Página pública (sem login) em que o cliente lê e aceita os termos da reserva (RN-02.3). */
+/** Página pública (sem login) em que o cliente lê e aceita a Ordem de Locação publicada ou, sem ela, os termos (RN-02.3). */
 export function PublicTermsPage() {
   const { token = "" } = useParams();
   const page = useQuery({ queryKey: ["public-terms", token], queryFn: () => termsService.public(token), retry: false });
   const [name, setName] = useState("");
   const [agree, setAgree] = useState(false);
-  const accept = useMutation({ mutationFn: () => termsService.accept(token, name, page.data!.terms.version) });
+  const order = page.data?.order ?? null;
+  const accept = useMutation({
+    mutationFn: () =>
+      order ? termsService.acceptOrder(token, name, order, page.data!.quadro_sha256) : termsService.accept(token, name, page.data!.terms!.version),
+  });
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -36,16 +40,36 @@ export function PublicTermsPage() {
               <p className="text-sm text-bone/70">
                 Retirada {formatDateTime(page.data.start_at)} · devolução {formatDateTime(page.data.end_at)}
               </p>
+              {page.data.place && <p className="text-sm text-bone/70">Local: {page.data.place}</p>}
               <p className="text-sm text-bone/70">Valor da reserva: {formatCents(page.data.total_cents)}</p>
+              {page.data.deposit_cents !== null && <p className="text-sm text-bone/70">Caução: {formatCents(page.data.deposit_cents)}</p>}
+              <p className="text-sm text-bone/70">
+                {page.data.km_limit_per_day === null
+                  ? "Quilometragem livre"
+                  : `Quilometragem: ${page.data.km_limit_per_day} km por dia${page.data.extra_km_cents !== null ? `, excedente ${formatCents(page.data.extra_km_cents)} por km` : ""}`}
+              </p>
             </Panel>
             <Panel className="p-6">
-              <h2 className="font-serif text-2xl font-light">Termos (versão {page.data.terms.version})</h2>
-              <div className="mt-4 max-h-[50vh] overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-bone/85">{page.data.terms.body}</div>
+              {order ? (
+                <>
+                  <h2 className="font-serif text-2xl font-light">
+                    {order.title} (versão {order.version})
+                  </h2>
+                  <p className="mt-1 break-all font-mono text-[11px] text-bone/45">SHA-256 {order.sha256}</p>
+                  <div className="mt-4 max-h-[50vh] overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-bone/85">{order.body}</div>
+                </>
+              ) : (
+                <>
+                  <h2 className="font-serif text-2xl font-light">Termos (versão {page.data.terms!.version})</h2>
+                  <div className="mt-4 max-h-[50vh] overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-bone/85">{page.data.terms!.body}</div>
+                </>
+              )}
             </Panel>
             {done ? (
               <Panel className="p-6">
                 <p className="text-emerald-200" role="status">
-                  Termos aceitos por <strong>{done.typed_name}</strong> em {formatDateTime(done.accepted_at)}. Obrigado! A central já foi avisada.
+                  {done.document === "ordem_04" ? "Ordem de Locação aceita" : "Termos aceitos"} por <strong>{done.typed_name}</strong> em{" "}
+                  {formatDateTime(done.accepted_at)}. Obrigado! A central já foi avisada.
                 </p>
               </Panel>
             ) : (
@@ -55,11 +79,11 @@ export function PublicTermsPage() {
                 </Field>
                 <label className="flex items-start gap-3 text-sm text-bone/85">
                   <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-1 h-4 w-4 accent-[#C9A86A]" />
-                  Li e aceito os termos do aluguel acima.
+                  {order ? "Li a íntegra da Ordem de Locação acima e aceito as suas condições e os dados da reserva." : "Li e aceito os termos do aluguel acima."}
                 </label>
                 {accept.isError && <ErrorNote>{apiErrorMessage(accept.error, "Não foi possível registrar o aceite.")}</ErrorNote>}
                 <Button type="submit" disabled={!agree || name.trim().length < 3 || accept.isPending}>
-                  {accept.isPending ? "Registrando..." : "Aceitar os termos"}
+                  {accept.isPending ? "Registrando..." : order ? "Aceitar a Ordem de Locação" : "Aceitar os termos"}
                 </Button>
               </form>
             )}
