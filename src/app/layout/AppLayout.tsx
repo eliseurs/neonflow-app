@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { KeyRound, LogOut } from "lucide-react";
+import { HelpCircle, KeyRound, LifeBuoy, LogOut } from "lucide-react";
 import { useState } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/modules/auth/services/auth.service";
+import { articleForPath } from "@/modules/help/content";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { cn } from "@/shared/lib/cn";
 import { ChangePasswordForm } from "@/modules/users/components/ChangePasswordForm";
@@ -39,6 +40,8 @@ export function AppLayout() {
   };
 
   const groups = navFor(user?.role);
+  // Ajuda no contexto: o artigo do fluxo desta tela, se houver.
+  const help = articleForPath(useLocation().pathname, user?.role);
   const link = ({ to, label, icon: Icon }: NavItem) => (
     <NavLink key={to} to={to} end={to === "/central"} className={navClass}>
       <Icon className="h-4 w-4" aria-hidden />
@@ -64,10 +67,19 @@ export function AppLayout() {
         <div className="border-t border-white/[0.08] pt-6">
           <p className="truncate px-2 font-serif text-lg font-light">{user?.name ?? "—"}</p>
           <p className="truncate px-2 text-[10px] uppercase tracking-[0.2em] text-bone/45">{user ? ROLE_LABEL[user.role] ?? user.role : ""}</p>
+          {/* Ajuda fica no rodapé fixo do menu: sempre visível, em qualquer altura de tela. */}
+          <NavLink
+            to="/ajuda"
+            className={({ isActive }) =>
+              cn("mt-4 flex items-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] hover:text-gold", isActive ? "text-gold" : "text-bone/60")
+            }
+          >
+            <LifeBuoy className="h-4 w-4" aria-hidden /> Ajuda
+          </NavLink>
                     <button
             type="button"
             onClick={() => setChangingPassword(true)}
-            className="mt-4 flex items-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-bone/60 hover:text-gold"
+            className="mt-3 flex items-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-bone/60 hover:text-gold"
           >
             <KeyRound className="h-4 w-4" aria-hidden /> Trocar senha
           </button>
@@ -88,6 +100,9 @@ export function AppLayout() {
               <Wordmark />
             </Link>
                         <div className="flex items-center">
+              <Link to="/ajuda" aria-label="Ajuda" className="p-2 text-bone/60 hover:text-gold">
+                <LifeBuoy className="h-5 w-5" aria-hidden />
+              </Link>
               <button type="button" onClick={() => setChangingPassword(true)} aria-label="Trocar senha" className="p-2 text-bone/60 hover:text-gold">
                 <KeyRound className="h-5 w-5" aria-hidden />
               </button>
@@ -101,6 +116,13 @@ export function AppLayout() {
           </nav>
         </header>
                 <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 md:px-10 md:py-12">
+          {help && (
+            <div className="mb-4 flex justify-end">
+              <Link to={`/ajuda/${help.slug}`} className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-bone/55 hover:text-gold">
+                <HelpCircle className="h-4 w-4" aria-hidden /> Ajuda desta tela
+              </Link>
+            </div>
+          )}
           <Outlet />
         </main>
         {changingPassword && (

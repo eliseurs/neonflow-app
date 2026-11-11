@@ -2,6 +2,15 @@
 
 ---
 
+## [2026-11-11] — Central de ajuda (primeiro lote)
+
+- Módulo `help`: `/ajuda` lista os artigos do papel; `/ajuda/:slug` mostra etapas (diagrama), passo a passo, o que o sistema bloqueia, dúvidas comuns e as RN de origem. Artigos de **Reservas**, **Transfer** e **Contratos e termos**, escritos com os nomes reais de botões e etapas.
+- "Ajuda desta tela" no topo de cada tela que tem artigo (`articleForPath`, também nas telas de detalhe). Ajuda no rodapé fixo do menu (sempre visível) e como ícone no topo no celular.
+- Guarda: `help.test.tsx` falha se uma aba do menu não tiver artigo nem estiver em `PENDING` (Visão geral, Frota, Clientes, Parceiros, Repasses e Usuários, segundo lote), ou se uma rota de `PENDING` já tiver artigo.
+- Regra de manutenção em `.claude/rules.md` ("Central de Ajuda") e no protocolo do `CLAUDE.md`.
+
+---
+
 ## [2026-11-10] — Menu por assunto, visão geral revista e contratos editáveis
 
 - Menu lateral em grupos (Visão geral · Operação · Relacionamento · Financeiro · Documentos · Administração), definido em `src/app/layout/nav.ts`. Cada papel vê só as abas que a API libera (a revisora jurídica vê só Contratos) e o login leva à primeira aba do papel (`homeFor`). "Central" passa a se chamar "Visão geral"; no celular as abas seguem em linha.

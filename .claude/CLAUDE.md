@@ -26,7 +26,7 @@
 
 ### Estado atual
 
-Landing pública em `/` (PT/EN, `src/modules/landing`). Painel da central no mesmo visual da landing: login (`POST /auth/login`), sessão com expiração em Zustand persistido, `ProtectedRoute`, layout com sidebar (abas no celular). Central com contadores do dia; frota (lista, cadastro e edição com diária); reservas (lista por etapa, nova pré-reserva pela disponibilidade, detalhe com conferências, avanço de etapa, cancelamento e histórico), parceiros (proprietário, motorista, indicador) com link e QR de indicação; transfer com oferta aos motoristas; repasses; clientes com histórico; fotos do veículo e da reserva; ficha do carro com manutenções e comparativo da frota; página pública do carro (`/carros/:id`); termos e aceite do cliente pelo link (`/termos/:token`, público); contratos com upload das minutas e leitura de cada versão (`/contratos`, só admin); tudo sobre a API (`/api/vehicles`, `/api/bookings`, `/api/availability`, `/api/partners`). A landing guarda `?ref=CÓDIGO` na visita e manda "Indicação: CÓDIGO" no WhatsApp.
+Landing pública em `/` (PT/EN, `src/modules/landing`). Painel da central no mesmo visual da landing: login (`POST /auth/login`), sessão com expiração em Zustand persistido, `ProtectedRoute`, layout com sidebar (abas no celular). Central com contadores do dia; frota (lista, cadastro e edição com diária); reservas (lista por etapa, nova pré-reserva pela disponibilidade, detalhe com conferências, avanço de etapa, cancelamento e histórico), parceiros (proprietário, motorista, indicador) com link e QR de indicação; transfer com oferta aos motoristas; repasses; clientes com histórico; fotos do veículo e da reserva; ficha do carro com manutenções e comparativo da frota; página pública do carro (`/carros/:id`); termos e aceite do cliente pelo link (`/termos/:token`, público); central de ajuda por fluxo (`/ajuda`, link "Ajuda desta tela" em cada tela); contratos com upload das minutas e leitura de cada versão (`/contratos`, só admin); tudo sobre a API (`/api/vehicles`, `/api/bookings`, `/api/availability`, `/api/partners`). A landing guarda `?ref=CÓDIGO` na visita e manda "Indicação: CÓDIGO" no WhatsApp.
 
 ## Comandos úteis
 
@@ -49,3 +49,4 @@ Para rodar com a API local: `cd ../neonflow-api && make up`, depois `npm run dev
 2. Fazer as alterações seguindo os padrões
 3. Rodar `make check` (o CI do GitHub roda o mesmo, mais o build, em todo PR: `.github/workflows/ci.yml`)
 4. Atualizar `.claude/specs.md` com o que foi alterado
+5. Se o fluxo que o usuário vê mudou, atualizar o artigo da Ajuda (`src/modules/help/content/`) no mesmo PR (`.claude/rules.md`, "Central de Ajuda")
