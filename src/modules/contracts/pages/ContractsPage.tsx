@@ -84,7 +84,7 @@ function ContractRow({ doc }: { doc: ContractDocument }) {
           </span>{" "}
           ·{" "}
           <Link to={`/contratos/versoes/${doc.latest.id}`} className="text-gold hover:underline">
-            Ver texto
+            Abrir · baixar · editar
           </Link>
         </p>
       )}

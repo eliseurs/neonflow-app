@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, Car, Contact, FileText, Handshake, KeyRound, LayoutDashboard, LogOut, Plane, ScrollText, Users, Wallet } from "lucide-react";
+import { KeyRound, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { authService } from "@/modules/auth/services/auth.service";
@@ -8,19 +8,7 @@ import { cn } from "@/shared/lib/cn";
 import { ChangePasswordForm } from "@/modules/users/components/ChangePasswordForm";
 import { Wordmark } from "@/shared/ui/Brand";
 import { Dialog } from "@/shared/ui/Dialog";
-
-const NAV = [
-  { to: "/central", label: "Central", icon: LayoutDashboard },
-  { to: "/reservas", label: "Reservas", icon: CalendarDays },
-          { to: "/transfers", label: "Transfer", icon: Plane },
-  { to: "/clientes", label: "Clientes", icon: Contact },
-  { to: "/frota", label: "Frota", icon: Car },
-    { to: "/parceiros", label: "Parceiros", icon: Handshake },
-  { to: "/repasses", label: "Repasses", icon: Wallet },
-    { to: "/usuarios", label: "Usuários", icon: Users, adminOnly: true },
-  { to: "/termos", label: "Termos", icon: FileText, adminOnly: true },
-  { to: "/contratos", label: "Contratos", icon: ScrollText, adminOnly: true },
-];
+import { homeFor, navFor, type NavItem } from "./nav";
 
 const ROLE_LABEL: Record<string, string> = { admin: "Administração", central: "Central", legal_reviewer: "Jurídico" };
 
@@ -50,22 +38,28 @@ export function AppLayout() {
     navigate("/login", { replace: true });
   };
 
-    const links = NAV.filter((n) => !n.adminOnly || user?.role === "admin").map(({ to, label, icon: Icon }) => (
+  const groups = navFor(user?.role);
+  const link = ({ to, label, icon: Icon }: NavItem) => (
     <NavLink key={to} to={to} end={to === "/central"} className={navClass}>
       <Icon className="h-4 w-4" aria-hidden />
       {label}
     </NavLink>
-  ));
+  );
 
   return (
     <div className="flex min-h-screen bg-noir font-sans text-bone">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/[0.08] px-5 py-8 md:flex">
-        <Link to="/central" aria-label="Neon Flow — Central" className="px-2">
+        <Link to={homeFor(user?.role)} aria-label="Neon Flow — início" className="px-2">
           <Wordmark />
         </Link>
         <p className="mt-2 px-2 text-[10px] uppercase tracking-[0.24em] text-gold/80">Central de mobilidade</p>
-        <nav className="mt-12 flex flex-1 flex-col gap-1" aria-label="Navegação principal">
-          {links}
+        <nav className="mt-10 flex flex-1 flex-col gap-5 overflow-y-auto" aria-label="Navegação principal">
+          {groups.map((g) => (
+            <div key={g.title || "inicio"} className="flex flex-col gap-1">
+              {g.title && <p className="px-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-bone/35">{g.title}</p>}
+              {g.items.map(link)}
+            </div>
+          ))}
         </nav>
         <div className="border-t border-white/[0.08] pt-6">
           <p className="truncate px-2 font-serif text-lg font-light">{user?.name ?? "—"}</p>
@@ -90,7 +84,7 @@ export function AppLayout() {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-noir/85 backdrop-blur md:hidden">
           <div className="flex items-center justify-between px-4 py-3">
-            <Link to="/central" aria-label="Neon Flow — Central">
+            <Link to={homeFor(user?.role)} aria-label="Neon Flow — início">
               <Wordmark />
             </Link>
                         <div className="flex items-center">
@@ -103,7 +97,7 @@ export function AppLayout() {
             </div>
           </div>
           <nav className="flex gap-1 overflow-x-auto px-3 pb-3" aria-label="Navegação">
-            {links}
+            {groups.flatMap((g) => g.items).map(link)}
           </nav>
         </header>
                 <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 md:px-10 md:py-12">

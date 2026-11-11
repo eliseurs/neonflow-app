@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-10] — Menu por assunto, visão geral revista e contratos editáveis
+
+- Menu lateral em grupos (Visão geral · Operação · Relacionamento · Financeiro · Documentos · Administração), definido em `src/app/layout/nav.ts`. Cada papel vê só as abas que a API libera (a revisora jurídica vê só Contratos) e o login leva à primeira aba do papel (`homeFor`). "Central" passa a se chamar "Visão geral"; no celular as abas seguem em linha.
+- Visão geral em blocos: **Precisa de atenção** (devoluções atrasadas com cliente e hora, transfers sem motorista, pré-reservas sem pagamento, carros aguardando checklist, ou "tudo em dia"); **Frota agora** (carros alugados, atrasados na devolução em destaque, disponíveis de X ativos, manutenção); **Hoje** (retiradas, devoluções, transfers, pré-reservas); **Mês** (faturamento, ocupação, a pagar a parceiros). Na lista "Carros na rua" os atrasados vêm primeiro. Contas em `dashboard/model/overview.ts`, sem regra nova: só contagem do que a API já devolve (`payoutsService.pending` usa `/payouts?status=pendente`).
+- Contratos: na versão, **Baixar .md**, **Editar texto** (admin; salva como versão nova, a atual não muda) e **Andamento** com os botões possíveis para a situação e o papel (enviar, pedir ajustes e revogar com justificativa, aprovar com a confirmação do hash, liberar, publicar).
+
+---
+
 ## [2026-11-10] — Logo novo (nepo/resources/novo_logo.jpg)
 
 - Símbolo, símbolo para fundo claro, ícone completo e favicon vetorizados da arte nova (potrace sobre a máscara do dourado), no lugar do redesenho aproximado de 05/11. O ícone completo (`/brand/neonflow-icone-app.svg`) leva moldura, símbolo e "neon flow" em curvas, sem depender de fonte.

@@ -8,11 +8,12 @@ import { Accent, Overline } from "@/shared/ui/Heading";
 import { ErrorNote } from "@/shared/ui/Panel";
 import { authService } from "../services/auth.service";
 import { useAuthStore } from "../store/auth.store";
+import { homeFor } from "@/app/layout/nav";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setSession, isAuthenticated } = useAuthStore();
+  const { setSession, isAuthenticated, user } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,13 +21,13 @@ export function LoginPage() {
     mutationFn: authService.login,
     onSuccess: (res) => {
       setSession(res.token, res.expires_at, res.user);
-      const from = (location.state as { from?: string } | null)?.from ?? "/central";
+      const from = (location.state as { from?: string } | null)?.from ?? homeFor(res.user.role);
       navigate(from, { replace: true });
     },
   });
 
   if (isAuthenticated()) {
-    return <Navigate to="/central" replace />;
+    return <Navigate to={homeFor(user?.role)} replace />;
   }
 
   const submit = (e: FormEvent) => {

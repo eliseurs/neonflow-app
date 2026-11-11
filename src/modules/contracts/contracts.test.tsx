@@ -1,16 +1,23 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { renderPage } from "@/test/render";
-import type { ContractDocument, ContractVersion } from "./model/contract.types";
+import { actionsFor, downloadName, type ContractDocument, type ContractVersion } from "./model/contract.types";
 import { ContractsPage } from "./pages/ContractsPage";
 import { ContractVersionPage } from "./pages/ContractVersionPage";
 import { contractService } from "./services/contract.service";
 
 vi.mock("./services/contract.service", () => ({
-  contractService: { list: vi.fn(), versions: vi.fn(), createVersion: vi.fn(), version: vi.fn() },
+  contractService: { list: vi.fn(), versions: vi.fn(), createVersion: vi.fn(), version: vi.fn(), addEvent: vi.fn() },
 }));
 
-beforeEach(() => vi.resetAllMocks());
+const loginAs = (role: string) =>
+  useAuthStore.setState({ token: "t", expiresAt: "2099-01-01T00:00:00Z", user: { id: "u1", name: "Admin Teste", email: "a@neonflow.test", role } } as never);
+
+beforeEach(() => {
+  vi.resetAllMocks();
+  useAuthStore.setState({ token: null, expiresAt: null, user: null });
+});
 
 const sha = "183697cf9a2df2038bda43f77c144d974d4a3d203119d3d4c47c3fa46737adb6";
 const docs: ContractDocument[] = [
@@ -37,7 +44,7 @@ describe("Contratos", () => {
     expect(screen.getByText("Em revisão")).toBeInTheDocument();
     expect(screen.getByText(/Versão 1 \(v0.4\)/)).toBeInTheDocument();
     expect(screen.getByText("183697cf9a2d…")).toHaveAttribute("title", sha);
-    expect(screen.getByRole("link", { name: "Ver texto" })).toHaveAttribute("href", "/contratos/versoes/v4");
+    expect(screen.getByRole("link", { name: "Abrir · baixar · editar" })).toHaveAttribute("href", "/contratos/versoes/v4");
   });
 
   it("envia o arquivo do contrato como versão nova, com o rótulo", async () => {
@@ -90,5 +97,71 @@ describe("Contratos", () => {
     expect(screen.getByText(/Aprovado · Admin Teste \(admin\) · ok/)).toBeInTheDocument();
     expect(screen.getByText(/Cláusula 4.2 · correção/)).toBeInTheDocument();
     expect(screen.getByText(/Redação proposta: Em até \[X\] dias/)).toBeInTheDocument();
+  });
+
+  const minuta: ContractVersion = {
+    id: "v4", version: 1, label: "v0.4", sha256: sha, status: "minuta", created_at: "2026-11-08T14:00:00-03:00",
+    document_code: "04", document_title: "Ordem de Locação de Veículo sem Motorista", body: "1.1. Texto original", events: [], comments: [],
+  };
+
+  it("baixa o texto da versão como .md", async () => {
+    vi.mocked(contractService.version).mockResolvedValue(minuta);
+    const create = vi.fn(() => "blob:x");
+    const revoke = vi.fn();
+    Object.assign(URL, { createObjectURL: create, revokeObjectURL: revoke });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    renderPage(<ContractVersionPage />, { path: "/contratos/versoes/:id", route: "/contratos/versoes/v4" });
+    fireEvent.click(await screen.findByRole("button", { name: /Baixar .md/ }));
+    expect(create).toHaveBeenCalledTimes(1);
+    expect((click.mock.instances[0] as unknown as HTMLAnchorElement).download).toBe("contrato-04-v1-v0.4.md");
+    expect(revoke).toHaveBeenCalledWith("blob:x");
+    click.mockRestore();
+  });
+
+  it("admin edita o texto no sistema e salva como nova versão", async () => {
+    loginAs("admin");
+    vi.mocked(contractService.version).mockResolvedValue(minuta);
+    vi.mocked(contractService.createVersion).mockResolvedValue({ id: "v5", version: 2, label: "v0.5", sha256: sha, status: "minuta", created_at: "" });
+    renderPage(<ContractVersionPage />, { path: "/contratos/versoes/:id", route: "/contratos/versoes/v4" });
+    fireEvent.click(await screen.findByRole("button", { name: /Editar texto/ }));
+    const save = screen.getByRole("button", { name: "Salvar como nova versão" });
+    expect(save).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Texto do contrato"), { target: { value: "1.1. Texto corrigido" } });
+    fireEvent.change(screen.getByLabelText("Rótulo da nova versão (opcional)"), { target: { value: "v0.5" } });
+    fireEvent.click(save);
+    await waitFor(() => expect(contractService.createVersion).toHaveBeenCalledWith("04", "v0.5", "1.1. Texto corrigido"));
+    // Vai para a versão nova.
+    await waitFor(() => expect(contractService.version).toHaveBeenCalledWith("v5"));
+  });
+
+  it("revisora não vê edição; a aprovação exige a confirmação e manda o hash", async () => {
+    loginAs("legal_reviewer");
+    vi.mocked(contractService.version).mockResolvedValue({ ...minuta, status: "enviado_para_revisao" });
+    vi.mocked(contractService.addEvent).mockResolvedValue({
+      id: "e1", action: "aprovar", status: "aprovado_pela_revisora", note: "", sha256: sha, user_id: "u1", user_name: "Revisora", role: "legal_reviewer", created_at: "",
+    });
+    renderPage(<ContractVersionPage />, { path: "/contratos/versoes/:id", route: "/contratos/versoes/v4" });
+    const approve = await screen.findByRole("button", { name: "Aprovar esta versão" });
+    expect(screen.queryByRole("button", { name: /Editar texto/ })).toBeNull();
+    expect(approve).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Pedir ajustes" })).toBeDisabled();
+    fireEvent.click(screen.getByLabelText(/Li a íntegra da versão 1/));
+    fireEvent.click(approve);
+    await waitFor(() =>
+      expect(contractService.addEvent).toHaveBeenCalledWith("v4", { action: "aprovar", note: "", sha256: sha, confirm: true }),
+    );
+  });
+
+  it("mostra só as ações possíveis para a situação e o papel", () => {
+    const names = (status: Parameters<typeof actionsFor>[0], role?: string) => actionsFor(status, role).map((a) => a.action);
+    expect(names("minuta", "admin")).toEqual(["enviar"]);
+    expect(names("minuta", "legal_reviewer")).toEqual([]);
+    expect(names("enviado_para_revisao", "admin")).toEqual(["aprovar", "solicitar_ajustes"]);
+    expect(names("aprovado_pela_revisora", "legal_reviewer")).toEqual(["revogar"]);
+    expect(names("liberacao_administrativa", "admin")).toEqual(["publicar", "revogar"]);
+    expect(names("publicado", "admin")).toEqual([]);
+    expect(names("minuta", "central")).toEqual([]);
+    expect(downloadName({ document_code: "01", version: 3, label: " v 0.6/final " })).toBe("contrato-01-v3-v-0.6-final.md");
+    expect(downloadName({ document_code: "02", version: 1, label: "" })).toBe("contrato-02-v1.md");
   });
 });
