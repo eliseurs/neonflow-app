@@ -15,7 +15,7 @@ export function HelpPage() {
         overline="Ajuda"
         title="Como o sistema"
         accent="funciona."
-        description="Cada fluxo passo a passo: o que fazer, o que o sistema bloqueia e por quê. Em cada tela, o link Ajuda desta tela abre o artigo certo."
+        description="Cada fluxo passo a passo: o que fazer, o que o sistema bloqueia e por quê. Em cada tela, o link Ajuda desta tela (o ? no celular) abre o artigo certo."
       />
       <div className="grid gap-4 md:grid-cols-2">
         {list.map((a) => (

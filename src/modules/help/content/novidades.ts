@@ -7,8 +7,15 @@ export const novidades: HelpArticle = {
   summary: "O que mudou no painel, em poucas palavras, do mais recente para o mais antigo.",
   routes: [],
   roles: ["admin", "central", "legal_reviewer"],
-  updated: "2026-11-11",
+  updated: "2026-11-12",
   sections: [
+    {
+      title: "12/11/2026",
+      items: [
+        "Menu mais compacto no computador: cabe na tela sem rolar, e cada grupo abre e fecha no título (o painel lembra o que você fechou).",
+        "No celular, as telas principais ficam numa barra fixa embaixo; o resto, a ajuda, a senha e o sair ficam em Menu.",
+      ],
+    },
     {
       title: "11/11/2026",
       items: [
