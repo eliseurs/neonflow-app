@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/shared/lib/cn";
 import { isActiveRoute, navFor, type NavItem } from "./nav";
@@ -31,11 +31,28 @@ interface Props {
   onNavigate?: () => void;
 }
 
-/** Abas por assunto em acordeão. O grupo da tela atual fica sempre aberto. */
+/**
+ * Abas por assunto em acordeão. Todo grupo abre e fecha no título. Ao navegar para uma tela de um grupo
+ * fechado, ele abre sozinho; fechado com a tela atual dentro, o título fica dourado.
+ */
 export function NavGroups({ role, size, onNavigate }: Props) {
   const path = useLocation().pathname;
   const [closed, setClosed] = useState<string[]>(readClosed);
   const touch = size === "touch";
+  const groups = navFor(role);
+
+  // Só na troca de tela (não ao carregar): abre o grupo da tela nova, se estiver fechado.
+  const lastPath = useRef(path);
+  useEffect(() => {
+    if (lastPath.current === path) return;
+    lastPath.current = path;
+    const g = groups.find((x) => x.title && x.items.some((i) => isActiveRoute(i, path)));
+    if (g && closed.includes(g.title)) {
+      const next = closed.filter((t) => t !== g.title);
+      setClosed(next);
+      writeClosed(next);
+    }
+  }, [path, groups, closed]);
 
   const toggle = (title: string) => {
     const next = closed.includes(title) ? closed.filter((t) => t !== title) : [...closed, title];
@@ -64,26 +81,26 @@ export function NavGroups({ role, size, onNavigate }: Props) {
 
   return (
     <div className={cn("flex flex-col", touch ? "gap-4" : "gap-2")}>
-      {navFor(role).map((g) => {
+      {groups.map((g) => {
         if (!g.title) return <div key="inicio" className="flex flex-col gap-0.5">{g.items.map(link)}</div>;
         const current = g.items.some((i) => isActiveRoute(i, path));
-        const open = current || !closed.includes(g.title);
+        const open = !closed.includes(g.title);
         const id = `nav-grupo-${g.title.toLowerCase()}`;
         return (
           <div key={g.title} className="flex flex-col gap-0.5">
             <button
               type="button"
               onClick={() => toggle(g.title)}
-              disabled={current}
               aria-expanded={open}
               aria-controls={id}
               className={cn(
-                "flex items-center justify-between rounded-full text-left font-semibold uppercase text-bone/40 transition enabled:hover:text-bone/70 disabled:cursor-default",
+                "flex items-center justify-between rounded-full text-left font-semibold uppercase transition hover:text-bone/70",
+                current && !open ? "text-gold" : "text-bone/40",
                 touch ? "px-4 py-2 text-[11px] tracking-[0.22em]" : "px-3 py-1 text-[10px] tracking-[0.22em]",
               )}
             >
               {g.title}
-              {!current && <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open ? "rotate-180" : "")} aria-hidden />}
+              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open ? "rotate-180" : "")} aria-hidden />
             </button>
             {open && (
               <div id={id} className="flex flex-col gap-0.5">

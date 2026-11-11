@@ -14,7 +14,7 @@ export const usuarios: HelpArticle = {
         "Administração: tudo, inclusive Contratos, Termos e Usuários.",
         "Central: operação (Visão geral, Reservas, Transfer, Frota, Clientes, Parceiros, Repasses).",
         "Jurídico: só Contratos, para revisar e aprovar as versões.",
-        "O menu mostra a cada papel só o que ele pode abrir. No computador, os grupos abrem e fecham no título (o da tela atual fica sempre aberto). No celular, as telas principais ficam na barra de baixo e o restante em Menu.",
+        "O menu mostra a cada papel só o que ele pode abrir. No computador, os grupos abrem e fecham no título. Ao entrar numa tela de um grupo fechado, ele abre sozinho; fechado com a tela atual dentro, o título fica dourado. No celular, as telas principais ficam na barra de baixo e o restante em Menu.",
       ],
     },
     {
