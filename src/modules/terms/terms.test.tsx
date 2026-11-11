@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderPage } from "@/test/render";
 import { TermsPanel } from "./components/TermsPanel";
-import { termsMessage, type PublicTerms, type TermsOrder } from "./model/terms.types";
+import { suggestedTermsBody, termsMessage, type PublicTerms, type TermsOrder } from "./model/terms.types";
 import { PublicTermsPage } from "./pages/PublicTermsPage";
 import { TermsAdminPage } from "./pages/TermsAdminPage";
 import { termsService } from "./services/terms.service";
@@ -29,16 +29,26 @@ const order: TermsOrder = {
 };
 
 describe("Termos", () => {
-  it("admin publica a primeira versão e depois uma nova", async () => {
+  it("sem versão publicada, abre com as condições do site para revisar e publicar", async () => {
     vi.mocked(termsService.versions).mockResolvedValue([]);
     vi.mocked(termsService.publish).mockResolvedValue({ id: "t1", version: 1, body: "Texto", created_at: "" });
     renderPage(<TermsAdminPage />);
     expect(await screen.findByText(/Nenhuma versão publicada/)).toBeInTheDocument();
+    expect(screen.getByText(/sugestão com as condições do aluguel que o site já mostra/)).toBeInTheDocument();
     const field = screen.getByLabelText("Texto dos termos");
-    expect(screen.getByRole("button", { name: "Publicar" })).toBeDisabled();
+    expect(field).toHaveValue(suggestedTermsBody());
+    // O admin pode publicar como está ou ajustar antes.
     fireEvent.change(field, { target: { value: "Texto do jurídico" } });
     fireEvent.click(screen.getByRole("button", { name: "Publicar" }));
     await waitFor(() => expect(termsService.publish).toHaveBeenCalledWith("Texto do jurídico"));
+  });
+
+  it("texto sugerido traz as condições do aluguel do site, numeradas", () => {
+    const body = suggestedTermsBody();
+    expect(body.split("\n")[0]).toBe("Condições do aluguel sem motorista");
+    expect(body).toContain("1. Condutor com 21 anos ou mais e habilitação há pelo menos 1 ano.");
+    expect(body).toContain("Cancelamento grátis até 48 horas antes da retirada.");
+    expect(body).not.toContain("Transfer");
   });
 
   it("admin vê a versão atual e as anteriores", async () => {

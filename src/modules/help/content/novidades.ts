@@ -12,6 +12,7 @@ export const novidades: HelpArticle = {
     {
       title: "12/11/2026",
       items: [
+        "Termos: sem versão publicada, a aba abre preenchida com as condições do aluguel do site, para revisar e publicar.",
         "Menu mais compacto no computador: cabe na tela sem rolar, e cada grupo abre e fecha no título (o painel lembra o que você fechou).",
         "Qualquer grupo do menu pode ser fechado, inclusive o da tela atual; ao entrar numa tela de um grupo fechado, ele abre sozinho.",
         "No celular, as telas principais ficam numa barra fixa embaixo; o resto, a ajuda, a senha e o sair ficam em Menu.",

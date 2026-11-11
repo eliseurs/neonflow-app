@@ -6,7 +6,7 @@ export const contratos: HelpArticle = {
   summary: "Os seis contratos do Neon Flow em versões com hash: cada mudança de texto é uma versão nova, revisada e aprovada pelo hash exato antes de ser liberada e publicada.",
   routes: ["/contratos", "/termos"],
   roles: ["admin", "legal_reviewer"],
-  updated: "2026-11-11",
+  updated: "2026-11-12",
   flow: [
     { label: "Minuta", detail: "Versão nova, ainda não enviada." },
     { label: "Em revisão", detail: "Enviada para a revisão jurídica." },
@@ -63,7 +63,7 @@ export const contratos: HelpArticle = {
       title: "O que a publicação muda",
       items: [
         "Ordem 04 publicada: o link de aceite das reservas passa a mostrar a Ordem de Locação e um quadro com os dados da reserva. O cliente marca a caixa e digita o nome, e o aceite guarda a versão, o hash do texto e do quadro.",
-        "Sem Ordem 04 publicada, o link mostra os Termos do aluguel (aba Termos). Cada texto publicado lá vira uma versão, e o aceite registra qual o cliente leu.",
+        "Sem Ordem 04 publicada, o link mostra os Termos do aluguel (aba Termos). Cada texto publicado lá vira uma versão, e o aceite registra qual o cliente leu. Sem nenhuma versão, a aba Termos abre com as condições do aluguel que o site já mostra, para revisar e publicar.",
         "Se o texto publicado ou os dados da reserva mudarem depois que o cliente abriu o link, o aceite é recusado e ele precisa recarregar a página.",
       ],
     },

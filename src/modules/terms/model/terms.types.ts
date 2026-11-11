@@ -1,4 +1,6 @@
 // Espelha internal/domain/terms da API (RN-02.3, q38).
+import { content } from "@/modules/landing/model/landing.content";
+
 export interface TermsVersion {
   id: string;
   version: number;
@@ -53,4 +55,13 @@ export interface PublicTerms {
 export function termsMessage(clientName: string, url: string): string {
   const first = clientName.trim().split(/\s+/)[0] || "";
   return `Olá${first ? `, ${first}` : ""}! Aqui é a central da Neon Flow. Para confirmar a sua reserva, leia e aceite os termos do aluguel neste link: ${url}`;
+}
+
+/**
+ * Texto sugerido para a primeira versão dos termos: as condições do aluguel que o site já mostra
+ * (seção "Condições"), para o que o cliente aceita bater com o que ele leu no site. O admin revisa e publica.
+ */
+export function suggestedTermsBody(): string {
+  const rental = content.pt.conditions.rental;
+  return [`Condições do ${rental.title.toLowerCase()}`, "", ...rental.items.map((item, i) => `${i + 1}. ${item}`)].join("\n");
 }

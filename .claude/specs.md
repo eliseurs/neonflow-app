@@ -2,6 +2,13 @@
 
 ---
 
+## [2026-11-12] — Termos preenchidos com as condições do site
+
+- `/termos`: sem versão publicada, o campo abre com `suggestedTermsBody()`, as condições do aluguel sem motorista da seção "Condições" do site (`landing.content`, PT), numeradas, com aviso para revisar antes de publicar. Nada é publicado sozinho: o aceite do cliente continua dependendo do admin clicar em Publicar. A minuta da Ordem 04 não foi usada (não aprovada, com campos em branco).
+- Ajuda: Contratos e termos e Novidades.
+
+---
+
 ## [2026-11-12] — Acordeão: grupo da tela atual também fecha
 
 - O grupo da tela atual ficava travado aberto e sem chevron. Agora todo grupo abre e fecha no título, com o chevron sempre visível. Ao **navegar** para uma tela de um grupo fechado, ele abre sozinho (ao carregar a página, o que foi fechado continua fechado); grupo fechado com a tela atual dentro fica com o título dourado.
