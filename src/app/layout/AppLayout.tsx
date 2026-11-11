@@ -9,20 +9,17 @@ import { cn } from "@/shared/lib/cn";
 import { ChangePasswordForm } from "@/modules/users/components/ChangePasswordForm";
 import { Wordmark } from "@/shared/ui/Brand";
 import { Dialog } from "@/shared/ui/Dialog";
-import { homeFor, navFor, type NavItem } from "./nav";
+import { MobileNav } from "./MobileNav";
+import { NavGroups } from "./NavGroups";
+import { homeFor } from "./nav";
 
 const ROLE_LABEL: Record<string, string> = { admin: "Administração", central: "Central", legal_reviewer: "Jurídico" };
 
-function navClass({ isActive }: { isActive: boolean }) {
-  return cn(
-    "flex items-center gap-3 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition",
-    isActive ? "bg-gold/10 text-gold" : "text-bone/60 hover:text-bone",
-  );
-}
+const footerAction = "flex flex-1 flex-col items-center gap-1 rounded-xl py-2 text-[10px] font-semibold uppercase tracking-[0.14em] transition hover:text-gold";
 
 export function AppLayout() {
   const navigate = useNavigate();
-    const { user, setUser, clear } = useAuthStore();
+  const { user, setUser, clear } = useAuthStore();
   const [changingPassword, setChangingPassword] = useState(false);
 
   useQuery({
@@ -39,85 +36,52 @@ export function AppLayout() {
     navigate("/login", { replace: true });
   };
 
-  const groups = navFor(user?.role);
+  const role = user?.role;
+  const roleLabel = user ? ROLE_LABEL[user.role] ?? user.role : "";
   // Ajuda no contexto: o artigo do fluxo desta tela, se houver.
-  const help = articleForPath(useLocation().pathname, user?.role);
-  const link = ({ to, label, icon: Icon }: NavItem) => (
-    <NavLink key={to} to={to} end={to === "/central"} className={navClass}>
-      <Icon className="h-4 w-4" aria-hidden />
-      {label}
-    </NavLink>
-  );
+  const help = articleForPath(useLocation().pathname, role);
 
   return (
     <div className="flex min-h-screen bg-noir font-sans text-bone">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/[0.08] px-5 py-8 md:flex">
-        <Link to={homeFor(user?.role)} aria-label="Neon Flow — início" className="px-2">
+      {/* Desktop: menu compacto em acordeão; cabe numa tela de notebook sem rolagem. */}
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/[0.08] px-4 py-5 md:flex">
+        <Link to={homeFor(role)} aria-label="Neon Flow — início" className="px-2">
           <Wordmark />
         </Link>
-        <p className="mt-2 px-2 text-[10px] uppercase tracking-[0.24em] text-gold/80">Central de mobilidade</p>
-        <nav className="mt-10 flex flex-1 flex-col gap-5 overflow-y-auto" aria-label="Navegação principal">
-          {groups.map((g) => (
-            <div key={g.title || "inicio"} className="flex flex-col gap-1">
-              {g.title && <p className="px-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-bone/35">{g.title}</p>}
-              {g.items.map(link)}
-            </div>
-          ))}
+        <p className="mt-1.5 px-2 text-[9px] uppercase tracking-[0.24em] text-gold/70">Central de mobilidade</p>
+        <nav className="mt-5 min-h-0 flex-1 overflow-y-auto" aria-label="Navegação principal">
+          <NavGroups role={role} size="compact" />
         </nav>
-        <div className="border-t border-white/[0.08] pt-6">
-          <p className="truncate px-2 font-serif text-lg font-light">{user?.name ?? "—"}</p>
-          <p className="truncate px-2 text-[10px] uppercase tracking-[0.2em] text-bone/45">{user ? ROLE_LABEL[user.role] ?? user.role : ""}</p>
-          {/* Ajuda fica no rodapé fixo do menu: sempre visível, em qualquer altura de tela. */}
-          <NavLink
-            to="/ajuda"
-            className={({ isActive }) =>
-              cn("mt-4 flex items-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] hover:text-gold", isActive ? "text-gold" : "text-bone/60")
-            }
-          >
-            <LifeBuoy className="h-4 w-4" aria-hidden /> Ajuda
-          </NavLink>
-                    <button
-            type="button"
-            onClick={() => setChangingPassword(true)}
-            className="mt-3 flex items-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-bone/60 hover:text-gold"
-          >
-            <KeyRound className="h-4 w-4" aria-hidden /> Trocar senha
-          </button>
-          <button
-            type="button"
-            onClick={logout}
-            className="mt-3 flex items-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-bone/60 hover:text-gold"
-          >
-            <LogOut className="h-4 w-4" aria-hidden /> Sair
-          </button>
+        <div className="border-t border-white/[0.08] pt-3">
+          <p className="truncate px-2 font-serif text-base font-light">{user?.name ?? "—"}</p>
+          <p className="truncate px-2 text-[9px] uppercase tracking-[0.2em] text-bone/45">{roleLabel}</p>
+          <div className="mt-2 flex gap-1">
+            <NavLink to="/ajuda" className={({ isActive }) => cn(footerAction, isActive ? "text-gold" : "text-bone/55")}>
+              <LifeBuoy className="h-4 w-4" aria-hidden /> Ajuda
+            </NavLink>
+            <button type="button" onClick={() => setChangingPassword(true)} className={cn(footerAction, "text-bone/55")} aria-label="Trocar senha">
+              <KeyRound className="h-4 w-4" aria-hidden /> Senha
+            </button>
+            <button type="button" onClick={logout} className={cn(footerAction, "text-bone/55")}>
+              <LogOut className="h-4 w-4" aria-hidden /> Sair
+            </button>
+          </div>
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-noir/85 backdrop-blur md:hidden">
-          <div className="flex items-center justify-between px-4 py-3">
-            <Link to={homeFor(user?.role)} aria-label="Neon Flow — início">
-              <Wordmark />
-            </Link>
-                        <div className="flex items-center">
-              <Link to="/ajuda" aria-label="Ajuda" className="p-2 text-bone/60 hover:text-gold">
-                <LifeBuoy className="h-5 w-5" aria-hidden />
-              </Link>
-              <button type="button" onClick={() => setChangingPassword(true)} aria-label="Trocar senha" className="p-2 text-bone/60 hover:text-gold">
-                <KeyRound className="h-5 w-5" aria-hidden />
-              </button>
-              <button type="button" onClick={logout} aria-label="Sair" className="p-2 text-bone/60 hover:text-gold">
-                <LogOut className="h-5 w-5" aria-hidden />
-              </button>
-            </div>
-          </div>
-          <nav className="flex gap-1 overflow-x-auto px-3 pb-3" aria-label="Navegação">
-            {groups.flatMap((g) => g.items).map(link)}
-          </nav>
+        {/* Celular: topo só com o logo e a ajuda desta tela; a navegação fica na barra de baixo. */}
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/[0.08] bg-noir/85 px-4 py-3 backdrop-blur md:hidden">
+          <Link to={homeFor(role)} aria-label="Neon Flow — início">
+            <Wordmark size="sm" />
+          </Link>
+          <Link to={help ? `/ajuda/${help.slug}` : "/ajuda"} aria-label="Ajuda desta tela" className="p-2 text-bone/60 hover:text-gold">
+            <HelpCircle className="h-5 w-5" aria-hidden />
+          </Link>
         </header>
-                <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 md:px-10 md:py-12">
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-6 md:px-10 md:py-12">
           {help && (
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 hidden justify-end md:flex">
               <Link to={`/ajuda/${help.slug}`} className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-bone/55 hover:text-gold">
                 <HelpCircle className="h-4 w-4" aria-hidden /> Ajuda desta tela
               </Link>
@@ -125,6 +89,7 @@ export function AppLayout() {
           )}
           <Outlet />
         </main>
+        <MobileNav role={role} name={user?.name ?? "—"} roleLabel={roleLabel} onChangePassword={() => setChangingPassword(true)} onLogout={logout} />
         {changingPassword && (
           <Dialog title="Trocar senha" onClose={() => setChangingPassword(false)}>
             <ChangePasswordForm onDone={() => setChangingPassword(false)} />

@@ -50,3 +50,15 @@ export function navFor(role: string | undefined): { title: string; items: NavIte
 export function homeFor(role: string | undefined): string {
   return navFor(role)[0]?.items[0]?.to ?? "/central";
 }
+
+/** Atalhos da barra inferior no celular: as primeiras telas do papel, até `max`. */
+export function primaryFor(role: string | undefined, max = 4): NavItem[] {
+  return navFor(role)
+    .flatMap((g) => g.items)
+    .slice(0, max);
+}
+
+/** O item do menu que corresponde à rota atual (também nas telas de detalhe). */
+export function isActiveRoute(item: Pick<NavItem, "to">, path: string): boolean {
+  return path === item.to || path.startsWith(`${item.to}/`);
+}

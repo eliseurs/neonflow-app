@@ -6,7 +6,7 @@ export const usuarios: HelpArticle = {
   summary: "Quem entra no painel e o que cada papel vê. Não há cadastro aberto: o admin cria os usuários; cada pessoa troca a própria senha.",
   routes: ["/usuarios"],
   roles: ["admin", "central", "legal_reviewer"],
-  updated: "2026-11-11",
+  updated: "2026-11-12",
   sections: [
     {
       title: "Papéis",
@@ -14,7 +14,7 @@ export const usuarios: HelpArticle = {
         "Administração: tudo, inclusive Contratos, Termos e Usuários.",
         "Central: operação (Visão geral, Reservas, Transfer, Frota, Clientes, Parceiros, Repasses).",
         "Jurídico: só Contratos, para revisar e aprovar as versões.",
-        "O menu mostra a cada papel só o que ele pode abrir.",
+        "O menu mostra a cada papel só o que ele pode abrir. No computador, os grupos abrem e fecham no título (o da tela atual fica sempre aberto). No celular, as telas principais ficam na barra de baixo e o restante em Menu.",
       ],
     },
     {
@@ -29,7 +29,7 @@ export const usuarios: HelpArticle = {
     },
     {
       title: "Trocar a própria senha",
-      steps: ["No rodapé do menu (ou no ícone de chave no celular), clique em Trocar senha.", "Informe a senha atual e a nova duas vezes."],
+      steps: ["No computador, clique em Senha no rodapé do menu. No celular, toque em Menu (barra de baixo) e depois em Senha.", "Informe a senha atual e a nova duas vezes."],
     },
   ],
   faq: [

@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-12] — Menu compacto em acordeão e navegação do celular
+
+- Desktop: menu lateral compacto (cabe em 700 px de altura sem rolar) e grupos em acordeão (`NavGroups`): o título abre e fecha o grupo, o grupo da tela atual fica sempre aberto, e os fechados ficam em `localStorage` (`neonflow-nav-fechados`, com fallback se o storage falhar). Rodapé em uma linha: Ajuda · Senha · Sair.
+- Celular (`MobileNav`): barra fixa embaixo com as 4 primeiras telas do papel (`primaryFor`) e **Menu**, que abre um painel de baixo para cima com todos os grupos, a conta, Ajuda, Senha e Sair; fecha ao trocar de tela, ao tocar fora e no Esc. Menu fica destacado quando a tela atual não está na barra. Topo só com logo e "?" (ajuda da tela). A faixa de abas rolando para o lado saiu.
+- Ajuda atualizada: Usuários e acesso (onde trocar a senha, como o menu funciona) e Novidades.
+
+---
+
 ## [2026-11-11] — Central de ajuda (segundo lote) e repasses com percentual a definir
 
 - Artigos de **Visão geral**, **Frota**, **Clientes e parceiros**, **Repasses e comissões**, **Usuários e acesso** e **Novidades** (o que mudou, em linguagem de quem usa). `PENDING` de `help.test.tsx` ficou vazio: toda aba do menu tem artigo.
