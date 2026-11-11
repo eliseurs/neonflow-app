@@ -2,13 +2,13 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderPage } from "@/test/render";
 import { TermsPanel } from "./components/TermsPanel";
-import { termsMessage } from "./model/terms.types";
+import { termsMessage, type PublicTerms, type TermsOrder } from "./model/terms.types";
 import { PublicTermsPage } from "./pages/PublicTermsPage";
 import { TermsAdminPage } from "./pages/TermsAdminPage";
 import { termsService } from "./services/terms.service";
 
 vi.mock("./services/terms.service", () => ({
-  termsService: { versions: vi.fn(), publish: vi.fn(), createLink: vi.fn(), acceptance: vi.fn(), public: vi.fn(), accept: vi.fn() },
+  termsService: { versions: vi.fn(), publish: vi.fn(), createLink: vi.fn(), acceptance: vi.fn(), public: vi.fn(), accept: vi.fn(), acceptOrder: vi.fn() },
 }));
 vi.mock("@/modules/customers/services/customer.service", () => ({
   customerService: { get: () => Promise.resolve({ id: "c1", name: "Ana Teste", whatsapp: "5554999990001" }) },
@@ -16,10 +16,16 @@ vi.mock("@/modules/customers/services/customer.service", () => ({
 
 beforeEach(() => vi.resetAllMocks());
 
-const publicTerms = {
-  client_name: "Ana Teste", vehicle_name: "Jetta Teste", start_at: "2026-12-10T10:00:00-03:00", end_at: "2026-12-12T10:00:00-03:00",
-  total_cents: 30000, terms: { id: "t2", version: 2, body: "1. O condutor...\n2. A caução...", created_at: "" }, accepted: null,
+const publicTerms: PublicTerms = {
+  client_name: "Ana Teste", vehicle_name: "Jetta Teste", place: "", start_at: "2026-12-10T10:00:00-03:00", end_at: "2026-12-12T10:00:00-03:00",
+  total_cents: 30000, deposit_cents: null, km_limit_per_day: null, extra_km_cents: null, quadro_sha256: "q".repeat(64), order: null,
+  terms: { id: "t2", version: 2, body: "1. O condutor...\n2. A caução...", created_at: "" }, accepted: null,
   expires_at: "2026-12-17T10:00:00-03:00",
+};
+
+const order: TermsOrder = {
+  version_id: "cv1", version: 1, label: "v0.4", title: "Ordem de Locação de Veículo sem Motorista",
+  body: "### 1. Objeto e formação\n1.1. O LOCADOR disponibiliza...", sha256: "a".repeat(64),
 };
 
 describe("Termos", () => {
@@ -58,7 +64,7 @@ describe("Termos", () => {
   });
 
   it("na reserva, mostra o aceite registrado", async () => {
-    vi.mocked(termsService.acceptance).mockResolvedValue({ version: 2, typed_name: "Ana Teste", accepted_at: "2026-11-06T15:00:00-03:00" });
+    vi.mocked(termsService.acceptance).mockResolvedValue({ document: "termos", version: 2, typed_name: "Ana Teste", accepted_at: "2026-11-06T15:00:00-03:00" });
     renderPage(<TermsPanel bookingId="b1" clientName="Ana Teste" customerId={null} canSend />);
     expect(await screen.findByText(/Aceitos por/)).toHaveTextContent("Ana Teste em 06/11/2026 15:00 (versão 2)");
     expect(screen.getByRole("button", { name: "Gerar novo link" })).toBeInTheDocument();
@@ -66,7 +72,7 @@ describe("Termos", () => {
 
   it("cliente lê e aceita pelo link, com a versão que leu", async () => {
     vi.mocked(termsService.public).mockResolvedValue(publicTerms);
-    vi.mocked(termsService.accept).mockResolvedValue({ version: 2, typed_name: "Ana Teste", accepted_at: "2026-11-06T15:00:00-03:00" });
+    vi.mocked(termsService.accept).mockResolvedValue({ document: "termos", version: 2, typed_name: "Ana Teste", accepted_at: "2026-11-06T15:00:00-03:00" });
     renderPage(<PublicTermsPage />, { path: "/termos/:token", route: "/termos/abc" });
     expect(await screen.findByText("Jetta Teste")).toBeInTheDocument();
     expect(screen.getByText(/Termos \(versão 2\)/)).toBeInTheDocument();
@@ -79,6 +85,38 @@ describe("Termos", () => {
     fireEvent.click(btn);
     await waitFor(() => expect(termsService.accept).toHaveBeenCalledWith("abc", "Ana Teste", 2));
     expect(await screen.findByRole("status")).toHaveTextContent("Termos aceitos por Ana Teste");
+  });
+
+  it("com a Ordem 04 publicada, o cliente lê a Ordem e o quadro e aceita com versão e hashes", async () => {
+    vi.mocked(termsService.public).mockResolvedValue({
+      ...publicTerms, terms: null, order, place: "Hotel Teste, Gramado", deposit_cents: 35000, km_limit_per_day: 200, extra_km_cents: 150,
+    });
+    vi.mocked(termsService.acceptOrder).mockResolvedValue({
+      document: "ordem_04", version: 1, sha256: order.sha256, typed_name: "Ana Teste", accepted_at: "2026-11-08T15:00:00-03:00",
+    });
+    renderPage(<PublicTermsPage />, { path: "/termos/:token", route: "/termos/abc" });
+    expect(await screen.findByText(/Ordem de Locação de Veículo sem Motorista \(versão 1\)/)).toBeInTheDocument();
+    expect(screen.getByText(/O LOCADOR disponibiliza/)).toBeInTheDocument();
+    expect(screen.getByText(`SHA-256 ${order.sha256}`)).toBeInTheDocument();
+    expect(screen.getByText("Local: Hotel Teste, Gramado")).toBeInTheDocument();
+    expect(screen.getByText(/Caução: R\$\s?350,00/)).toBeInTheDocument();
+    expect(screen.getByText(/200 km por dia, excedente R\$\s?1,50 por km/)).toBeInTheDocument();
+    const btn = screen.getByRole("button", { name: "Aceitar a Ordem de Locação" });
+    fireEvent.change(screen.getByLabelText("Seu nome completo"), { target: { value: "Ana Teste" } });
+    expect(btn).toBeDisabled();
+    fireEvent.click(screen.getByLabelText(/Li a íntegra da Ordem de Locação/));
+    fireEvent.click(btn);
+    await waitFor(() => expect(termsService.acceptOrder).toHaveBeenCalledWith("abc", "Ana Teste", order, "q".repeat(64)));
+    expect(termsService.accept).not.toHaveBeenCalled();
+    expect(await screen.findByRole("status")).toHaveTextContent("Ordem de Locação aceita por Ana Teste");
+  });
+
+  it("na reserva, mostra o aceite da Ordem 04", async () => {
+    vi.mocked(termsService.acceptance).mockResolvedValue({
+      document: "ordem_04", version: 1, sha256: order.sha256, typed_name: "Ana Teste", accepted_at: "2026-11-08T15:00:00-03:00",
+    });
+    renderPage(<TermsPanel bookingId="b1" clientName="Ana Teste" customerId={null} canSend />);
+    expect(await screen.findByText(/Ordem de Locação aceita por/)).toHaveTextContent("Ana Teste em 08/11/2026 15:00 (versão 1)");
   });
 
   it("link vencido mostra o aviso", async () => {

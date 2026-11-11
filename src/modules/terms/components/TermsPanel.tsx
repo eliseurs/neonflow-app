@@ -38,7 +38,7 @@ export function TermsPanel({ bookingId, clientName, customerId, canSend }: {
       <h2 className="font-serif text-2xl font-light">Termos do aluguel</h2>
       {a ? (
         <p className="text-sm text-emerald-200">
-          Aceitos por <strong>{a.typed_name}</strong> em {formatDateTime(a.accepted_at)} (versão {a.version}).
+          {a.document === "ordem_04" ? "Ordem de Locação aceita por" : "Aceitos por"} <strong>{a.typed_name}</strong> em {formatDateTime(a.accepted_at)} (versão {a.version}).
         </p>
       ) : (
         <p className="text-sm text-bone/60">O cliente ainda não aceitou. Mande o link: ao aceitar, a conferência "Termos" é marcada sozinha.</p>
