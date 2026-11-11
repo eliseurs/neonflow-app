@@ -2,6 +2,15 @@
 
 ---
 
+## [2026-11-10] — Logo novo (nepo/resources/novo_logo.jpg)
+
+- Símbolo, símbolo para fundo claro, ícone completo e favicon vetorizados da arte nova (potrace sobre a máscara do dourado), no lugar do redesenho aproximado de 05/11. O ícone completo (`/brand/neonflow-icone-app.svg`) leva moldura, símbolo e "neon flow" em curvas, sem depender de fonte.
+- `apple-touch-icon.png` sai da própria arte em relevo dourado, recortada em quadrado.
+- Logo em linha (`Wordmark`, menu, cabeçalho e rodapé do site): símbolo novo e "neon flow" em Poppins 600, o peso da arte nova (a fonte carregada passou de 500 para 600).
+- Login: o logo completo, empilhado e com moldura, centralizado acima do formulário.
+
+---
+
 ## [2026-11-08] — Ordem de Locação no aceite do cliente
 
 - `/termos/:token`: com a Ordem 04 publicada na API, a página mostra a Ordem (título, versão, hash e texto) e o quadro da reserva com local, caução e quilometragem; a caixa é desmarcada por padrão e o aceite envia versão, hash do texto e do quadro e a confirmação (`termsService.acceptOrder`). Sem Ordem publicada, segue com os termos antigos.

@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { apiErrorMessage } from "@/app/providers/api/client";
-import { Wordmark } from "@/shared/ui/Brand";
 import { Button } from "@/shared/ui/Button";
 import { Field, inputClass } from "@/shared/ui/Field";
 import { Accent, Overline } from "@/shared/ui/Heading";
@@ -41,8 +40,8 @@ export function LoginPage() {
       <img src="/brand/neonflow-simbolo.svg" alt="" aria-hidden className="pointer-events-none absolute -right-32 top-1/2 hidden w-[520px] -translate-y-1/2 opacity-[0.08] md:block" />
 
       <div className="relative w-full max-w-md">
-        <Link to="/" aria-label="Neon Flow — início">
-          <Wordmark />
+        <Link to="/" aria-label="Neon Flow — início" className="mx-auto block w-fit">
+          <img src="/brand/neonflow-icone-app.svg" alt="Neon Flow" className="h-28 w-auto md:h-32" />
         </Link>
         <form onSubmit={submit} className="mt-10 rounded-[14px] border border-white/[0.08] bg-white/[0.03] p-8 md:p-10" noValidate>
           <Overline>Central de mobilidade</Overline>
