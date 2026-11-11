@@ -64,6 +64,13 @@ src/modules/{domain}/
 
 ---
 
+## Regras da Central de Ajuda
+
+- Todo fluxo do painel tem um artigo em `src/modules/help/content/` (passo a passo, o que o sistema bloqueia, dúvidas, RN de origem).
+- **Mudou um fluxo, a tela, um botão, uma etapa ou uma regra que o usuário vê → atualize o artigo no mesmo PR** e a data `updated`. A descrição do PR diz qual artigo mudou (ou "Ajuda: sem mudança").
+- Aba nova no menu (`src/app/layout/nav.ts`) exige artigo novo ou a rota em `PENDING` de `help.test.tsx`; o CI falha se a aba ficar sem nenhum dos dois.
+- Linguagem de quem opera: nomes dos botões e etapas exatamente como aparecem na tela; sem termos técnicos. Nada de regra que não exista na API.
+
 ## Regras de Roteamento
 
 - React Router v6; rotas privadas sempre dentro de `ProtectedRoute` (em `src/app/routes/AppRoutes.tsx`)

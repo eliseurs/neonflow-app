@@ -20,6 +20,8 @@ import { CarPage } from "@/modules/landing/pages/CarPage";
 import { TermsAdminPage } from "@/modules/terms/pages/TermsAdminPage";
 import { ContractsPage } from "@/modules/contracts/pages/ContractsPage";
 import { ContractVersionPage } from "@/modules/contracts/pages/ContractVersionPage";
+import { HelpArticlePage } from "@/modules/help/pages/HelpArticlePage";
+import { HelpPage } from "@/modules/help/pages/HelpPage";
 
 export function AppRoutes() {
   return (
@@ -44,6 +46,8 @@ export function AppRoutes() {
           <Route path="/termos" element={<TermsAdminPage />} />
           <Route path="/contratos" element={<ContractsPage />} />
           <Route path="/contratos/versoes/:id" element={<ContractVersionPage />} />
+          <Route path="/ajuda" element={<HelpPage />} />
+          <Route path="/ajuda/:slug" element={<HelpArticlePage />} />
           <Route path="/clientes/:id" element={<CustomerDetailPage />} />
           <Route path="/transfers/:id" element={<TransferDetailPage />} />
         </Route>
