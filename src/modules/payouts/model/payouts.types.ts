@@ -57,3 +57,19 @@ export function totalsByPartner(list: Payout[]): PartnerTotal[] {
   }
   return [...map.values()].sort((a, b) => b.amountCents - a.amountCents);
 }
+
+/**
+ * Valor que a API grava ao marcar como pago. Sem percentual no encerramento, ela copia o percentual
+ * atual do parceiro (comissão ou repasse) e calcula base × pontos-base ÷ 10000, arredondando ao centavo
+ * (payout.Amount). Nulo = o parceiro ainda não tem percentual.
+ */
+export function expectedAmount(
+  p: Pick<Payout, "kind" | "amount_cents" | "base_cents">,
+  partner: { commission_percent: number | null; owner_share_percent: number | null } | undefined,
+): { cents: number; percent: number | null } | null {
+  if (p.amount_cents !== null) return { cents: p.amount_cents, percent: null };
+  const percent = p.kind === "comissao" ? partner?.commission_percent : p.kind === "repasse" ? partner?.owner_share_percent : null;
+  if (percent === null || percent === undefined) return null;
+  const bp = Math.round(percent * 100);
+  return { cents: Math.floor((p.base_cents * bp + 5000) / 10000), percent };
+}

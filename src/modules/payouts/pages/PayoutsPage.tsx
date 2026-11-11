@@ -11,7 +11,8 @@ import { Button } from "@/shared/ui/Button";
 import { Dialog } from "@/shared/ui/Dialog";
 import { PageHeader } from "@/shared/ui/Heading";
 import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
-import { KIND_BASE, KIND_TITLE, totalsByPartner, type Payout, type PayoutKind, type PayoutStatus } from "../model/payouts.types";
+import { partnersService } from "@/modules/partners/services/partners.service";
+import { KIND_BASE, KIND_TITLE, expectedAmount, totalsByPartner, type Payout, type PayoutKind, type PayoutStatus } from "../model/payouts.types";
 import { payoutsService } from "../services/payouts.service";
 
 const KINDS: PayoutKind[] = ["repasse", "motorista", "comissao"];
@@ -134,12 +135,14 @@ export function PayoutsPage() {
               </span>
               {p.status === "paga" ? (
                 <Badge tone="ok">Pago</Badge>
-              ) : p.amount_cents === null ? (
-                <Badge tone="warn">Percentual a definir</Badge>
               ) : (
-                <Button variant="outline" className="px-4 py-2" onClick={() => setPaying(p)} aria-label={`Marcar como pago: ${p.partner_name}, ${p.client_name}`}>
-                  <Check className="h-4 w-4" aria-hidden /> Marcar como pago
-                </Button>
+                <div className="flex flex-col items-end gap-2">
+                  {/* Sem percentual no encerramento: a API usa o percentual atual do parceiro ao marcar como pago. */}
+                  {p.amount_cents === null && <Badge tone="warn">Percentual a definir</Badge>}
+                  <Button variant="outline" className="px-4 py-2" onClick={() => setPaying(p)} aria-label={`Marcar como pago: ${p.partner_name}, ${p.client_name}`}>
+                    <Check className="h-4 w-4" aria-hidden /> Marcar como pago
+                  </Button>
+                </div>
               )}
             </div>
           ))}
@@ -148,22 +151,50 @@ export function PayoutsPage() {
 
       {paying && (
         <Dialog title="Confirmar pagamento" onClose={() => setPaying(null)}>
-          <div className="space-y-5">
-            <p className="text-bone/80">
-              Você pagou <strong className="text-gold">{formatCents(paying.amount_cents ?? 0)}</strong> a {paying.partner_name} (
-                            {{ repasse: "repasse", motorista: "corrida", comissao: "comissão" }[paying.kind]} de {paying.client_name})?
-            </p>
-            <p className="text-xs text-bone/45">O pagamento é feito fora do sistema, por Pix. Aqui fica o registro de quando e quem marcou.</p>
-            {pay.isError && <ErrorNote>{apiErrorMessage(pay.error, "Não foi possível marcar como pago.")}</ErrorNote>}
-            <div className="flex gap-3">
-              <Button onClick={() => pay.mutate(paying.id)} disabled={pay.isPending}>
-                {pay.isPending ? "Salvando..." : "Sim, marcar como pago"}
-              </Button>
-              <Button variant="ghost" onClick={() => setPaying(null)}>Cancelar</Button>
-            </div>
-          </div>
+          <PayConfirm payout={paying} busy={pay.isPending} error={pay.isError ? pay.error : null} onConfirm={() => pay.mutate(paying.id)} onCancel={() => setPaying(null)} />
         </Dialog>
       )}
     </section>
+  );
+}
+
+/** Confirmação do pagamento. Sem valor gravado, mostra o que a API vai calcular com o percentual atual do parceiro. */
+function PayConfirm({ payout, busy, error, onConfirm, onCancel }: {
+  payout: Payout; busy: boolean; error: unknown; onConfirm: () => void; onCancel: () => void;
+}) {
+  const missing = payout.amount_cents === null;
+  const partner = useQuery({ queryKey: ["partners", payout.partner_id], queryFn: () => partnersService.get(payout.partner_id), enabled: missing });
+  const expected = expectedAmount(payout, partner.data);
+  const what = { repasse: "repasse", motorista: "corrida", comissao: "comissão" }[payout.kind];
+  return (
+    <div className="space-y-5">
+      {missing && partner.isPending ? (
+        <Loading label="Consultando o percentual do parceiro..." />
+      ) : expected ? (
+        <>
+          <p className="text-bone/80">
+            Você pagou <strong className="text-gold">{formatCents(expected.cents)}</strong> a {payout.partner_name} ({what} de {payout.client_name})?
+          </p>
+          {expected.percent !== null && (
+            <p className="text-xs text-bone/55">
+              Percentual atual do parceiro: {String(expected.percent).replace(".", ",")}% sobre {formatCents(payout.base_cents)}. Ele fica gravado neste pagamento.
+            </p>
+          )}
+        </>
+      ) : (
+        <ErrorNote>
+          {payout.partner_name} ainda não tem percentual de {what}. Defina em{" "}
+          <Link to="/parceiros" className="underline">Parceiros</Link> e volte aqui para marcar o pagamento.
+        </ErrorNote>
+      )}
+      <p className="text-xs text-bone/45">O pagamento é feito fora do sistema, por Pix. Aqui fica o registro de quando e quem marcou.</p>
+      {error !== null && <ErrorNote>{apiErrorMessage(error, "Não foi possível marcar como pago.")}</ErrorNote>}
+      <div className="flex gap-3">
+        <Button onClick={onConfirm} disabled={busy || !expected}>
+          {busy ? "Salvando..." : "Sim, marcar como pago"}
+        </Button>
+        <Button variant="ghost" onClick={onCancel}>Cancelar</Button>
+      </div>
+    </div>
   );
 }

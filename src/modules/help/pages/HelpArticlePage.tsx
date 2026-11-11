@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
+import { navFor } from "@/app/layout/nav";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { formatDate } from "@/shared/lib/format";
 import { PageHeader } from "@/shared/ui/Heading";
@@ -43,6 +44,9 @@ export function HelpArticlePage() {
   const role = useAuthStore((s) => s.user?.role);
   const a = articlesFor(role).find((x) => x.slug === slug);
   if (!a) return <Navigate to="/ajuda" replace />;
+  // Só os atalhos para telas que o papel pode abrir.
+  const allowed = new Set(navFor(role).flatMap((g) => g.items.map((i) => i.to)));
+  const routes = a.routes.filter((r) => allowed.has(r));
 
   return (
     <section className="space-y-8">
@@ -50,8 +54,9 @@ export function HelpArticlePage() {
         ← Ajuda
       </Link>
       <PageHeader overline={`Ajuda · atualizado em ${formatDate(a.updated)}`} title={a.title} description={a.summary} />
+      {routes.length > 0 && (
       <p className="text-sm">
-        {a.routes.map((r, i) => (
+        {routes.map((r, i) => (
           <span key={r}>
             {i > 0 && " · "}
             <Link to={r} className="text-gold hover:underline">
@@ -60,6 +65,7 @@ export function HelpArticlePage() {
           </span>
         ))}
       </p>
+      )}
       <Flow a={a} />
       {a.sections.map((s) => (
         <Panel key={s.title} className="space-y-3 p-6 md:p-8">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { totalsByPartner, type Payout } from "./payouts.types";
+import { expectedAmount, totalsByPartner, type Payout } from "./payouts.types";
 
 const p = (partner: string, amount: number | null): Payout => ({
   id: Math.random().toString(), kind: "comissao", booking_id: "b", transfer_id: null, client_name: "", description: "", end_at: "",
@@ -14,3 +14,20 @@ describe("totalsByPartner", () => {
     expect(t[1]).toMatchObject({ amountCents: 300, count: 3, undefinedCount: 1 });
   });
 });
+
+describe("expectedAmount", () => {
+  const partner = { commission_percent: 10, owner_share_percent: 70 };
+  it("usa o valor gravado quando existe", () => {
+    expect(expectedAmount({ kind: "repasse", amount_cents: 123, base_cents: 999 }, partner)).toEqual({ cents: 123, percent: null });
+  });
+  it("calcula como a API: base × pontos-base ÷ 10000, arredondado ao centavo", () => {
+    expect(expectedAmount({ kind: "repasse", amount_cents: null, base_cents: 34000 }, partner)).toEqual({ cents: 23800, percent: 70 });
+    expect(expectedAmount({ kind: "comissao", amount_cents: null, base_cents: 12345 }, { ...partner, commission_percent: 12.5 })).toEqual({ cents: 1543, percent: 12.5 });
+  });
+  it("sem percentual no parceiro (ou motorista sem valor) devolve nulo", () => {
+    expect(expectedAmount({ kind: "repasse", amount_cents: null, base_cents: 100 }, { commission_percent: 10, owner_share_percent: null })).toBeNull();
+    expect(expectedAmount({ kind: "motorista", amount_cents: null, base_cents: 100 }, partner)).toBeNull();
+    expect(expectedAmount({ kind: "comissao", amount_cents: null, base_cents: 100 }, undefined)).toBeNull();
+  });
+});
+

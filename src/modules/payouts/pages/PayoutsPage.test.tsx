@@ -2,10 +2,12 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderPage } from "@/test/render";
 import type { Payout } from "../model/payouts.types";
+import { partnersService } from "@/modules/partners/services/partners.service";
 import { payoutsService } from "../services/payouts.service";
 import { PayoutsPage } from "./PayoutsPage";
 
 vi.mock("../services/payouts.service", () => ({ payoutsService: { list: vi.fn(), pay: vi.fn() } }));
+vi.mock("@/modules/partners/services/partners.service", () => ({ partnersService: { get: vi.fn() } }));
 
 const payout = (over: Partial<Payout> = {}): Payout => ({
   id: "o1", kind: "repasse", booking_id: "b1", transfer_id: null, client_name: "Cliente Teste", description: "Sedã Teste",
@@ -76,5 +78,29 @@ describe("PayoutsPage", () => {
     await waitFor(() => expect(payoutsService.list).toHaveBeenCalledWith("motorista", "pendente"));
     expect(await screen.findByText(/Valor fixo: oferta aceita \+ espera extra/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Cliente Teste" })).toHaveAttribute("href", "/transfers/t1");
+  });
+
+  it("sem percentual no encerramento, paga com o percentual atual do parceiro", async () => {
+    vi.mocked(payoutsService.list).mockResolvedValue([payout({ id: "o9", partner_id: "p9", partner_name: "Sem Percentual", percent: null, amount_cents: null })]);
+    vi.mocked(partnersService.get).mockResolvedValue({ commission_percent: null, owner_share_percent: 62.5, driver_share_percent: null } as never);
+    vi.mocked(payoutsService.pay).mockResolvedValue(payout({ id: "o9", status: "paga" }));
+    renderPage(<PayoutsPage />);
+    fireEvent.click(await screen.findByRole("button", { name: /Marcar como pago: Sem Percentual/ }));
+    // 62,5% de R$ 340,00 = R$ 212,50
+    expect(await screen.findByText(/R\$\s212,50/)).toBeInTheDocument();
+    expect(screen.getByText(/Percentual atual do parceiro: 62,5%/)).toBeInTheDocument();
+    expect(partnersService.get).toHaveBeenCalledWith("p9");
+    fireEvent.click(screen.getByRole("button", { name: "Sim, marcar como pago" }));
+    await waitFor(() => expect(payoutsService.pay).toHaveBeenCalledWith("o9"));
+  });
+
+  it("parceiro ainda sem percentual: orienta e não deixa marcar", async () => {
+    vi.mocked(payoutsService.list).mockResolvedValue([payout({ id: "o9", partner_id: "p9", partner_name: "Sem Percentual", percent: null, amount_cents: null })]);
+    vi.mocked(partnersService.get).mockResolvedValue({ commission_percent: null, owner_share_percent: null, driver_share_percent: null } as never);
+    renderPage(<PayoutsPage />);
+    fireEvent.click(await screen.findByRole("button", { name: /Marcar como pago: Sem Percentual/ }));
+    expect(await screen.findByText(/ainda não tem percentual de repasse/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Parceiros" })).toHaveAttribute("href", "/parceiros");
+    expect(screen.getByRole("button", { name: "Sim, marcar como pago" })).toBeDisabled();
   });
 });

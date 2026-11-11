@@ -4,6 +4,7 @@ import type { Partner, PartnerKind, PartnerRequest } from "../model/partners.typ
 export const partnersService = {
   list: async (kind?: PartnerKind) =>
     (await apiClient.get<ApiResponse<Partner[]>>(kind ? `/partners?kind=${kind}` : "/partners")).data,
+  get: async (id: string) => (await apiClient.get<ApiResponse<Partner>>(`/partners/${id}`)).data,
   create: async (req: PartnerRequest) => (await apiClient.post<ApiResponse<Partner>>("/partners", req)).data,
   update: async (id: string, req: PartnerRequest) => (await apiClient.put<ApiResponse<Partner>>(`/partners/${id}`, req)).data,
 };
