@@ -1,7 +1,14 @@
 import { apiClient, type ApiResponse } from "@/app/providers/api/client";
-import type { ClientCar, RequestDetail, RequestInput, RequestStatus, SiteRequest } from "../model/requests.types";
+import type { ClientCar, GuestRequestInput, PublicQuote, RequestDetail, RequestInput, RequestStatus, SiteRequest } from "../model/requests.types";
 
 const q = (start: string, end: string) => `start_at=${encodeURIComponent(start)}&end_at=${encodeURIComponent(end)}`;
+
+// Página do carro, sem login (RN-02.38): o valor no período e o pedido com só o contato.
+export const publicRequestsService = {
+  quote: async (vehicleId: string, start: string, end: string) =>
+    (await apiClient.get<ApiResponse<PublicQuote>>(`/public/fleet/${vehicleId}/quote?${q(start, end)}`)).data,
+  guest: async (input: GuestRequestInput) => (await apiClient.post<ApiResponse<{ message: string }>>("/public/requests", input)).data,
+};
 
 // Cliente logado (área do cliente): só os próprios pedidos.
 export const clientRequestsService = {

@@ -2,6 +2,16 @@
 
 ---
 
+## [2026-11-16] — Reserva na página do carro, sem conta (API RN-02.38)
+
+- `CarRequestForm` na página do carro (PT/EN): retirada e devolução → valor do período (`GET /public/fleet/:id/quote`), aviso se o carro já está reservado; nome, e-mail, WhatsApp e local → `POST /public/requests` e o aviso "enviamos um link". Cliente já logado pede direto pela conta, sem o e-mail. "Pedir pelo WhatsApp" (antes "Pedir este carro") e "Falar no WhatsApp" continuam abaixo, como alternativa.
+- `/conta/confirmar/:token`: diz quando o pedido foi enviado à central e, para conta sem senha, oferece criar a senha ali mesmo (`password_token` + reset-password).
+- Situação `aguardando_email` nos tipos dos pedidos.
+- Ajuda: "Pedidos do site", "Sua conta no Neon Flow" e "Novidades".
+- Testes: reserva na página (valor, validação, envio, período reservado), confirmação com criação da senha. 272 testes.
+
+---
+
 ## [2026-11-16] — Oferta aberta do transfer (API PEN-74)
 
 - Área do motorista: "Corridas disponíveis" (`offers` de `/partner/area`) com horário, trajeto, voo, passageiros, nome do cliente e valor; Aceitar (com a escolha de um dos carros dele, se tiver) e, em Minhas corridas, "Desistir da corrida" com confirmação, só antes de começar. Depois de aceitar ou não (outro pode ter levado antes), a área recarrega.

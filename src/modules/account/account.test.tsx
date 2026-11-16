@@ -36,7 +36,7 @@ describe("Conta", () => {
   });
 
   it("confirma o e-mail pelo link", async () => {
-    vi.mocked(accountService.confirm).mockResolvedValue({ confirmed: true });
+    vi.mocked(accountService.confirm).mockResolvedValue({ confirmed: true, requests_sent: 0 });
     renderPage(<ConfirmEmailPage />, { path: "/conta/confirmar/:token", route: "/conta/confirmar/abc" });
     expect(await screen.findByText(/E-mail confirmado/)).toBeInTheDocument();
     expect(accountService.confirm).toHaveBeenCalledTimes(1);
@@ -80,5 +80,19 @@ describe("Conta", () => {
     fireEvent.click(screen.getByRole("button", { name: "Criar acesso" }));
     expect(await screen.findByText(/Conta criada/)).toBeInTheDocument();
     expect(accountService.acceptInvite).toHaveBeenCalledWith("i1", "senha-pedro-123");
+  });
+
+  it("pedido feito na página do carro: confirmado, oferece criar a senha", async () => {
+    vi.mocked(accountService.confirm).mockResolvedValue({ confirmed: true, requests_sent: 1, password_token: "pw1" });
+    vi.mocked(accountService.resetPassword).mockResolvedValue({ password_changed: true });
+    renderPage(<ConfirmEmailPage />, { path: "/conta/confirmar/:token", route: "/conta/confirmar/abc" });
+    expect(await screen.findByText(/pedido enviado à central/)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Entrar" })).toBeNull();
+    type("Senha", "senha-bia-1234");
+    type("Confirmar senha", "senha-bia-1234");
+    fireEvent.click(screen.getByRole("button", { name: "Criar senha" }));
+    await waitFor(() => expect(accountService.resetPassword).toHaveBeenCalledWith("pw1", "senha-bia-1234"));
+    expect(await screen.findByText(/Senha criada/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Entrar" })).toBeInTheDocument();
   });
 });

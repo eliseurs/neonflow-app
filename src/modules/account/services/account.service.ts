@@ -6,6 +6,13 @@ export interface SignupRequest {
   password: string;
 }
 
+/** Resposta da confirmação: pedidos enviados à central e, para conta sem senha, o código para criar a senha. */
+export interface Confirmation {
+  confirmed: boolean;
+  requests_sent: number;
+  password_token?: string;
+}
+
 export interface Invite {
   sent_to: string;
   expires_at: string;
@@ -14,7 +21,7 @@ export interface Invite {
 // Rotas públicas da API (RN-05.12 a 05.14): o código do link enviado por e-mail é a autorização.
 export const accountService = {
   signup: async (req: SignupRequest) => (await apiClient.post<ApiResponse<{ message: string }>>("/public/accounts/signup", req)).data,
-  confirm: async (token: string) => (await apiClient.post<ApiResponse<{ confirmed: boolean }>>("/public/accounts/confirm", { token })).data,
+  confirm: async (token: string) => (await apiClient.post<ApiResponse<Confirmation>>("/public/accounts/confirm", { token })).data,
   forgotPassword: async (email: string) =>
     (await apiClient.post<ApiResponse<{ message: string }>>("/public/accounts/forgot-password", { email })).data,
   resetPassword: async (token: string, password: string) =>

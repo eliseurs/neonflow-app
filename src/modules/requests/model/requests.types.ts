@@ -3,7 +3,7 @@ import { formatCents, formatDateTime } from "@/shared/lib/format";
 import type { Tone } from "@/shared/ui/Badge";
 
 export type RequestKind = "aluguel" | "transfer";
-export type RequestStatus = "solicitado" | "ajuste_pedido" | "confirmado" | "recusado" | "cancelado";
+export type RequestStatus = "aguardando_email" | "solicitado" | "ajuste_pedido" | "confirmado" | "recusado" | "cancelado";
 
 export interface Quote {
   days: number | null;
@@ -62,6 +62,24 @@ export interface ClientCar extends Quote {
   gear: string;
 }
 
+/** Orçamento público de um carro no período (página do carro, RN-02.38). */
+export interface PublicQuote extends Quote {
+  available: boolean;
+}
+
+/** Pedido na página do carro sem conta: só o contato e o aluguel (RN-02.38). */
+export interface GuestRequestInput {
+  name: string;
+  email: string;
+  whatsapp: string;
+  vehicle_id: string;
+  start_at: string;
+  end_at: string;
+  place?: string;
+  notes?: string;
+  referral_code?: string;
+}
+
 export interface RequestInput {
   kind: RequestKind;
   whatsapp: string;
@@ -80,6 +98,7 @@ export interface RequestInput {
 }
 
 export const STATUS_LABEL: Record<RequestStatus, string> = {
+  aguardando_email: "Aguardando confirmação do e-mail",
   solicitado: "Aguardando a central",
   ajuste_pedido: "Ajuste pedido",
   confirmado: "Confirmado",
@@ -88,6 +107,7 @@ export const STATUS_LABEL: Record<RequestStatus, string> = {
 };
 
 export const STATUS_TONE: Record<RequestStatus, Tone> = {
+  aguardando_email: "muted",
   solicitado: "warn",
   ajuste_pedido: "gold",
   confirmado: "ok",

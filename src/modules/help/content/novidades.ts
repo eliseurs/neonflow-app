@@ -12,6 +12,7 @@ export const novidades: HelpArticle = {
     {
       title: "16/11/2026",
       items: [
+        "Página do carro com reserva, como a LuxuryBus: o visitante escolhe as datas, vê o valor e pede só com nome, e-mail e WhatsApp. O pedido chega em Pedidos do site depois que ele confirma pelo e-mail. O pedido pelo WhatsApp continua ao lado.",
         "Transfer com oferta aberta: depois que a central define o valor, a corrida aparece para os motoristas na área deles, e o primeiro que aceitar leva. O motorista também pode desistir por lá, antes de começar.",
         "Área do parceiro: em Minha conta, o proprietário vê os carros e as reservas deles (sem os dados do cliente), o motorista vê as corridas, e todos veem as indicações, o que recebem e o próprio link de indicação.",
         "Pedidos do site: clientes com conta pedem aluguel ou transfer pelo site, e a central confirma, pede ajuste ou recusa em Pedidos do site. O cliente recebe a resposta por e-mail e em Minha conta.",
