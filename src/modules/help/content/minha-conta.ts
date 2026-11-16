@@ -43,7 +43,8 @@ export const minhaConta: HelpArticle = {
     {
       title: "Cliente: pedir aluguel ou transfer",
       steps: [
-        "Em Minha conta, clique em Novo pedido (ou, no site, em Pedir pela minha conta).",
+        "No site, na página do carro, escolha a retirada e a devolução: aparece o valor. Informe nome, e-mail e WhatsApp e clique em Enviar pedido. Não precisa de conta: abra o link que chega no e-mail para enviar o pedido à central, e ali você pode criar uma senha para acompanhar.",
+        "Com conta, também dá para pedir em Minha conta, em Novo pedido (ou, no site, em Pedir pela minha conta).",
         "Aluguel: escolha a retirada e a devolução. Aparecem os carros livres com o valor estimado, a caução e a quilometragem; escolha um.",
         "Transfer: informe origem, destino, data e horário, passageiros e o voo, se houver. O valor do transfer vem na resposta da central.",
         "Informe o seu WhatsApp e clique em Enviar pedido.",
@@ -65,5 +66,5 @@ export const minhaConta: HelpArticle = {
   faq: [
     { q: "O que aparece em Minha conta?", a: "Os dados da conta; para o cliente, os pedidos com a situação e o histórico; para o parceiro, os carros, as corridas, as indicações e o que ele recebe." },
   ],
-  rules: ["RN-02.30", "RN-02.31", "RN-02.33", "RN-02.36", "RN-02.37", "RN-07.8", "RN-07.9", "RN-07.10", "RN-07.11", "RN-05.6", "RN-05.11", "RN-05.12", "RN-05.13", "RN-05.14"],
+  rules: ["RN-02.30", "RN-02.31", "RN-02.33", "RN-02.38", "RN-02.36", "RN-02.37", "RN-07.8", "RN-07.9", "RN-07.10", "RN-07.11", "RN-05.6", "RN-05.11", "RN-05.12", "RN-05.13", "RN-05.14"],
 };

@@ -5,6 +5,7 @@ import { FEATURES, FUEL_LABEL } from "@/modules/fleet/model/fleet.types";
 import { Wordmark } from "@/shared/ui/Brand";
 import { buttonClass } from "@/shared/ui/buttonClass";
 import { CarGallery } from "../components/CarGallery";
+import { CarRequestForm } from "../components/CarRequestForm";
 import { WhatsAppIcon } from "../components/SiteHeader";
 import { content, type Lang } from "../model/landing.content";
 import { loadPublicCar, requestCarHref, type PublicCar } from "../model/fleet";
@@ -12,22 +13,23 @@ import { whatsappNumber, whatsappUrl } from "../model/whatsapp";
 
 const COPY = {
   pt: {
-    back: "Voltar para a frota", request: "Pedir este carro", whatsapp: "Falar no WhatsApp", specs: "Ficha técnica", items: "Itens",
+    back: "Voltar para a frota", request: "Pedir pelo WhatsApp", or: "ou, se preferir", whatsapp: "Falar no WhatsApp", specs: "Ficha técnica", items: "Itens",
     about: "Sobre o carro", year: "Ano", color: "Cor", fuel: "Combustível", gear: "Câmbio", doors: "Portas", seats: "Lugares",
-    category: "Categoria", priceNote: "O valor da diária é informado pela central na reserva.", loading: "Carregando...",
+    category: "Categoria", priceNote: "O valor aparece ao escolher as datas.", loading: "Carregando...",
     notFound: "Carro não encontrado ou indisponível no momento.", interest: (n: string) => `Olá! Tenho interesse no ${n}.`,
     gallery: { prev: "Foto anterior", next: "Próxima foto", open: "Ver em tela cheia", close: "Fechar", photo: "Foto" },
   },
   en: {
-    back: "Back to the fleet", request: "Request this car", whatsapp: "Chat on WhatsApp", specs: "Specifications", items: "Features",
+    back: "Back to the fleet", request: "Request on WhatsApp", or: "or, if you prefer", whatsapp: "Chat on WhatsApp", specs: "Specifications", items: "Features",
     about: "About the car", year: "Year", color: "Color", fuel: "Fuel", gear: "Transmission", doors: "Doors", seats: "Seats",
-    category: "Category", priceNote: "The daily rate is quoted by our team when you book.", loading: "Loading...",
+    category: "Category", priceNote: "The price shows up once you choose the dates.", loading: "Loading...",
     notFound: "Car not found or not available right now.", interest: (n: string) => `Hello! I'm interested in the ${n}.`,
     gallery: { prev: "Previous photo", next: "Next photo", open: "View full screen", close: "Close", photo: "Photo" },
   },
 } as const;
 
-/** Página pública do carro, no estilo dos classificados: galeria, ficha, itens e pedido. Sem preço (como a LuxuryBus). */
+/** Página pública do carro, no estilo dos classificados: galeria, ficha, itens e a reserva com o valor no período, como a
+ * LuxuryBus (RN-02.38). O pedido pelo WhatsApp continua ao lado. */
 export function CarPage({ loader = loadPublicCar, number = whatsappNumber() }: { loader?: (id: string) => Promise<PublicCar>; number?: string }) {
   const { id = "" } = useParams();
   const [params] = useSearchParams();
@@ -120,8 +122,12 @@ export function CarPage({ loader = loadPublicCar, number = whatsappNumber() }: {
                   ))}
                 </div>
                 <p className="mt-5 text-sm text-bone/55">{c.priceNote}</p>
-                <div className="mt-6 grid gap-3">
-                  <Link to={requestCarHref(car.name, lang)} className={buttonClass("primary", "justify-center")}>{c.request}</Link>
+                <div className="mt-6">
+                  <CarRequestForm vehicleId={car.id} lang={lang} />
+                </div>
+                <p className="mt-6 text-center text-[11px] uppercase tracking-[0.2em] text-bone/40">{c.or}</p>
+                <div className="mt-3 grid gap-3">
+                  <Link to={requestCarHref(car.name, lang)} className={buttonClass("outline", "justify-center")}>{c.request}</Link>
                   {chat && (
                     <a href={chat} target="_blank" rel="noreferrer" className={buttonClass("outline", "justify-center")}>
                       <WhatsAppIcon className="h-4 w-4" /> {c.whatsapp}
