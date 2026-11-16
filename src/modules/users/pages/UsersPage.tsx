@@ -3,7 +3,7 @@ import { KeyRound, Plus } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
-import type { Role } from "@/modules/auth/model/auth.types";
+import type { StaffRole } from "@/modules/auth/model/auth.types";
 import { can } from "@/modules/auth/model/permissions";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { cn } from "@/shared/lib/cn";
@@ -16,16 +16,16 @@ import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { MIN_PASSWORD_LENGTH, ROLE_LABEL, type PanelUser } from "../model/users.types";
 import { usersService } from "../services/users.service";
 
-const ROLE_HINT: Record<Role, string> = {
+const ROLE_HINT: Record<StaffRole, string> = {
   admin: "Tudo: operação, contratos, termos, usuários e auditoria.",
   central: "Operação: reservas, transfer, frota, clientes, parceiros e repasses.",
   legal_reviewer: "Só contratos, para revisar e aprovar as versões.",
 };
 
-function RoleSelect({ id, value, onChange, disabled }: { id: string; value: Role; onChange: (r: Role) => void; disabled?: boolean }) {
+function RoleSelect({ id, value, onChange, disabled }: { id: string; value: StaffRole; onChange: (r: StaffRole) => void; disabled?: boolean }) {
   return (
-    <select id={id} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value as Role)} className={inputClass}>
-      {(Object.keys(ROLE_LABEL) as Role[]).map((r) => (
+    <select id={id} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value as StaffRole)} className={inputClass}>
+      {(Object.keys(ROLE_LABEL) as StaffRole[]).map((r) => (
         <option key={r} value={r} className="bg-noir">{ROLE_LABEL[r]}</option>
       ))}
     </select>
@@ -37,7 +37,7 @@ function UserForm({ user, isSelf, onDone }: { user?: PanelUser; isSelf: boolean;
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<Role>(user?.role ?? "central");
+  const [role, setRole] = useState<StaffRole>(user?.role ?? "central");
   const [active, setActive] = useState(user?.active ?? true);
   const [problem, setProblem] = useState<string | null>(null);
 

@@ -2,6 +2,18 @@
 
 ---
 
+## [2026-11-16] — Contas de parceiros e clientes (API RN-05.11 a 05.14, PR #30 da API)
+
+- Páginas públicas no visual do login (`AccountShell`), módulo `account`: `/conta/cadastro` (cliente cria a conta), `/conta/confirmar/:token` (confirma uma vez só, por `useQuery`), `/conta/esqueci-senha`, `/conta/nova-senha/:token` e `/conta/convite/:token` (parceiro cria a senha). São as páginas que os e-mails da API abrem (`APP_URL`).
+- Login para todos ("Acesse a sua conta"), com "Esqueci a senha" e "Cliente sem conta? Cadastre-se".
+- Papéis `parceiro` e `cliente` e permissões `area.parceiro` e `area.cliente`; `StaffRole` separa a equipe, então Usuários continua oferecendo só Administração, Central e Jurídico. Os dois usam o layout "foco" e começam em `/minha-conta` (dados da conta; as áreas próprias vêm depois). `RequirePermission` aceita uma lista.
+- Parceiros: botão Convidar (apagado para desativado ou sem e-mail), com o resultado em toast.
+- Auditoria mostra o nome de qualquer perfil (`profileFor`).
+- Ajuda: artigo novo "Sua conta no Neon Flow" (parceiro e cliente; `HelpRole` passa a ser `Role`); "Clientes e parceiros", "Usuários e acesso" e "Novidades" atualizados.
+- Testes: páginas de conta, convite, menu e rotas de parceiro e cliente. 254 testes.
+
+---
+
 ## [2026-11-16] — Permissões, layout por perfil e Auditoria (API RN-05.8 a 05.10)
 
 - `User.permissions` vem do login e do `/auth/me` (lista da API). `can`/`useCan` em `modules/auth/model/permissions.ts`; o papel `legal_reviewer` entrou no tipo `Role`.

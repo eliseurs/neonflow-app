@@ -4,8 +4,12 @@ import { renderPage } from "@/test/render";
 import type { Partner } from "../model/partners.types";
 import { partnersService } from "../services/partners.service";
 import { PartnersPage } from "./PartnersPage";
+import { accountService } from "@/modules/account/services/account.service";
+import { toast } from "sonner";
 
 vi.mock("../services/partners.service", () => ({ partnersService: { list: vi.fn(), create: vi.fn(), update: vi.fn() } }));
+vi.mock("@/modules/account/services/account.service", () => ({ accountService: { invitePartner: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock("qrcode", () => ({ default: { toDataURL: () => Promise.resolve("data:image/png;base64,QR") } }));
 
 const partner = (over: Partial<Partner> = {}): Partner => ({
@@ -70,6 +74,24 @@ describe("PartnersPage", () => {
     expect(within(dialog).getByRole("link", { name: /Baixar QR/ })).toHaveAttribute("download", "indicacao-HTL234.png");
     fireEvent.click(within(dialog).getByRole("button", { name: /Copiar link/ }));
     await waitFor(() => expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/?ref=HTL234`));
+  });
+
+  it("convida o parceiro com e-mail; sem e-mail o botão fica apagado", async () => {
+    vi.mocked(partnersService.list).mockResolvedValue([partner(), partner({ id: "p2", name: "Pedro Teste", email: "pedro@neonflow.test" })]);
+    vi.mocked(accountService.invitePartner).mockResolvedValue({ sent_to: "pedro@neonflow.test", expires_at: "2026-11-23T15:00:00-03:00" });
+    renderPage(<PartnersPage />);
+    expect(await screen.findByRole("button", { name: "Convidar Hotel Teste para entrar" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Convidar Pedro Teste para entrar" }));
+    await waitFor(() => expect(accountService.invitePartner).toHaveBeenCalledWith("p2"));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith("Convite enviado para pedro@neonflow.test. Vale até 23/11/2026 15:00."));
+  });
+
+  it("mostra o motivo quando a API recusa o convite", async () => {
+    vi.mocked(partnersService.list).mockResolvedValue([partner({ email: "hotel@neonflow.test" })]);
+    vi.mocked(accountService.invitePartner).mockRejectedValue(new Error("x"));
+    renderPage(<PartnersPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Convidar Hotel Teste para entrar" }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Não foi possível enviar o convite."));
   });
 
   it("exige ao menos um tipo e desativa um parceiro", async () => {

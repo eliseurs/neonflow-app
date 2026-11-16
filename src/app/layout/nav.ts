@@ -1,4 +1,4 @@
-import { CalendarDays, Car, Contact, FileText, Handshake, LayoutDashboard, Plane, ScrollText, ShieldCheck, Users, Wallet, type LucideIcon } from "lucide-react";
+import { CalendarDays, Car, CircleUser, Contact, FileText, Handshake, LayoutDashboard, Plane, ScrollText, ShieldCheck, Users, Wallet, type LucideIcon } from "lucide-react";
 import type { Permission } from "@/modules/auth/model/auth.types";
 
 export interface NavItem {
@@ -13,6 +13,14 @@ type Perms = readonly string[] | undefined;
 
 // Abas por assunto; cada perfil vê só o que pode abrir (a API decide, o menu acompanha).
 const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
+  // Parceiro e cliente: um item para cada um, na mesma tela.
+  {
+    title: "",
+    items: [
+      { to: "/minha-conta", label: "Minha conta", icon: CircleUser, permission: "area.parceiro" },
+      { to: "/minha-conta", label: "Minha conta", icon: CircleUser, permission: "area.cliente" },
+    ],
+  },
   { title: "", items: [{ to: "/central", label: "Visão geral", icon: LayoutDashboard, permission: "operacao" }] },
   {
     title: "Operação",

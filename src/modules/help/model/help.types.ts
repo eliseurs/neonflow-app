@@ -1,8 +1,10 @@
+import type { Role } from "@/modules/auth/model/auth.types";
+
 /**
  * Central de ajuda: um artigo por fluxo do painel. O conteúdo fica no código e muda no mesmo PR que muda
  * o fluxo (ver .claude/rules.md, "Ajuda"). `help.test.ts` falha se uma aba do menu ficar sem artigo.
  */
-export type HelpRole = "admin" | "central" | "legal_reviewer";
+export type HelpRole = Role;
 
 export interface HelpSection {
   title: string;

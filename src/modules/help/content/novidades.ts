@@ -12,6 +12,8 @@ export const novidades: HelpArticle = {
     {
       title: "16/11/2026",
       items: [
+        "Parceiros e clientes já podem entrar: em Parceiros, o botão Convidar manda ao parceiro o link para criar a senha; o cliente se cadastra no site e confirma o e-mail.",
+        "A tela de entrar ganhou Esqueci a senha: o link para uma senha nova chega no e-mail.",
         "Cada perfil tem o seu painel: a operação continua com o menu lateral; o Jurídico ganhou um painel enxuto, só com Contratos numa barra no topo.",
         "Desativar alguém ou trocar o papel vale na hora, sem a pessoa entrar de novo.",
         "Link para uma tela que o seu papel não abre mostra \"Tela restrita\" e o caminho de volta ao início.",

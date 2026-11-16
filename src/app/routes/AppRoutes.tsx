@@ -24,6 +24,12 @@ import { ContractsPage } from "@/modules/contracts/pages/ContractsPage";
 import { ContractVersionPage } from "@/modules/contracts/pages/ContractVersionPage";
 import { HelpArticlePage } from "@/modules/help/pages/HelpArticlePage";
 import { HelpPage } from "@/modules/help/pages/HelpPage";
+import { AcceptInvitePage } from "@/modules/account/pages/AcceptInvitePage";
+import { ConfirmEmailPage } from "@/modules/account/pages/ConfirmEmailPage";
+import { ForgotPasswordPage } from "@/modules/account/pages/ForgotPasswordPage";
+import { MyAccountPage } from "@/modules/account/pages/MyAccountPage";
+import { ResetPasswordPage } from "@/modules/account/pages/ResetPasswordPage";
+import { SignupPage } from "@/modules/account/pages/SignupPage";
 
 export function AppRoutes() {
   return (
@@ -33,6 +39,12 @@ export function AppRoutes() {
       {/* Página pública do cliente: o código do link é a autorização. */}
       <Route path="/termos/:token" element={<PublicTermsPage />} />
       <Route path="/carros/:id" element={<CarPage />} />
+      {/* Conta de cliente e de parceiro, sem login: os links dos e-mails da API abrem estas páginas. */}
+      <Route path="/conta/cadastro" element={<SignupPage />} />
+      <Route path="/conta/confirmar/:token" element={<ConfirmEmailPage />} />
+      <Route path="/conta/esqueci-senha" element={<ForgotPasswordPage />} />
+      <Route path="/conta/nova-senha/:token" element={<ResetPasswordPage />} />
+      <Route path="/conta/convite/:token" element={<AcceptInvitePage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           {/* Cada grupo exige a permissão da API que protege as mesmas rotas (RN-05.10). */}
@@ -61,6 +73,9 @@ export function AppRoutes() {
           </Route>
           <Route element={<RequirePermission permission="auditoria" />}>
             <Route path="/auditoria" element={<AuditPage />} />
+          </Route>
+          <Route element={<RequirePermission permission={["area.parceiro", "area.cliente"]} />}>
+            <Route path="/minha-conta" element={<MyAccountPage />} />
           </Route>
           <Route path="/ajuda" element={<HelpPage />} />
           <Route path="/ajuda/:slug" element={<HelpArticlePage />} />
