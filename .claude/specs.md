@@ -2,6 +2,14 @@
 
 ---
 
+## [2026-11-16] — Oferta aberta do transfer (API PEN-74)
+
+- Área do motorista: "Corridas disponíveis" (`offers` de `/partner/area`) com horário, trajeto, voo, passageiros, nome do cliente e valor; Aceitar (com a escolha de um dos carros dele, se tiver) e, em Minhas corridas, "Desistir da corrida" com confirmação, só antes de começar. Depois de aceitar ou não (outro pode ter levado antes), a área recarrega.
+- Ajuda: "Sua conta no Neon Flow" (aceitar e desistir), "Transfer" (a oferta aparece aos motoristas quando a central salva o valor; sem aviso automático) e "Novidades".
+- Testes: aceitar com carro, desistir com confirmação, aviso quando outro levou. 269 testes.
+
+---
+
 ## [2026-11-16] — Área do parceiro (API RN-07.8 a 07.11)
 
 - Módulo `partnerarea` (`GET /partner/area`): em Minha conta, o parceiro vê Meus carros e Reservas dos meus carros (proprietário, sem dados do cliente), Minhas corridas (motorista, com o nome do cliente), Minhas indicações (todos) e o próprio link e QR. Cada item traz o que ele recebe com a base, o percentual e se foi pago; totais de recebido e pendente por seção.

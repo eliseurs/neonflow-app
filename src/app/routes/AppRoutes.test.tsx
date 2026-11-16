@@ -13,7 +13,7 @@ vi.mock("@/modules/auth/services/auth.service", () => ({
 }));
 vi.mock("@/modules/partnerarea/services/partnerarea.service", () => ({
   partnerAreaService: {
-    area: () => Promise.resolve({ partner: { id: "p1", name: "Pedro Parceiro", kinds: ["indicador"], referral_code: "PEDRO2" }, vehicles: [], bookings: [], rides: [], referrals: [] }),
+    area: () => Promise.resolve({ partner: { id: "p1", name: "Pedro Parceiro", kinds: ["indicador"], referral_code: "PEDRO2" }, vehicles: [], bookings: [], rides: [], offers: [], referrals: [] }),
   },
 }));
 vi.mock("qrcode", () => ({ default: { toDataURL: () => Promise.resolve("data:image/png;base64,QR") } }));

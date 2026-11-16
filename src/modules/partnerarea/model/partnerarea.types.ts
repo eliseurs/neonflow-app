@@ -51,6 +51,18 @@ export interface AreaRide {
   payout: Payout | null;
 }
 
+/** Corrida da oferta aberta: aguarda motorista, com o valor da central (PEN-74). */
+export interface AreaOffer {
+  id: string;
+  pickup_at: string;
+  origin: string;
+  destination: string;
+  flight: string;
+  passengers: number;
+  client_name: string;
+  offer_cents: number;
+}
+
 export interface AreaReferral {
   id: string;
   kind: "aluguel" | "transfer";
@@ -64,6 +76,7 @@ export interface PartnerAreaData {
   vehicles: AreaVehicle[];
   bookings: AreaBooking[];
   rides: AreaRide[];
+  offers: AreaOffer[];
   referrals: AreaReferral[];
 }
 
