@@ -1,11 +1,12 @@
-import { screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderPage } from "@/test/render";
 import { PartnerArea } from "./components/PartnerArea";
 import { payoutLabel, totals, type PartnerAreaData } from "./model/partnerarea.types";
 import { partnerAreaService } from "./services/partnerarea.service";
 
-vi.mock("./services/partnerarea.service", () => ({ partnerAreaService: { area: vi.fn() } }));
+vi.mock("./services/partnerarea.service", () => ({ partnerAreaService: { area: vi.fn(), accept: vi.fn(), release: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock("qrcode", () => ({ default: { toDataURL: () => Promise.resolve("data:image/png;base64,QR") } }));
 
 beforeEach(() => vi.resetAllMocks());
@@ -21,6 +22,7 @@ const area = (over: Partial<PartnerAreaData> = {}): PartnerAreaData => ({
     { id: "b2", vehicle_name: "Jetta Pedro", start_at: "2026-12-20T13:00:00Z", end_at: "2026-12-21T13:00:00Z", stage: "confirmada", days: 1, extra_minutes: 0, excess_km: 0, payout: null },
   ],
   rides: [],
+  offers: [],
   referrals: [{ id: "r1", kind: "transfer", at: "2026-12-05T12:00:00Z", stage: "concluido", payout: { base_cents: 50000, percent_bp: null, amount_cents: null, paid_at: null } }],
   ...over,
 });
@@ -65,6 +67,48 @@ describe("área do parceiro", () => {
     expect(within(rides).getByText(/300,00 · gerado na conclusão/)).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "Meus carros" })).toBeNull();
     expect(screen.getByText(/Nenhuma indicação ainda/)).toBeInTheDocument();
+  });
+
+  it("motorista aceita a corrida da oferta com um carro dele e desiste de outra", async () => {
+    vi.mocked(partnerAreaService.area).mockResolvedValue(
+      area({
+        partner: { id: "p2", name: "Mário", kinds: ["proprietario", "motorista"], referral_code: "MARIO2" },
+        vehicles: [{ id: "v7", name: "Spin Mário", plate: "CCC3C33", in_maintenance: false }],
+        bookings: [], referrals: [],
+        offers: [{ id: "t9", pickup_at: "2026-12-11T11:30:00Z", origin: "CXJ", destination: "Canela", flight: "", passengers: 1, client_name: "Bia", offer_cents: 25000 }],
+        rides: [{ id: "t1", pickup_at: "2026-12-10T11:30:00Z", origin: "POA", destination: "Gramado", flight: "", passengers: 2, client_name: "Ana", stage: "com_motorista", driver_cents: 30000, payout: null }],
+      }),
+    );
+    vi.mocked(partnerAreaService.accept).mockResolvedValue({ accepted: true });
+    vi.mocked(partnerAreaService.release).mockResolvedValue({ released: true });
+    renderPage(<PartnerArea />);
+    const offers = await screen.findByRole("region", { name: "Corridas disponíveis" });
+    expect(within(offers).getByText(/Bia · 1 passageiro/)).toBeInTheDocument();
+    fireEvent.change(within(offers).getByLabelText("Carro para CXJ → Canela"), { target: { value: "v7" } });
+    fireEvent.click(within(offers).getByRole("button", { name: "Aceitar CXJ → Canela" }));
+    await waitFor(() => expect(partnerAreaService.accept).toHaveBeenCalledWith("t9", "v7"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Desistir da corrida" }));
+    expect(partnerAreaService.release).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar a desistência" }));
+    await waitFor(() => expect(partnerAreaService.release).toHaveBeenCalledWith("t1"));
+  });
+
+  it("outro motorista levou antes: mostra o aviso", async () => {
+    vi.mocked(partnerAreaService.area).mockResolvedValue(
+      area({
+        partner: { id: "p2", name: "Mário", kinds: ["motorista"], referral_code: "MARIO2" },
+        vehicles: [], bookings: [], rides: [], referrals: [],
+        offers: [{ id: "t9", pickup_at: "2026-12-11T11:30:00Z", origin: "CXJ", destination: "Canela", flight: "", passengers: 1, client_name: "Bia", offer_cents: 25000 }],
+      }),
+    );
+    vi.mocked(partnerAreaService.accept).mockRejectedValue(new Error("x"));
+    const { toast } = await import("sonner");
+    renderPage(<PartnerArea />);
+    expect(screen.queryByLabelText(/Carro para/)).toBeNull();
+    fireEvent.click(await screen.findByRole("button", { name: "Aceitar CXJ → Canela" }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Não foi possível aceitar a corrida."));
+    expect(partnerAreaService.accept).toHaveBeenCalledWith("t9", undefined);
   });
 
   it("mostra o erro da API", async () => {

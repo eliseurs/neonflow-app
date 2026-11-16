@@ -21,7 +21,8 @@ export const minhaConta: HelpArticle = {
       title: "Parceiro: o que aparece em Minha conta",
       items: [
         "Proprietário: Meus carros e Reservas dos meus carros, com o período, a situação, as diárias, o atraso, o km excedente e o seu repasse. Os dados do cliente não aparecem.",
-        "Motorista: Minhas corridas, com horário, trajeto, voo, passageiros, o nome do cliente e o que você recebe. O telefone do cliente fica com a central.",
+        "Motorista: Corridas disponíveis, com as corridas que aguardam motorista e o valor; quem clicar em Aceitar primeiro leva. Se você também tem carro, pode escolher qual vai na corrida. Depois ela aparece em Minhas corridas, com horário, trajeto, voo, passageiros, o nome do cliente e o que você recebe. O telefone do cliente fica com a central.",
+        "Motorista: para desistir de uma corrida que aceitou, antes de ela começar, clique em Desistir da corrida e confirme. Sem penalidade; ela volta para as corridas disponíveis.",
         "Todos: Minhas indicações, com o serviço, a data, a situação e a comissão, e o seu link e QR de indicação para compartilhar.",
         "Os valores mostram quanto você recebe, sobre qual base e com qual percentual, e se já foi pago. O repasse e a comissão aparecem quando o serviço termina; \"percentual a definir\" quer dizer que a central ainda vai combinar com você.",
         "Para mudar algo (dados, carro, percentual), fale com a central: a área é só para consulta.",
@@ -64,5 +65,5 @@ export const minhaConta: HelpArticle = {
   faq: [
     { q: "O que aparece em Minha conta?", a: "Os dados da conta; para o cliente, os pedidos com a situação e o histórico; para o parceiro, os carros, as corridas, as indicações e o que ele recebe." },
   ],
-  rules: ["RN-02.33", "RN-02.36", "RN-02.37", "RN-07.8", "RN-07.9", "RN-07.10", "RN-07.11", "RN-05.6", "RN-05.11", "RN-05.12", "RN-05.13", "RN-05.14"],
+  rules: ["RN-02.30", "RN-02.31", "RN-02.33", "RN-02.36", "RN-02.37", "RN-07.8", "RN-07.9", "RN-07.10", "RN-07.11", "RN-05.6", "RN-05.11", "RN-05.12", "RN-05.13", "RN-05.14"],
 };

@@ -1,13 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import { STAGE } from "@/modules/bookings/model/booking.types";
 import { ReferralCard } from "@/modules/partners/components/ReferralCard";
 import { TRANSFER_STAGE } from "@/modules/transfers/model/transfer.types";
 import { formatCents, formatDateTime } from "@/shared/lib/format";
 import { Badge } from "@/shared/ui/Badge";
+import { Button } from "@/shared/ui/Button";
 import { ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { payoutLabel, totals, type AreaReferral, type Payout } from "../model/partnerarea.types";
+import { OpenOffers } from "./OpenOffers";
 import { partnerAreaService } from "../services/partnerarea.service";
 
 function Section({ title, empty, count, children }: { title: string; empty: string; count: number; children: ReactNode }) {
@@ -35,10 +38,22 @@ function stageOf(r: AreaReferral) {
 
 /** Área do parceiro em Minha conta, só leitura (RN-07.8 a 07.11). Cada seção aparece conforme os tipos dele. */
 export function PartnerArea() {
+  const qc = useQueryClient();
   const area = useQuery({ queryKey: ["partner-area"], queryFn: partnerAreaService.area });
+  const [releasing, setReleasing] = useState<string | null>(null);
+  // Desistência sem penalidade, antes de a corrida começar: ela volta para a oferta (RN-02.31).
+  const release = useMutation({
+    mutationFn: (rideId: string) => partnerAreaService.release(rideId),
+    onSuccess: () => toast.success("Você desistiu da corrida. Ela voltou para as corridas disponíveis."),
+    onError: (err) => toast.error(apiErrorMessage(err, "Não foi possível desistir da corrida.")),
+    onSettled: () => {
+      setReleasing(null);
+      qc.invalidateQueries({ queryKey: ["partner-area"] });
+    },
+  });
   if (area.isPending) return <Loading />;
   if (area.isError) return <ErrorNote>{apiErrorMessage(area.error, "Não foi possível carregar a sua área.")}</ErrorNote>;
-  const { partner, vehicles, bookings, rides, referrals } = area.data;
+  const { partner, vehicles, bookings, rides, offers, referrals } = area.data;
   const owner = partner.kinds.includes("proprietario");
   const driver = partner.kinds.includes("motorista");
 
@@ -77,6 +92,7 @@ export function PartnerArea() {
 
       {driver && (
         <>
+          <OpenOffers offers={offers} vehicles={vehicles} />
           <Section title="Minhas corridas" empty="Nenhuma corrida ainda." count={rides.length}>
             {rides.map((r) => (
               <div key={r.id} className="space-y-1 p-5">
@@ -93,6 +109,16 @@ export function PartnerArea() {
                 <p className="text-sm text-bone/80">
                   Você recebe: {r.payout ? payoutLabel(r.payout) : `${formatCents(r.driver_cents)} · gerado na conclusão`}
                 </p>
+                {r.stage === "com_motorista" && (
+                  <Button
+                    variant={releasing === r.id ? "danger" : "ghost"}
+                    className="mt-2"
+                    disabled={release.isPending}
+                    onClick={() => (releasing === r.id ? release.mutate(r.id) : setReleasing(r.id))}
+                  >
+                    {releasing === r.id ? "Confirmar a desistência" : "Desistir da corrida"}
+                  </Button>
+                )}
               </div>
             ))}
           </Section>

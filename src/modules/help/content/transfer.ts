@@ -3,10 +3,10 @@ import type { HelpArticle } from "../model/help.types";
 export const transfer: HelpArticle = {
   slug: "transfer",
   title: "Transfer",
-  summary: "Corrida com motorista: a central registra o pedido, chama os motoristas pelo WhatsApp, marca quem aceitou e acompanha até a conclusão, que gera o pagamento do motorista.",
+  summary: "Corrida com motorista: a central registra o pedido e define o valor; os motoristas aceitam pela área deles (ou a central marca quem aceitou) e a central acompanha até a conclusão, que gera o pagamento do motorista.",
   routes: ["/transfers"],
   roles: ["admin", "central"],
-  updated: "2026-11-11",
+  updated: "2026-11-16",
   flow: [
     { label: "Aguardando motorista", detail: "Registrado; a central define o valor e chama os motoristas." },
     { label: "Com motorista", detail: "Alguém aceitou; o carro da corrida está definido." },
@@ -28,14 +28,15 @@ export const transfer: HelpArticle = {
     {
       title: "2. Chamar e marcar o motorista",
       steps: [
-        "No transfer, informe o Valor para o motorista e clique em Salvar valor.",
+        "No transfer, informe o Valor para o motorista e clique em Salvar valor. A partir daí a corrida aparece em Corridas disponíveis na área de todos os motoristas com conta, com o valor, o trajeto e o nome do cliente; o primeiro que aceitar leva e a corrida passa para Com motorista sozinha.",
         "Na lista aparecem motoristas e proprietários ativos, com as corridas que já têm no mesmo dia. O botão WhatsApp abre a conversa com a mensagem pronta e registra o chamado no histórico.",
         "Quando alguém topar, clique em Aceitou ao lado do nome, escolha o carro da corrida (o motorista nem sempre é o dono) e confirme.",
       ],
       items: [
         "Se ninguém aceitar, aumente o valor. Ele pode subir, nunca descer, e cada aumento fica no histórico. O acréscimo é decisão da central.",
         "Um segundo aceite na mesma corrida é recusado.",
-        "Se o motorista desistir depois de aceitar, clique em Motorista desistiu: a corrida volta para Aguardando motorista, sem penalidade.",
+        "Se o motorista desistir depois de aceitar, ele mesmo pode clicar em Desistir da corrida na área dele, ou você clica em Motorista desistiu: a corrida volta para Aguardando motorista com o mesmo valor, sem penalidade.",
+        "Os motoristas não recebem aviso automático: avise pelo WhatsApp quando abrir uma corrida.",
       ],
     },
     {
