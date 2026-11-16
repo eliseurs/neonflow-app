@@ -11,6 +11,12 @@ import { PERMS } from "@/test/permissions";
 vi.mock("@/modules/auth/services/auth.service", () => ({
   authService: { login: vi.fn(), me: vi.fn() },
 }));
+vi.mock("@/modules/partnerarea/services/partnerarea.service", () => ({
+  partnerAreaService: {
+    area: () => Promise.resolve({ partner: { id: "p1", name: "Pedro Parceiro", kinds: ["indicador"], referral_code: "PEDRO2" }, vehicles: [], bookings: [], rides: [], referrals: [] }),
+  },
+}));
+vi.mock("qrcode", () => ({ default: { toDataURL: () => Promise.resolve("data:image/png;base64,QR") } }));
 vi.mock("@/modules/fleet/services/fleet.service", () => ({ fleetService: { list: vi.fn().mockResolvedValue([]) } }));
 vi.mock("@/modules/bookings/services/booking.service", () => ({ bookingService: { list: vi.fn().mockResolvedValue([]) } }));
 // A landing busca a frota pública; sem o mock, o teste tentaria a rede.
@@ -59,7 +65,7 @@ describe("rotas", () => {
     const { unmount } = renderAt("/minha-conta");
     expect(screen.getByRole("heading", { name: /Minha/ })).toBeInTheDocument();
     expect(screen.getAllByText("Pedro Parceiro").length).toBeGreaterThan(0);
-    expect(screen.getByText(/acompanha aqui o que é seu/)).toBeInTheDocument();
+    expect(await screen.findByText("Minhas indicações")).toBeInTheDocument();
     unmount();
     renderAt("/reservas");
     expect(screen.getByText("Seu perfil não abre esta tela")).toBeInTheDocument();

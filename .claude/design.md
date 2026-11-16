@@ -47,6 +47,7 @@ src/
     customers/                  # clientes: cadastro, busca, histórico, anonimização (RN-04.7, RN-04.8)
     photos/                     # galeria de fotos do veículo e da reserva (bucket privado, ADR-0014)
     terms/                      # termos em versões, link de aceite e página pública do cliente (RN-02.3)
+    partnerarea/                # área do parceiro em Minha conta: carros, reservas sem o cliente, corridas, indicações e o que recebe (RN-07.8 a 07.11)
     requests/                   # pedidos do site: o cliente pede e acompanha; a central confirma, pede ajuste ou recusa (RN-02.33 a 02.37)
     account/                    # cadastro do cliente, confirmação, convite do parceiro, nova senha e Minha conta (RN-05.11 a 05.14)
   shared/

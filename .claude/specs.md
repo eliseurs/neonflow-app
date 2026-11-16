@@ -2,6 +2,15 @@
 
 ---
 
+## [2026-11-16] — Área do parceiro (API RN-07.8 a 07.11)
+
+- Módulo `partnerarea` (`GET /partner/area`): em Minha conta, o parceiro vê Meus carros e Reservas dos meus carros (proprietário, sem dados do cliente), Minhas corridas (motorista, com o nome do cliente), Minhas indicações (todos) e o próprio link e QR. Cada item traz o que ele recebe com a base, o percentual e se foi pago; totais de recebido e pendente por seção.
+- `ReferralCard` aceita `centralHint={false}`: na área do parceiro some a instrução "Indicado por", que é da central.
+- Ajuda: "Sua conta no Neon Flow" com o que o parceiro vê; "Novidades".
+- Testes: modelo (rótulo e totais), seções por tipo de parceiro, erro da API e rota de Minha conta. 267 testes.
+
+---
+
 ## [2026-11-16] — Pedidos do site (API RN-02.33 a 02.37, PR #31 da API)
 
 - Módulo `requests`. Cliente: Minha conta com Meus pedidos; `/minha-conta/pedidos/novo` (aluguel: período → carros livres com a estimativa de `GET /client/cars`; transfer: origem, destino, horário, passageiros e voo; WhatsApp e observações; o código de indicação guardado na visita vai junto); `/minha-conta/pedidos/:id` com a situação, a mensagem da central, o histórico, "Alterar e reenviar" no ajuste e o cancelamento em dois cliques.
