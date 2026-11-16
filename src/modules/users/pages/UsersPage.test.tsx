@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import type { User } from "@/modules/auth/model/auth.types";
+import { PERMS } from "@/test/permissions";
 import { renderPage } from "@/test/render";
 import type { PanelUser } from "../model/users.types";
 import { usersService } from "../services/users.service";
@@ -11,7 +12,7 @@ vi.mock("../services/users.service", () => ({
   usersService: { list: vi.fn(), create: vi.fn(), update: vi.fn(), resetPassword: vi.fn(), changeOwnPassword: vi.fn() },
 }));
 
-const admin: User = { id: "a1", name: "Admin Teste", email: "admin@neonflow.test", role: "admin", created_at: "", updated_at: "" };
+const admin: User = { id: "a1", name: "Admin Teste", email: "admin@neonflow.test", role: "admin", permissions: PERMS.admin, created_at: "", updated_at: "" };
 const panelUser = (over: Partial<PanelUser> = {}): PanelUser => ({
   id: "u2", name: "Ana Teste", email: "ana@neonflow.test", role: "central", active: true, created_at: "", updated_at: "", ...over,
 });
@@ -29,7 +30,7 @@ beforeEach(() => {
 
 describe("UsersPage", () => {
   it("só administração vê a lista", async () => {
-    useAuthStore.getState().setSession("tok", future(), { ...admin, role: "central" });
+    useAuthStore.getState().setSession("tok", future(), { ...admin, role: "central", permissions: PERMS.central });
     renderPage(<UsersPage />);
     expect(screen.getByText("Só para administração")).toBeInTheDocument();
     expect(usersService.list).not.toHaveBeenCalled();

@@ -1,10 +1,10 @@
+import { useCan } from "@/modules/auth/model/permissions";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
-import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { STAGE, type Stage } from "@/modules/bookings/model/booking.types";
 import { formatPhone, whatsappUrl } from "@/modules/landing/model/whatsapp";
 import { TRANSFER_STAGE, type TransferStage } from "@/modules/transfers/model/transfer.types";
@@ -26,7 +26,7 @@ function stageBadge(o: CustomerOrder) {
 export function CustomerDetailPage() {
   const { id = "" } = useParams();
   const qc = useQueryClient();
-  const isAdmin = useAuthStore((s) => s.user?.role === "admin");
+  const isAdmin = useCan("clientes.anonimizar");
   const customer = useQuery({ queryKey: ["customers", id], queryFn: () => customerService.get(id) });
   const [editing, setEditing] = useState(false);
   const [confirmAnon, setConfirmAnon] = useState(false);

@@ -24,7 +24,8 @@ export interface UpdateUserRequest {
   active?: boolean;
 }
 
-export const ROLE_LABEL: Record<Role, string> = { admin: "Administração", central: "Central" };
+/** Papéis que o admin pode dar, com o nome do perfil (RN-05.3). */
+export { ROLE_LABEL } from "@/app/layout/profiles";
 
 /** Mesma regra da API (authentication.MinPasswordLength). */
 export const MIN_PASSWORD_LENGTH = 10;

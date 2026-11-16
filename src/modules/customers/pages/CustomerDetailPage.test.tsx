@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
+import { PERMS } from "@/test/permissions";
 import { renderPage } from "@/test/render";
 import type { CustomerDetail } from "../model/customer.types";
 import { customerService } from "../services/customer.service";
@@ -20,7 +21,7 @@ const detail = (over: Partial<CustomerDetail> = {}): CustomerDetail => ({
 
 const open = () => renderPage(<CustomerDetailPage />, { path: "/clientes/:id", route: "/clientes/c1" });
 const login = (role: "admin" | "central") =>
-  useAuthStore.setState({ token: "t", expiresAt: "2099-01-01T00:00:00Z", user: { id: "u1", name: "Central", email: "c@neonflow.test", role } } as never);
+  useAuthStore.setState({ token: "t", expiresAt: "2099-01-01T00:00:00Z", user: { id: "u1", name: "Central", email: "c@neonflow.test", role, permissions: PERMS[role] } } as never);
 
 beforeEach(() => vi.resetAllMocks());
 

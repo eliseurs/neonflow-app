@@ -1,11 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppRoutes } from "./AppRoutes";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { authService } from "@/modules/auth/services/auth.service";
 import type { User } from "@/modules/auth/model/auth.types";
+import { PERMS } from "@/test/permissions";
 
 vi.mock("@/modules/auth/services/auth.service", () => ({
   authService: { login: vi.fn(), me: vi.fn() },
@@ -24,7 +25,9 @@ vi.mock("@/modules/dashboard/services/dashboard.service", () => ({
   },
 }));
 
-const user: User = { id: "u1", name: "Maria Central", email: "maria@neonflow.test", role: "central", created_at: "", updated_at: "" };
+const user: User = { id: "u1", name: "Maria Central", email: "maria@neonflow.test", role: "central", permissions: PERMS.central, created_at: "", updated_at: "" };
+const adminUser: User = { ...user, role: "admin", permissions: PERMS.admin };
+const lawyer: User = { ...user, name: "Rita Jurídico", role: "legal_reviewer", permissions: PERMS.legal_reviewer };
 const future = () => new Date(Date.now() + 3_600_000).toISOString();
 
 function renderAt(path: string) {
@@ -114,10 +117,58 @@ describe("rotas", () => {
     expect(await screen.findAllByRole("link", { name: /Reservas/ })).not.toHaveLength(0);
     expect(screen.queryAllByRole("link", { name: /Usuários/ })).toHaveLength(0);
     unmount();
-    useAuthStore.getState().setSession("tok", future(), { ...user, role: "admin" });
-    vi.mocked(authService.me).mockResolvedValue({ ...user, role: "admin" });
+    useAuthStore.getState().setSession("tok", future(), adminUser);
+    vi.mocked(authService.me).mockResolvedValue(adminUser);
     renderAt("/central");
     expect((await screen.findAllByRole("link", { name: /Usuários/ }))[0]).toHaveAttribute("href", "/usuarios");
     expect(screen.getAllByRole("button", { name: /Trocar senha/ }).length).toBeGreaterThan(0);
+  });
+
+  it("tela sem permissão mostra o aviso e o caminho para o início do perfil", async () => {
+    useAuthStore.getState().setSession("tok", future(), user);
+    renderAt("/usuarios");
+    expect(await screen.findByText("Seu perfil não abre esta tela")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ir para o início" })).toHaveAttribute("href", "/central");
+    expect(screen.queryByRole("heading", { name: /Quem usa/ })).toBeNull();
+  });
+
+  it("jurídico tem o layout de foco, só com contratos, e não abre a operação", async () => {
+    vi.mocked(authService.me).mockResolvedValue(lawyer);
+    useAuthStore.getState().setSession("tok", future(), lawyer);
+    const { container } = renderAt("/reservas");
+    expect(await screen.findByText("Seu perfil não abre esta tela")).toBeInTheDocument();
+    expect(container.querySelector("[data-layout='foco']")).not.toBeNull();
+    expect(screen.getByText("Revisão jurídica")).toBeInTheDocument();
+    const nav = screen.getByRole("navigation", { name: "Navegação principal" });
+    expect(within(nav).getAllByRole("link").map((l) => l.getAttribute("href"))).toEqual(["/contratos"]);
+    expect(screen.getByRole("link", { name: "Ir para o início" })).toHaveAttribute("href", "/contratos");
+  });
+
+  it("operação tem o layout completo", async () => {
+    useAuthStore.getState().setSession("tok", future(), user);
+    const { container } = renderAt("/central");
+    expect(await screen.findByRole("heading", { name: /^Olá, Maria\./ })).toBeInTheDocument();
+    expect(container.querySelector("[data-layout='completo']")).not.toBeNull();
+  });
+
+  it("sessão antiga sem permissões espera o /auth/me e aplica o papel atual", async () => {
+    useAuthStore.getState().setSession("tok", future(), { ...user, permissions: undefined });
+    vi.mocked(authService.me).mockResolvedValue(adminUser);
+    renderAt("/usuarios");
+    expect(screen.getByRole("status")).toHaveTextContent("Carregando");
+    expect(screen.queryByText("Seu perfil não abre esta tela")).toBeNull();
+    expect(await screen.findByRole("heading", { name: /Quem usa/ })).toBeInTheDocument();
+    expect(useAuthStore.getState().user?.permissions).toEqual(PERMS.admin);
+  });
+
+  it("login do jurídico leva aos contratos", async () => {
+    vi.mocked(authService.login).mockResolvedValue({ token: "tok", expires_at: future(), user: lawyer });
+    vi.mocked(authService.me).mockResolvedValue(lawyer);
+    renderAt("/login");
+    fireEvent.change(screen.getByLabelText("E-mail"), { target: { value: "rita@neonflow.test" } });
+    fireEvent.change(screen.getByLabelText("Senha"), { target: { value: "senha-forte-123" } });
+    fireEvent.click(screen.getByRole("button", { name: "Entrar" }));
+    expect(await screen.findByText("Revisão jurídica")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByRole("link", { name: /Contratos/ }).length).toBeGreaterThan(0));
   });
 });
