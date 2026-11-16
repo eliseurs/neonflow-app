@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { apiErrorMessage } from "@/app/providers/api/client";
-import { ROLE_LABEL } from "@/app/layout/profiles";
-import type { Role } from "@/modules/auth/model/auth.types";
+import { profileFor } from "@/app/layout/profiles";
 import { usersService } from "@/modules/users/services/users.service";
 import { formatDateTime } from "@/shared/lib/format";
 import { Badge } from "@/shared/ui/Badge";
@@ -57,7 +56,7 @@ export function AuditPage() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm">{describe(e)}</p>
                   <p className="truncate text-xs text-bone/50">
-                    {e.user_name} · {ROLE_LABEL[e.role as Role] ?? e.role} · <span className="font-mono">{e.method} {e.path}</span>
+                    {e.user_name} · {profileFor(e.role).label || e.role} · <span className="font-mono">{e.method} {e.path}</span>
                   </p>
                 </div>
                 <Badge tone={o.tone}>{o.label}</Badge>

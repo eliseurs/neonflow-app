@@ -52,6 +52,30 @@ describe("rotas", () => {
     expect(screen.getByRole("button", { name: "Entrar" })).toBeInTheDocument();
   });
 
+  it("parceiro e cliente abrem Minha conta e não entram na operação", async () => {
+    const partner: User = { ...user, name: "Pedro Parceiro", role: "parceiro", permissions: PERMS.parceiro, partner_id: "p1" };
+    vi.mocked(authService.me).mockResolvedValue(partner);
+    useAuthStore.getState().setSession("tok", future(), partner);
+    const { unmount } = renderAt("/minha-conta");
+    expect(screen.getByRole("heading", { name: /Minha/ })).toBeInTheDocument();
+    expect(screen.getAllByText("Pedro Parceiro").length).toBeGreaterThan(0);
+    expect(screen.getByText(/acompanha aqui o que é seu/)).toBeInTheDocument();
+    unmount();
+    renderAt("/reservas");
+    expect(screen.getByText("Seu perfil não abre esta tela")).toBeInTheDocument();
+  });
+
+  it("páginas de conta abrem sem login", () => {
+    renderAt("/conta/cadastro");
+    expect(screen.getByRole("button", { name: "Criar conta" })).toBeInTheDocument();
+  });
+
+  it("o login leva ao cadastro e ao esqueci a senha", () => {
+    renderAt("/login");
+    expect(screen.getByRole("link", { name: "Esqueci a senha" })).toHaveAttribute("href", "/conta/esqueci-senha");
+    expect(screen.getByRole("link", { name: /Cadastre-se/ })).toHaveAttribute("href", "/conta/cadastro");
+  });
+
   it("mostra o painel com sessão válida e carrega /auth/me", async () => {
     useAuthStore.getState().setSession("tok", future(), user);
     renderAt("/reservas");

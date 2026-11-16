@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Painel da **central de mobilidade** do Neon Flow: frota, reservas e ciclo de locação. Usuários atuais: papéis `admin` e `central` (RN-05.3). Perfis de cliente, motorista e parceiro dependem de PEN-14.
+Painel da **central de mobilidade** do Neon Flow: frota, reservas e ciclo de locação. Papéis: `admin`, `central`, `legal_reviewer`, e `parceiro` e `cliente` (API RN-05.3, RN-05.11 a 05.14). Parceiro e cliente entram em `/minha-conta`; o que cada um vê na própria área depende de PEN-14.
 
 ---
 
@@ -47,6 +47,7 @@ src/
     customers/                  # clientes: cadastro, busca, histórico, anonimização (RN-04.7, RN-04.8)
     photos/                     # galeria de fotos do veículo e da reserva (bucket privado, ADR-0014)
     terms/                      # termos em versões, link de aceite e página pública do cliente (RN-02.3)
+    account/                    # cadastro do cliente, confirmação, convite do parceiro, nova senha e Minha conta (RN-05.11 a 05.14)
   shared/
     ui/                         # Brand, Heading (Overline, Accent, SectionHeading, PageHeader), Button, buttonClass, Field, Panel, Badge, Dialog, Reveal
     lib/cn.ts                   # clsx + tailwind-merge
@@ -65,6 +66,9 @@ docs/                           # deploy, qualidade
 |---|---|---|
 | `/` | LandingPage | pública (PT/EN) |
 | `/login` | LoginPage | pública (redireciona para `/central` se já autenticado) |
+| `/conta/cadastro`, `/conta/esqueci-senha` | SignupPage, ForgotPasswordPage | pública |
+| `/conta/confirmar/:token`, `/conta/nova-senha/:token`, `/conta/convite/:token` | ConfirmEmailPage, ResetPasswordPage, AcceptInvitePage | pública (o código do link é a autorização) |
+| `/minha-conta` | MyAccountPage | `ProtectedRoute` + `area.parceiro` ou `area.cliente` |
 | `/central` | DashboardPage | `ProtectedRoute` |
 | `/frota` | FleetPage | `ProtectedRoute` |
 | `/reservas` | BookingsPage | `ProtectedRoute` |

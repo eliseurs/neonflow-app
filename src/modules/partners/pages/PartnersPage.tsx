@@ -1,7 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { Plus, QrCode } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Mail, Plus, QrCode } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
+import { accountService } from "@/modules/account/services/account.service";
+import { formatDateTime } from "@/shared/lib/format";
 import { cn } from "@/shared/lib/cn";
 import { Badge } from "@/shared/ui/Badge";
 import { Button } from "@/shared/ui/Button";
@@ -35,6 +38,12 @@ export function PartnersPage() {
   const [filter, setFilter] = useState<Filter>("todos");
   const [editing, setEditing] = useState<Partner | "new" | null>(null);
   const [sharing, setSharing] = useState<Partner | null>(null);
+  // Convite de acesso: o parceiro recebe por e-mail o link para criar a senha (API RN-05.12).
+  const invite = useMutation({
+    mutationFn: (p: Partner) => accountService.invitePartner(p.id),
+    onSuccess: (inv) => toast.success(`Convite enviado para ${inv.sent_to}. Vale até ${formatDateTime(inv.expires_at)}.`),
+    onError: (err) => toast.error(apiErrorMessage(err, "Não foi possível enviar o convite.")),
+  });
 
   const list = (partners.data ?? []).filter((p) => filter === "todos" || p.kinds.includes(filter));
   const add = (
@@ -99,6 +108,15 @@ export function PartnersPage() {
               </div>
               <span className="font-mono text-sm tracking-[0.15em] text-gold">{p.referral_code}</span>
               <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => invite.mutate(p)}
+                  disabled={!p.active || !p.email.trim() || invite.isPending}
+                  title={!p.active ? "Parceiro desativado" : !p.email.trim() ? "Cadastre o e-mail do parceiro para convidar" : undefined}
+                  aria-label={`Convidar ${p.name} para entrar`}
+                >
+                  <Mail className="h-4 w-4" aria-hidden /> Convidar
+                </Button>
                 <Button variant="ghost" onClick={() => setSharing(p)} aria-label={`Link e QR de ${p.name}`}>
                   <QrCode className="h-4 w-4" aria-hidden /> Indicação
                 </Button>

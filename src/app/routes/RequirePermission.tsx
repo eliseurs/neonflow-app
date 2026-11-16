@@ -6,10 +6,11 @@ import { buttonClass } from "@/shared/ui/buttonClass";
 import { PageHeader } from "@/shared/ui/Heading";
 import { EmptyState } from "@/shared/ui/Panel";
 
-/** Guarda das telas do painel: sem a permissão, mostra o aviso e o caminho para o início do perfil. */
-export function RequirePermission({ permission }: { permission: Permission }) {
+/** Guarda das telas do painel: sem a permissão (ou nenhuma das da lista), mostra o aviso e o caminho para o início do perfil. */
+export function RequirePermission({ permission }: { permission: Permission | Permission[] }) {
   const permissions = useAuthStore((s) => s.user?.permissions);
-  if (permissions?.includes(permission)) return <Outlet />;
+  const required = Array.isArray(permission) ? permission : [permission];
+  if (required.some((p) => permissions?.includes(p))) return <Outlet />;
   return (
     <section className="space-y-8">
       <PageHeader overline="Acesso" title="Tela" accent="restrita." />

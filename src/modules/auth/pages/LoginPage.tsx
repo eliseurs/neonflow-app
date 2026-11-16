@@ -45,9 +45,9 @@ export function LoginPage() {
           <img src="/brand/neonflow-icone-app.svg" alt="Neon Flow" className="h-28 w-auto md:h-32" />
         </Link>
         <form onSubmit={submit} className="mt-10 rounded-[14px] border border-white/[0.08] bg-white/[0.03] p-8 md:p-10" noValidate>
-          <Overline>Central de mobilidade</Overline>
+          <Overline>Neon Flow</Overline>
           <h1 className="mt-4 font-serif text-4xl font-light leading-tight">
-            Acesso <Accent>da equipe.</Accent>
+            Acesse a <Accent>sua conta.</Accent>
           </h1>
 
           <div className="mt-8 space-y-5">
@@ -64,8 +64,12 @@ export function LoginPage() {
           <Button type="submit" className="mt-8 w-full" disabled={login.isPending || !email || !password}>
             {login.isPending ? "Entrando..." : "Entrar"}
           </Button>
+          <Link to="/conta/esqueci-senha" className="mt-5 inline-block text-sm text-bone/55 hover:text-gold">Esqueci a senha</Link>
         </form>
-        <Link to="/" className="mt-6 inline-block text-sm text-bone/50 hover:text-gold">← Voltar ao site</Link>
+        <div className="mt-6 flex flex-wrap justify-between gap-3 text-sm text-bone/50">
+          <Link to="/" className="hover:text-gold">← Voltar ao site</Link>
+          <Link to="/conta/cadastro" className="hover:text-gold">Cliente sem conta? Cadastre-se</Link>
+        </div>
       </div>
     </main>
   );

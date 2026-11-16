@@ -27,6 +27,13 @@ describe("menu por permissão", () => {
     expect(homeFor(PERMS.legal_reviewer)).toBe("/contratos");
   });
 
+  it("parceiro e cliente só veem Minha conta e começam por ela", () => {
+    expect(labels("parceiro")).toEqual([["", ["Minha conta"]]]);
+    expect(labels("cliente")).toEqual([["", ["Minha conta"]]]);
+    expect(homeFor(PERMS.parceiro)).toBe("/minha-conta");
+    expect(homeFor(PERMS.cliente)).toBe("/minha-conta");
+  });
+
   it("sem permissão não há abas e o início é a ajuda", () => {
     expect(navFor(undefined)).toEqual([]);
     expect(navFor([])).toEqual([]);
