@@ -42,10 +42,11 @@ function Flow({ a }: { a: HelpArticle }) {
 export function HelpArticlePage() {
   const { slug = "" } = useParams();
   const role = useAuthStore((s) => s.user?.role);
+  const permissions = useAuthStore((s) => s.user?.permissions);
   const a = articlesFor(role).find((x) => x.slug === slug);
   if (!a) return <Navigate to="/ajuda" replace />;
   // Só os atalhos para telas que o papel pode abrir.
-  const allowed = new Set(navFor(role).flatMap((g) => g.items.map((i) => i.to)));
+  const allowed = new Set(navFor(permissions).flatMap((g) => g.items.map((i) => i.to)));
   const routes = a.routes.filter((r) => allowed.has(r));
 
   return (

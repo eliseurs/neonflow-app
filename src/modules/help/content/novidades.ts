@@ -7,8 +7,18 @@ export const novidades: HelpArticle = {
   summary: "O que mudou no painel, em poucas palavras, do mais recente para o mais antigo.",
   routes: [],
   roles: ["admin", "central", "legal_reviewer"],
-  updated: "2026-11-12",
+  updated: "2026-11-16",
   sections: [
+    {
+      title: "16/11/2026",
+      items: [
+        "Cada perfil tem o seu painel: a operação continua com o menu lateral; o Jurídico ganhou um painel enxuto, só com Contratos numa barra no topo.",
+        "Desativar alguém ou trocar o papel vale na hora, sem a pessoa entrar de novo.",
+        "Link para uma tela que o seu papel não abre mostra \"Tela restrita\" e o caminho de volta ao início.",
+        "Usuários: o admin já pode criar contas do Jurídico, e o campo Papel explica o que cada um abre.",
+        "Administração ganhou Auditoria: quem alterou o quê, as entradas no painel e os acessos negados.",
+      ],
+    },
     {
       title: "12/11/2026",
       items: [

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
 import { MobileNav } from "./MobileNav";
 import { NavGroups } from "./NavGroups";
+import { PERMS } from "@/test/permissions";
 
 function renderAt(route: string, ui: React.ReactElement) {
   return render(
@@ -18,7 +19,7 @@ beforeEach(() => localStorage.clear());
 
 describe("menu em acordeão", () => {
   it("fecha e abre um grupo e lembra no navegador", () => {
-    const { unmount } = renderAt("/central", <NavGroups role="admin" size="compact" />);
+    const { unmount } = renderAt("/central", <NavGroups permissions={PERMS.admin} size="compact" />);
     const toggle = screen.getByRole("button", { name: "Relacionamento" });
     expect(toggle).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("link", { name: /Clientes/ })).toBeInTheDocument();
@@ -26,12 +27,12 @@ describe("menu em acordeão", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("link", { name: /Clientes/ })).toBeNull();
     unmount();
-    renderAt("/central", <NavGroups role="admin" size="compact" />);
+    renderAt("/central", <NavGroups permissions={PERMS.admin} size="compact" />);
     expect(screen.getByRole("button", { name: "Relacionamento" })).toHaveAttribute("aria-expanded", "false");
   });
 
   it("o grupo da tela atual também fecha, com o chevron, e o título fica dourado", () => {
-    renderAt("/reservas/123", <NavGroups role="admin" size="compact" />);
+    renderAt("/reservas/123", <NavGroups permissions={PERMS.admin} size="compact" />);
     const toggle = screen.getByRole("button", { name: "Operação" });
     expect(toggle).toBeEnabled();
     expect(toggle.querySelector("svg")).not.toBeNull();
@@ -48,7 +49,7 @@ describe("menu em acordeão", () => {
     renderAt(
       "/central",
       <>
-        <NavGroups role="admin" size="compact" />
+        <NavGroups permissions={PERMS.admin} size="compact" />
         <Link to="/reservas/9">ir para a reserva</Link>
       </>,
     );
@@ -60,13 +61,13 @@ describe("menu em acordeão", () => {
 
   it("ao carregar a página, o grupo fechado continua fechado", () => {
     localStorage.setItem("neonflow-nav-fechados", JSON.stringify(["Operação"]));
-    renderAt("/reservas", <NavGroups role="admin" size="compact" />);
+    renderAt("/reservas", <NavGroups permissions={PERMS.admin} size="compact" />);
     expect(screen.getByRole("button", { name: "Operação" })).toHaveAttribute("aria-expanded", "false");
   });
 
   it("storage inválido abre todos", () => {
     localStorage.setItem("neonflow-nav-fechados", "{quebrado");
-    renderAt("/central", <NavGroups role="admin" size="compact" />);
+    renderAt("/central", <NavGroups permissions={PERMS.admin} size="compact" />);
     expect(screen.getByRole("button", { name: "Financeiro" })).toHaveAttribute("aria-expanded", "true");
   });
 });
@@ -75,7 +76,7 @@ describe("navegação no celular", () => {
   const props = { name: "Ana Teste", roleLabel: "Central", onChangePassword: vi.fn(), onLogout: vi.fn() };
 
   it("barra com as telas principais e o Menu com o restante", () => {
-    renderAt("/central", <MobileNav role="central" {...props} />);
+    renderAt("/central", <MobileNav permissions={PERMS.central} {...props} />);
     const bar = screen.getByRole("navigation", { name: "Navegação" });
     expect(within(bar).getAllByRole("link").map((l) => l.textContent)).toEqual(["Visão geral", "Reservas", "Transfer", "Frota"]);
     fireEvent.click(within(bar).getByRole("button", { name: "Menu" }));
@@ -86,7 +87,7 @@ describe("navegação no celular", () => {
   });
 
   it("o painel fecha ao escolher uma tela e no Esc", () => {
-    renderAt("/central", <MobileNav role="central" {...props} />);
+    renderAt("/central", <MobileNav permissions={PERMS.central} {...props} />);
     fireEvent.click(screen.getByRole("button", { name: "Menu" }));
     fireEvent.click(within(screen.getByRole("dialog")).getByRole("link", { name: /Clientes/ }));
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -96,7 +97,7 @@ describe("navegação no celular", () => {
   });
 
   it("trocar senha e sair pelo painel", () => {
-    renderAt("/central", <MobileNav role="central" {...props} />);
+    renderAt("/central", <MobileNav permissions={PERMS.central} {...props} />);
     fireEvent.click(screen.getByRole("button", { name: "Menu" }));
     fireEvent.click(screen.getByRole("button", { name: /Senha/ }));
     expect(props.onChangePassword).toHaveBeenCalled();
@@ -106,7 +107,7 @@ describe("navegação no celular", () => {
   });
 
   it("tela fora da barra destaca o Menu", () => {
-    renderAt("/repasses", <MobileNav role="central" {...props} />);
+    renderAt("/repasses", <MobileNav permissions={PERMS.central} {...props} />);
     expect(screen.getByRole("button", { name: "Menu" }).className).toContain("text-gold");
   });
 });

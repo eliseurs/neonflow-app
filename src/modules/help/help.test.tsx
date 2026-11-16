@@ -2,6 +2,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { navFor } from "@/app/layout/nav";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
+import { PERMS } from "@/test/permissions";
 import { renderPage } from "@/test/render";
 import { ARTICLES, articleForPath, articlesFor } from "./content";
 import { HelpArticlePage } from "./pages/HelpArticlePage";
@@ -13,13 +14,13 @@ import { HelpPage } from "./pages/HelpPage";
  */
 const PENDING: string[] = [];
 
-const loginAs = (role: string) =>
-  useAuthStore.setState({ token: "t", expiresAt: "2099-01-01T00:00:00Z", user: { id: "u1", name: "Teste", email: "t@neonflow.test", role } } as never);
+const loginAs = (role: keyof typeof PERMS) =>
+  useAuthStore.setState({ token: "t", expiresAt: "2099-01-01T00:00:00Z", user: { id: "u1", name: "Teste", email: "t@neonflow.test", role, permissions: PERMS[role] } } as never);
 
 beforeEach(() => useAuthStore.setState({ token: null, expiresAt: null, user: null }));
 
 describe("central de ajuda: cobertura", () => {
-  const routes = [...new Set(["admin", "central", "legal_reviewer"].flatMap((r) => navFor(r).flatMap((g) => g.items.map((i) => i.to))))];
+  const routes = [...new Set(Object.values(PERMS).flatMap((p) => navFor(p).flatMap((g) => g.items.map((i) => i.to))))];
   const covered = new Set(ARTICLES.flatMap((a) => a.routes));
 
   it.each(routes)("a aba %s tem artigo de ajuda (ou está na lista de pendentes)", (route) => {

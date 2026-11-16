@@ -21,13 +21,13 @@ export function LoginPage() {
     mutationFn: authService.login,
     onSuccess: (res) => {
       setSession(res.token, res.expires_at, res.user);
-      const from = (location.state as { from?: string } | null)?.from ?? homeFor(res.user.role);
+      const from = (location.state as { from?: string } | null)?.from ?? homeFor(res.user.permissions);
       navigate(from, { replace: true });
     },
   });
 
   if (isAuthenticated()) {
-    return <Navigate to={homeFor(user?.role)} replace />;
+    return <Navigate to={homeFor(user?.permissions)} replace />;
   }
 
   const submit = (e: FormEvent) => {

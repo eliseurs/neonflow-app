@@ -2,6 +2,18 @@
 
 ---
 
+## [2026-11-16] — Permissões, layout por perfil e Auditoria (API RN-05.8 a 05.10)
+
+- `User.permissions` vem do login e do `/auth/me` (lista da API). `can`/`useCan` em `modules/auth/model/permissions.ts`; o papel `legal_reviewer` entrou no tipo `Role`.
+- Menu (`nav.ts`) por permissão: cada aba declara a permissão que exige; `navFor`, `homeFor` e `primaryFor` recebem a lista. `NavGroups` e `MobileNav` trocam `role` por `permissions`. Sem permissão, o início é `/ajuda`.
+- Rotas: grupos em `AppRoutes` dentro de `RequirePermission` (operacao, contratos, termos.publicar, usuarios, auditoria). Sem a permissão, "Tela restrita" com o caminho para o início do perfil.
+- Layout por perfil (`layout/profiles.ts`): `completo` (admin, central: menu lateral e barra no celular) e `foco` (jurídico: barra no topo só com as telas dele, leitura em `max-w-4xl`). O nome do perfil e a linha sob o logo vêm do perfil. Sessão gravada sem permissões espera o `/auth/me` antes de mostrar a tela.
+- Usuários: papel Jurídico no seletor e a explicação do que cada papel abre. Anonimizar cliente segue a permissão `clientes.anonimizar`.
+- Auditoria (`/auditoria`, `modules/audit`): lista da trilha com filtro por usuário e "só acessos negados".
+- Ajuda: artigo novo de Auditoria; Usuários e Novidades atualizados.
+
+---
+
 ## [2026-11-12] — Termos preenchidos com as condições do site
 
 - `/termos`: sem versão publicada, o campo abre com `suggestedTermsBody()`, as condições do aluguel sem motorista da seção "Condições" do site (`landing.content`, PT), numeradas, com aviso para revisar antes de publicar. Nada é publicado sozinho: o aceite do cliente continua dependendo do admin clicar em Publicar. A minuta da Ordem 04 não foi usada (não aprovada, com campos em branco).

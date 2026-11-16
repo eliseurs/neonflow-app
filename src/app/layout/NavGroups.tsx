@@ -25,7 +25,8 @@ function writeClosed(list: string[]) {
 }
 
 interface Props {
-  role: string | undefined;
+  /** Permissões do usuário (RN-05.10). */
+  permissions: readonly string[] | undefined;
   /** "compact" no menu lateral do desktop; "touch" no painel do celular (alvos maiores). */
   size: "compact" | "touch";
   onNavigate?: () => void;
@@ -35,11 +36,11 @@ interface Props {
  * Abas por assunto em acordeão. Todo grupo abre e fecha no título. Ao navegar para uma tela de um grupo
  * fechado, ele abre sozinho; fechado com a tela atual dentro, o título fica dourado.
  */
-export function NavGroups({ role, size, onNavigate }: Props) {
+export function NavGroups({ permissions, size, onNavigate }: Props) {
   const path = useLocation().pathname;
   const [closed, setClosed] = useState<string[]>(readClosed);
   const touch = size === "touch";
-  const groups = navFor(role);
+  const groups = navFor(permissions);
 
   // Só na troca de tela (não ao carregar): abre o grupo da tela nova, se estiver fechado.
   const lastPath = useRef(path);

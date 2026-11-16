@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/app/providers/api/client";
 import type { Role } from "@/modules/auth/model/auth.types";
+import { can } from "@/modules/auth/model/permissions";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
 import { cn } from "@/shared/lib/cn";
 import { Badge } from "@/shared/ui/Badge";
@@ -14,6 +15,12 @@ import { PageHeader } from "@/shared/ui/Heading";
 import { EmptyState, ErrorNote, Loading, Panel } from "@/shared/ui/Panel";
 import { MIN_PASSWORD_LENGTH, ROLE_LABEL, type PanelUser } from "../model/users.types";
 import { usersService } from "../services/users.service";
+
+const ROLE_HINT: Record<Role, string> = {
+  admin: "Tudo: operação, contratos, termos, usuários e auditoria.",
+  central: "Operação: reservas, transfer, frota, clientes, parceiros e repasses.",
+  legal_reviewer: "Só contratos, para revisar e aprovar as versões.",
+};
 
 function RoleSelect({ id, value, onChange, disabled }: { id: string; value: Role; onChange: (r: Role) => void; disabled?: boolean }) {
   return (
@@ -68,7 +75,7 @@ function UserForm({ user, isSelf, onDone }: { user?: PanelUser; isSelf: boolean;
           <input id="user-password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputClass} />
         </Field>
       )}
-      <Field id="user-role" label="Papel" hint={isSelf ? "Você não pode tirar o seu próprio papel de admin." : undefined}>
+      <Field id="user-role" label="Papel" hint={isSelf ? "Você não pode tirar o seu próprio papel de admin." : ROLE_HINT[role]}>
         <RoleSelect id="user-role" value={role} onChange={setRole} disabled={isSelf} />
       </Field>
       {user && (
@@ -120,7 +127,7 @@ function ResetPasswordForm({ user, onDone }: { user: PanelUser; onDone: () => vo
 
 export function UsersPage() {
   const me = useAuthStore((s) => s.user);
-  const isAdmin = me?.role === "admin";
+  const isAdmin = can(me, "usuarios");
   const users = useQuery({ queryKey: ["users"], queryFn: usersService.list, enabled: isAdmin });
   const [editing, setEditing] = useState<PanelUser | "new" | null>(null);
   const [resetting, setResetting] = useState<PanelUser | null>(null);
@@ -146,7 +153,7 @@ export function UsersPage() {
         overline="Usuários"
         title="Quem usa"
         accent="o painel."
-        description="Por enquanto, só administração e central (RN-05.6). Usuário desativado não entra mais no painel."
+        description="Administração, Central e Jurídico (RN-05.3). Cada papel abre só as telas dele. Desativar ou trocar o papel vale na hora, sem a pessoa entrar de novo."
         actions={add}
       />
 

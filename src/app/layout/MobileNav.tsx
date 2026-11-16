@@ -6,7 +6,7 @@ import { NavGroups } from "./NavGroups";
 import { isActiveRoute, primaryFor } from "./nav";
 
 interface Props {
-  role: string | undefined;
+  permissions: readonly string[] | undefined;
   name: string;
   roleLabel: string;
   onChangePassword: () => void;
@@ -17,10 +17,10 @@ interface Props {
  * Celular: barra fixa embaixo com as telas principais do papel e o botão Menu, que abre um painel
  * com todos os grupos, a ajuda e a conta. O painel fecha ao trocar de tela, ao tocar fora e no Esc.
  */
-export function MobileNav({ role, name, roleLabel, onChangePassword, onLogout }: Props) {
+export function MobileNav({ permissions, name, roleLabel, onChangePassword, onLogout }: Props) {
   const path = useLocation().pathname;
   const [open, setOpen] = useState(false);
-  const primary = primaryFor(role);
+  const primary = primaryFor(permissions);
   // A tela atual está fora da barra? Então o botão Menu fica destacado.
   const elsewhere = !primary.some((i) => isActiveRoute(i, path));
 
@@ -66,7 +66,7 @@ export function MobileNav({ role, name, roleLabel, onChangePassword, onLogout }:
               </button>
             </div>
             <div className="overflow-y-auto px-3 pb-4">
-              <NavGroups role={role} size="touch" onNavigate={() => setOpen(false)} />
+              <NavGroups permissions={permissions} size="touch" onNavigate={() => setOpen(false)} />
             </div>
             <div className="grid grid-cols-3 border-t border-white/[0.08]">
               <Link to="/ajuda" className="flex flex-col items-center gap-1 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-bone/60">
