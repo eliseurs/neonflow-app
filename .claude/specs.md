@@ -2,6 +2,16 @@
 
 ---
 
+## [2026-11-16] — Pedidos do site (API RN-02.33 a 02.37, PR #31 da API)
+
+- Módulo `requests`. Cliente: Minha conta com Meus pedidos; `/minha-conta/pedidos/novo` (aluguel: período → carros livres com a estimativa de `GET /client/cars`; transfer: origem, destino, horário, passageiros e voo; WhatsApp e observações; o código de indicação guardado na visita vai junto); `/minha-conta/pedidos/:id` com a situação, a mensagem da central, o histórico, "Alterar e reenviar" no ajuste e o cancelamento em dois cliques.
+- Central: aba "Pedidos do site" no fim de Operação (a barra do celular não muda), `/pedidos` filtrando Aguardando, Em ajuste, Confirmados e Todos; `/pedidos/:id` com Confirmar (preço no transfer), Pedir ajuste e Recusar (mensagem obrigatória), Avisar no WhatsApp com a mensagem pronta e os atalhos para a ficha do cliente, a reserva ou o transfer criado.
+- Landing: abaixo do formulário do WhatsApp, "Pedir pela minha conta" (PT/EN), que leva ao login e volta ao pedido.
+- Ajuda: artigo novo "Pedidos do site"; "Sua conta no Neon Flow" e "Novidades" atualizados.
+- Testes: modelo, pedido de aluguel e de transfer, ajuste com reenvio e cancelamento, lista e respostas da central. 263 testes.
+
+---
+
 ## [2026-11-16] — Contas de parceiros e clientes (API RN-05.11 a 05.14, PR #30 da API)
 
 - Páginas públicas no visual do login (`AccountShell`), módulo `account`: `/conta/cadastro` (cliente cria a conta), `/conta/confirmar/:token` (confirma uma vez só, por `useQuery`), `/conta/esqueci-senha`, `/conta/nova-senha/:token` e `/conta/convite/:token` (parceiro cria a senha). São as páginas que os e-mails da API abrem (`APP_URL`).

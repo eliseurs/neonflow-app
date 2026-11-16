@@ -1,4 +1,4 @@
-import { CalendarDays, Car, CircleUser, Contact, FileText, Handshake, LayoutDashboard, Plane, ScrollText, ShieldCheck, Users, Wallet, type LucideIcon } from "lucide-react";
+import { CalendarDays, Car, CircleUser, Contact, Inbox, FileText, Handshake, LayoutDashboard, Plane, ScrollText, ShieldCheck, Users, Wallet, type LucideIcon } from "lucide-react";
 import type { Permission } from "@/modules/auth/model/auth.types";
 
 export interface NavItem {
@@ -28,6 +28,7 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
       { to: "/reservas", label: "Reservas", icon: CalendarDays, permission: "operacao" },
       { to: "/transfers", label: "Transfer", icon: Plane, permission: "operacao" },
       { to: "/frota", label: "Frota", icon: Car, permission: "operacao" },
+      { to: "/pedidos", label: "Pedidos do site", icon: Inbox, permission: "operacao" },
     ],
   },
   {

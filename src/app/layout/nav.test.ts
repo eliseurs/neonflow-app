@@ -8,7 +8,7 @@ describe("menu por permissão", () => {
   it("admin vê todos os grupos, na ordem", () => {
     expect(labels("admin")).toEqual([
       ["", ["Visão geral"]],
-      ["Operação", ["Reservas", "Transfer", "Frota"]],
+      ["Operação", ["Reservas", "Transfer", "Frota", "Pedidos do site"]],
       ["Relacionamento", ["Clientes", "Parceiros"]],
       ["Financeiro", ["Repasses"]],
       ["Documentos", ["Contratos", "Termos"]],

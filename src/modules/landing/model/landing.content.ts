@@ -60,6 +60,8 @@ export interface LandingContent {
     notes: string;
     submit: string;
     unavailable: string;
+    /** Convite para pedir pela conta (RN-02.33): o pedido vai direto para a central. */
+    account: { text: string; cta: string };
         message: { greeting: string; service: string; name: string; start: string; end: string; route: string; notes: string; referral: string };
   };
   final: { title: string; titleAccent: string; lead: string; cta: string; back: string };
@@ -207,6 +209,7 @@ export const content: Record<Lang, LandingContent> = {
       route: "Trajeto ou local de retirada",
       notes: "Observações (voo, passageiros, malas)",
       submit: "Enviar pelo WhatsApp",
+      account: { text: "Prefere pedir pelo site? Com a sua conta, você vê os carros livres e o valor, e o pedido vai direto para a central.", cta: "Pedir pela minha conta" },
       unavailable: "O WhatsApp da central ainda está sendo configurado.",
       message: {
         greeting: "Olá! Quero fazer um pedido ao Neon Flow.",
@@ -378,6 +381,7 @@ export const content: Record<Lang, LandingContent> = {
       route: "Route or pick-up location",
       notes: "Notes (flight, passengers, luggage)",
       submit: "Send on WhatsApp",
+      account: { text: "Prefer to request online? With your account you see the available cars and the price, and the request goes straight to our team.", cta: "Request with my account" },
       unavailable: "Our WhatsApp line is still being set up.",
       message: {
         greeting: "Hello! I would like to make a request to Neon Flow.",
