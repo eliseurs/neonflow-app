@@ -6,7 +6,13 @@ import { Button } from "@/shared/ui/Button";
 import { referralLink, type Partner } from "../model/partners.types";
 
 /** Link e QR de indicação do parceiro (RN-07.2). O QR é gerado no navegador, sem serviço externo. */
-export function ReferralCard({ partner }: { partner: Partner }) {
+interface ReferralCardProps {
+  partner: Pick<Partner, "name" | "referral_code">;
+  /** Instrução para a central ("Indicado por"); a área do parceiro não mostra. */
+  centralHint?: boolean;
+}
+
+export function ReferralCard({ partner, centralHint = true }: ReferralCardProps) {
   const link = referralLink(partner.referral_code);
   const [qr, setQr] = useState<string | null>(null);
 
@@ -59,10 +65,16 @@ export function ReferralCard({ partner }: { partner: Partner }) {
           <p className="mt-2 text-sm text-bone/50">Gerando o QR...</p>
         )}
       </div>
-      <p className="text-xs text-bone/45">
-        Quem abrir o link ou ler o QR cai no site, e o código vai na mensagem do WhatsApp ("Indicação: {partner.referral_code}"). Na reserva,
-        escolha este parceiro em "Indicado por".
-      </p>
+      {centralHint ? (
+        <p className="text-xs text-bone/45">
+          Quem abrir o link ou ler o QR cai no site, e o código vai na mensagem do WhatsApp ("Indicação: {partner.referral_code}"). Na reserva,
+          escolha este parceiro em "Indicado por".
+        </p>
+      ) : (
+        <p className="text-xs text-bone/45">
+          Quem abrir o seu link ou ler o QR cai no site do Neon Flow, e a indicação fica com você. A comissão aparece em Minhas indicações.
+        </p>
+      )}
     </div>
   );
 }
