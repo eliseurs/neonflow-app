@@ -395,6 +395,10 @@ export function LandingPage({ initialLang, number = whatsappNumber(), fleetLoade
             </Reveal>
             <Reveal delay={120} className="mt-12">
               <ContactForm content={t.contact} lang={lang} number={number} service={service} onServiceChange={setService} notesPreset={notesPreset} referral={referral} />
+              <p className="mt-6 text-center text-sm text-bone/60">
+                {t.contact.account.text}{" "}
+                <Link to="/minha-conta/pedidos/novo" className="text-gold hover:underline">{t.contact.account.cta} ↗</Link>
+              </p>
             </Reveal>
           </div>
         </section>

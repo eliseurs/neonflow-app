@@ -47,6 +47,7 @@ src/
     customers/                  # clientes: cadastro, busca, histórico, anonimização (RN-04.7, RN-04.8)
     photos/                     # galeria de fotos do veículo e da reserva (bucket privado, ADR-0014)
     terms/                      # termos em versões, link de aceite e página pública do cliente (RN-02.3)
+    requests/                   # pedidos do site: o cliente pede e acompanha; a central confirma, pede ajuste ou recusa (RN-02.33 a 02.37)
     account/                    # cadastro do cliente, confirmação, convite do parceiro, nova senha e Minha conta (RN-05.11 a 05.14)
   shared/
     ui/                         # Brand, Heading (Overline, Accent, SectionHeading, PageHeader), Button, buttonClass, Field, Panel, Badge, Dialog, Reveal
@@ -68,7 +69,9 @@ docs/                           # deploy, qualidade
 | `/login` | LoginPage | pública (redireciona para `/central` se já autenticado) |
 | `/conta/cadastro`, `/conta/esqueci-senha` | SignupPage, ForgotPasswordPage | pública |
 | `/conta/confirmar/:token`, `/conta/nova-senha/:token`, `/conta/convite/:token` | ConfirmEmailPage, ResetPasswordPage, AcceptInvitePage | pública (o código do link é a autorização) |
-| `/minha-conta` | MyAccountPage | `ProtectedRoute` + `area.parceiro` ou `area.cliente` |
+| `/minha-conta` | MyAccountPage (o cliente vê Meus pedidos) | `ProtectedRoute` + `area.parceiro` ou `area.cliente` |
+| `/minha-conta/pedidos/novo`, `/minha-conta/pedidos/:id` | NewRequestPage, MyRequestPage | `ProtectedRoute` + `area.cliente` |
+| `/pedidos`, `/pedidos/:id` | RequestsPage, RequestPage | `ProtectedRoute` + `operacao` |
 | `/central` | DashboardPage | `ProtectedRoute` |
 | `/frota` | FleetPage | `ProtectedRoute` |
 | `/reservas` | BookingsPage | `ProtectedRoute` |

@@ -1,14 +1,14 @@
 import { profileFor } from "@/app/layout/profiles";
 import { useAuthStore } from "@/modules/auth/store/auth.store";
+import { MyRequests } from "@/modules/requests/components/MyRequests";
 import { PageHeader } from "@/shared/ui/Heading";
 import { Panel } from "@/shared/ui/Panel";
 
 const NEXT: Record<string, string> = {
   parceiro: "Em breve você acompanha aqui o que é seu: carros, corridas, indicações e repasses.",
-  cliente: "Em breve você acompanha aqui as suas reservas e os seus transfers.",
 };
 
-/** Início de parceiros e clientes enquanto as áreas próprias não chegam. Trocar a senha e sair ficam no topo. */
+/** Início de parceiros e clientes: o cliente vê e faz os pedidos aqui; a área do parceiro ainda vem. Trocar a senha e sair ficam no topo. */
 export function MyAccountPage() {
   const user = useAuthStore((s) => s.user);
   if (!user) return null;
@@ -20,6 +20,7 @@ export function MyAccountPage() {
         <p className="text-sm text-bone/60">{user.email}</p>
       </Panel>
       {NEXT[user.role] && <p className="text-sm text-bone/70">{NEXT[user.role]}</p>}
+      {user.role === "cliente" && <MyRequests />}
     </section>
   );
 }

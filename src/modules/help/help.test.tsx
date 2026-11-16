@@ -48,9 +48,11 @@ describe("central de ajuda: cobertura", () => {
 describe("central de ajuda: acesso e contexto", () => {
   it("cada papel vê só os artigos dos fluxos que usa", () => {
     expect(articlesFor("central").map((a) => a.slug)).toEqual([
-      "visao-geral", "reservas", "transfer", "frota", "clientes-parceiros", "repasses", "usuarios", "novidades",
+      "visao-geral", "reservas", "transfer", "frota", "pedidos", "clientes-parceiros", "repasses", "usuarios", "novidades",
     ]);
     expect(articlesFor("legal_reviewer").map((a) => a.slug)).toEqual(["contratos", "usuarios", "novidades"]);
+    expect(articlesFor("cliente").map((a) => a.slug)).toEqual(["minha-conta"]);
+    expect(articlesFor("parceiro").map((a) => a.slug)).toEqual(["minha-conta"]);
     expect(articlesFor(undefined)).toEqual([]);
   });
 

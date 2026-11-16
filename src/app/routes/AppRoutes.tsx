@@ -30,6 +30,10 @@ import { ForgotPasswordPage } from "@/modules/account/pages/ForgotPasswordPage";
 import { MyAccountPage } from "@/modules/account/pages/MyAccountPage";
 import { ResetPasswordPage } from "@/modules/account/pages/ResetPasswordPage";
 import { SignupPage } from "@/modules/account/pages/SignupPage";
+import { MyRequestPage } from "@/modules/requests/pages/MyRequestPage";
+import { NewRequestPage } from "@/modules/requests/pages/NewRequestPage";
+import { RequestPage } from "@/modules/requests/pages/RequestPage";
+import { RequestsPage } from "@/modules/requests/pages/RequestsPage";
 
 export function AppRoutes() {
   return (
@@ -60,6 +64,8 @@ export function AppRoutes() {
             <Route path="/transfers/:id" element={<TransferDetailPage />} />
             <Route path="/clientes" element={<CustomersPage />} />
             <Route path="/clientes/:id" element={<CustomerDetailPage />} />
+            <Route path="/pedidos" element={<RequestsPage />} />
+            <Route path="/pedidos/:id" element={<RequestPage />} />
           </Route>
           <Route element={<RequirePermission permission="contratos" />}>
             <Route path="/contratos" element={<ContractsPage />} />
@@ -76,6 +82,10 @@ export function AppRoutes() {
           </Route>
           <Route element={<RequirePermission permission={["area.parceiro", "area.cliente"]} />}>
             <Route path="/minha-conta" element={<MyAccountPage />} />
+          </Route>
+          <Route element={<RequirePermission permission="area.cliente" />}>
+            <Route path="/minha-conta/pedidos/novo" element={<NewRequestPage />} />
+            <Route path="/minha-conta/pedidos/:id" element={<MyRequestPage />} />
           </Route>
           <Route path="/ajuda" element={<HelpPage />} />
           <Route path="/ajuda/:slug" element={<HelpArticlePage />} />
